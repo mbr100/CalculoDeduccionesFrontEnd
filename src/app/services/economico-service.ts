@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {environment} from '../../environments/environment';
-import {EcnomicoListadoGeneralDto} from '../models/empresa';
+import {ActualizarDatosEconomicoDTO, EcnomicoListadoGeneralDto, EconomicoDto, nuevoEconomicoDto} from '../models/economico';
 import {Observable} from 'rxjs';
 import {PaginacionResponse} from '../models/paginacion-response';
 
@@ -14,14 +14,31 @@ export class EconomicoService {
 
     constructor(private http: HttpClient) {}
 
-    public getEmpresasListadoGeneral(): Observable<PaginacionResponse<EcnomicoListadoGeneralDto>> {
-        return this.http.get<PaginacionResponse<EcnomicoListadoGeneralDto>>(`${this.baseUrl}/${this.apiEconomicos}`);
+    public getEconomicosListadoGeneral(page: number = 0, size: number = 10): Observable<PaginacionResponse<EcnomicoListadoGeneralDto>> {
+        let params = new HttpParams().set('page', page.toString()).set('size', size.toString()).append('sort', 'nombre,asc');
+        return this.http.get<PaginacionResponse<EcnomicoListadoGeneralDto>>(`${this.baseUrl}/${this.apiEconomicos}`, { params });
     }
 
     public eliminarEconomico(economico: EcnomicoListadoGeneralDto): Observable<EcnomicoListadoGeneralDto> {
         console.log("Eliminando economico:", economico);
         return this.http.delete<EcnomicoListadoGeneralDto>(`${this.baseUrl}/${this.apiEconomicos}`, {
             body: economico
+        });
+    }
+
+    public crearEconomico(data: nuevoEconomicoDto): Observable<EcnomicoListadoGeneralDto> {
+        return this.http.post<EcnomicoListadoGeneralDto>(`${this.baseUrl}/${this.apiEconomicos}`, data, {
+            headers: {'Content-Type': 'application/json'}
+        });
+    }
+
+    public getEconomicoById(id: number): Observable<EconomicoDto> {
+        return this.http.get<EconomicoDto>(`${this.baseUrl}/${this.apiEconomicos}/${id}`);
+    }
+
+    public actualizarEconomico(updatedEconomico: ActualizarDatosEconomicoDTO):Observable<EconomicoDto> {
+        return this.http.put<EconomicoDto>(`${this.baseUrl}/${this.apiEconomicos}/actualizar`, updatedEconomico, {
+            headers: {'Content-Type': 'application/json'}
         });
     }
 }

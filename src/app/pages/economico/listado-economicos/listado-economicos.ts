@@ -1,5 +1,5 @@
 import {Component, inject, OnInit, signal, WritableSignal} from '@angular/core';
-import {EcnomicoListadoGeneralDto} from '../../../models/empresa';
+import {EcnomicoListadoGeneralDto} from '../../../models/economico';
 import {EconomicoService} from '../../../services/economico-service';
 import {ReactiveFormsModule} from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -22,44 +22,35 @@ export class ListadoEconomicos implements OnInit {
     public currentPage: WritableSignal<number> = signal<number>(1);
     public totalPages: WritableSignal<number> = signal<number>(2);
     public totalelements: WritableSignal<number> = signal<number>(0);
-    // public searchTerm: WritableSignal<string> = signal<string>(''); // Corregido: string en minúscula
 
-    private empresaService: EconomicoService = inject(EconomicoService);
+    private economicoService: EconomicoService = inject(EconomicoService);
     private router: Router = inject(Router);
 
     public ngOnInit(): void {
-        this.loadData();
+        this.loadDataWithPagination();
     }
 
-    // // Computed signal para datos filtrados y ordenados - MEJORADO CON VALIDACIÓN
-    // public filteredEconomicos: Signal<EcnomicoListadoGeneralDto[]> = computed((): EcnomicoListadoGeneralDto[] => {
-    //     return this.economicos().filter((economico) => {
-    //         // Validación de datos antes de aplicar el filtro
-    //         if (!economico || !economico.nombre || !economico.anualidad) {
-    //             console.warn('Datos incompletos para el económico:', economico);
-    //             return false; // Excluir este elemento del filtro
-    //         }
-    //         const searchTerm = this.searchTerm().toLowerCase();
-    //         return economico.nombre.toLowerCase().includes(searchTerm) ||
-    //                economico.anualidad.toString().toLowerCase().includes(searchTerm);
-    //
-    //     })
-    // });
-
-    public loadData(): void {
+    private loadDataWithPagination(): void {
         this.loading.set(true);
         this.error.set('');
 
-        this.empresaService.getEmpresasListadoGeneral().subscribe({
+        // Ajustar para que la página comience desde 0 en el backend
+        const pageForBackend = this.currentPage() - 1;
+
+        this.economicoService.getEconomicosListadoGeneral(pageForBackend, this.pagesize()).subscribe({
             next: (data: PaginacionResponse<EcnomicoListadoGeneralDto>) => {
                 console.log('Datos recibidos:', data);
-                this.economicos.set(data.content)
+                this.economicos.set(data.content);
                 this.loading.set(false);
+                this.totalelements.set(data.totalElements);
+                this.totalPages.set(data.totalPages);
+                this.currentPage.set(data.number + 1); // Ajustar para que sea base 1
+                this.pagesize.set(data.size);
             },
             error: (error) => {
                 console.error('Error fetching economic listings:', error);
                 this.error.set('Error al cargar los datos de empresas');
-                this.economicos.set([]); // Asegurar que sea un array vacío
+                this.economicos.set([]);
                 this.loading.set(false);
             },
             complete: () => {
@@ -68,32 +59,20 @@ export class ListadoEconomicos implements OnInit {
         });
     }
 
-    // Metodo para actualizar el término de búsqueda
-    // public onSearchChange(event: Event): void {
-    //     const target = event.target as HTMLInputElement;
-    //     this.searchTerm.set(target.value);
-    // }
-
-    // Métodos para ordenar datos
-
-    // public sortData(column: string): void {
-    //     if (this.sortColumn() === column) {
-    //         this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
-    //     } else {
-    //         this.sortColumn.set(column);
-    //         this.sortDirection.set('asc');
-    //     }
-    // }
-
     // Métodos para acciones
     public verEconomico(empresa: EcnomicoListadoGeneralDto): void {
         console.log('Ver empresa:', empresa);
         // Implementar navegación o modal para ver detalles
-    }
-
-    public editarEconomico(empresa: EcnomicoListadoGeneralDto): void {
-        console.log('Editar empresa:', empresa);
-        // Implementar navegación a formulario de edición
+        this.economicoService.getEconomicoById(empresa.id).subscribe({
+            next: (data) => {
+                console.log('Detalles del económico:', data);
+                this.router.navigate(['/economico/ver/', empresa.id]).then();
+            },
+            error: (error) => {
+                console.error('Error al obtener detalles del económico:', error);
+                Swal.fire('Error', 'No se pudieron cargar los detalles del económico.', 'error').then();
+            }
+        });
     }
 
     public eliminarEconomico(economico: EcnomicoListadoGeneralDto): void {
@@ -106,7 +85,7 @@ export class ListadoEconomicos implements OnInit {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                this.empresaService.eliminarEconomico(economico).subscribe({
+                this.economicoService.eliminarEconomico(economico).subscribe({
                     next: () => {
                         Swal.fire('Eliminado', `El económico ${economico.nombre} - ${economico.anualidad} ha sido eliminado.`, 'success')
                             .then(_ =>  this.refreshData());
@@ -121,11 +100,84 @@ export class ListadoEconomicos implements OnInit {
         })
     }
 
-    public refreshData(): void {
-        this.loadData();
-    }
-
     public nuevoEconomico(): void {
         this.router.navigate(['/nuevoEconomico']).then();
+    }
+
+    public changePageSize(event: Event): void {
+        const target = event.target as HTMLSelectElement;
+        const newSize = parseInt(target.value, 10);
+        this.pagesize.set(newSize);
+        this.currentPage.set(1); // Volver a la primera página
+        this.loadDataWithPagination();
+    }
+
+    public nextPage(): void {
+        if (this.currentPage() < this.totalPages()) {
+            this.currentPage.set(this.currentPage() + 1);
+            this.loadDataWithPagination();
+        }
+    }
+
+    public previousPage(): void {
+        if (this.currentPage() > 1) {
+            this.currentPage.set(this.currentPage() - 1);
+            this.loadDataWithPagination();
+        }
+    }
+
+    public goToPage(page: number): void {
+        if (page >= 1 && page <= this.totalPages() && page !== this.currentPage()) {
+            this.currentPage.set(page);
+            this.loadDataWithPagination();
+        }
+    }
+
+    public getStartElement(): number {
+        return (this.currentPage() - 1) * this.pagesize() + 1;
+    }
+
+    public getEndElement(): number {
+        const end = this.currentPage() * this.pagesize();
+        return Math.min(end, this.totalelements());
+    }
+
+    public getVisiblePages(): number[] {
+        const current = this.currentPage();
+        const total = this.totalPages();
+        const pages: number[] = [];
+
+        if (total <= 5) {
+            // Si hay 5 páginas o menos, mostrar todas
+            for (let i = 1; i <= total; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Mostrar 5 páginas alrededor de la actual
+            let start = Math.max(1, current - 2);
+            let end = Math.min(total, current + 2);
+
+            // Ajustar si estamos cerca del inicio
+            if (current <= 3) {
+                start = 1;
+                end = 5;
+            }
+
+            // Ajustar si estamos cerca del final
+            if (current >= total - 2) {
+                start = total - 4;
+                end = total;
+            }
+
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+        }
+
+        return pages;
+    }
+
+    public refreshData(): void {
+        this.loadDataWithPagination();
     }
 }

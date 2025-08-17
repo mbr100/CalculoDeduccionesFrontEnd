@@ -4,27 +4,12 @@
     <div class="mb-6">
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-3xl font-bold text-gray-900">Listado de Economicos</h1>
-            <button
-                (click)="refreshData()"
-                [disabled]="loading()"
-                class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
-                <svg class="w-4 h-4" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
+            <button (click)="refreshData()" [disabled]="loading()" class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
                 {{ loading() ? 'Cargando...' : 'Actualizar' }}
             </button>
         </div>
 
-        <!-- Barra de búsqueda -->
-<!--        <div class="mb-4">-->
-<!--            <div class="relative">-->
-<!--                <input type="text" [value]="searchTerm()" (input)="onSearchChange($event)" placeholder="Buscar por nombre"-->
-<!--                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">-->
-<!--                <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"  stroke="currentColor" viewBox="0 0 24 24">-->
-<!--                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>-->
-<!--                </svg>-->
-<!--            </div>-->
-<!--        </div>-->
     </div>
 
     <!-- Mensaje de error -->
@@ -44,12 +29,24 @@
     <!-- Tabla de datos -->
     @if (!loading()) {
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <!-- Información de resultados -->
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <p class="text-sm text-gray-600">
-<!--                    Mostrando {{ filteredEconomicos().length }} de {{ economicos().length }} empresas-->
-                    Mostrando {{economicos().length}} economicos
-                </p>
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <p class="text-sm text-gray-600">
+                        Mostrando la página {{currentPage()}} de {{ totalPages() }} ({{ totalelements() }} elementos en total)
+                    </p>
+
+                    <!-- Selector de tamaño de página -->
+                    <div class="flex items-center gap-2">
+                        <label for="pageSize" class="text-sm text-gray-600">Elementos por página:</label>
+                        <select id="pageSize" [value]="pagesize()" (change)="changePageSize($event)" class="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <!-- Tabla -->
@@ -66,13 +63,11 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                             <div class="flex items-center gap-1">
                                 CIF
-
                             </div>
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                             <div class="flex items-center gap-1">
                                 CNAE
-
                             </div>
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" >
@@ -92,7 +87,7 @@
 
                     <!-- Body de la tabla -->
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @for (economico of economicos(); track economico.cif) {
+                        @for (economico of economicos(); track economico.id) {
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900">{{ economico.nombre }}</div>
@@ -107,11 +102,7 @@
                                     <div class="text-sm text-gray-900">{{ economico.anualidad }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                                  [class.bg-green-100]="economico.esPyme"
-                                  [class.text-green-800]="economico.esPyme"
-                                  [class.bg-gray-100]="!economico.esPyme"
-                                  [class.text-gray-800]="!economico.esPyme">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class.bg-green-100]="economico.esPyme" [class.text-green-800]="economico.esPyme" [class.bg-gray-100]="!economico.esPyme" [class.text-gray-800]="!economico.esPyme">
                                 {{ economico.esPyme ? 'Sí' : 'No' }}
                             </span>
                                 </td>
@@ -119,56 +110,102 @@
                                     <div class="flex justify-center space-x-2">
                                         <!-- Botón Ver -->
                                         <button (click)="verEconomico(economico)" class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 rounded-full transition-colors" title="Ver detalles">
-                                            <svg class="w-4 h-4"  stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                            </svg>
+                                            <i class="fa fa-eye" aria-hidden="true"></i>
                                         </button>
-
-                                        <!-- Botón Editar -->
-                                        <button (click)="editarEconomico(economico)" class="text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50 p-2 rounded-full transition-colors" title="Editar">
-                                            <svg class="w-4 h-4"  stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                            </svg>
-                                        </button>
-
                                         <!-- Botón Eliminar -->
                                         <button (click)="eliminarEconomico(economico)" class="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-full transition-colors" title="Eliminar">
-                                            <svg class="w-4 h-4"  stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
                         }
-
-                    <!-- Mensaje cuando no hay datos -->
-                        <!--@if (economicos().length === 0 && !loading()) {
-                            <tr>
-                                <td colspan="6" class="px-6 py-12 text-center">
-                                    <div class="text-gray-500">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                        <p class="text-lg font-medium">No se encontraron empresas</p>
-                                        <p class="text-sm">{{ searchTerm() ? 'Intente ajustar los filtros de búsqueda' : 'No hay datos disponibles' }}</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        }-->
                     </tbody>
                 </table>
             </div>
         </div>
-        <!-- Botón Añadir Empresa -->
+
+        @if (totalPages() > 1) {
+            <div class="bg-white px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                <!-- Información de página en móvil -->
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <button (click)="previousPage()" [disabled]="currentPage() <= 1"
+                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
+                        Anterior
+                    </button>
+                    <button
+                        (click)="nextPage()"
+                        [disabled]="currentPage() >= totalPages()"
+                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
+                        Siguiente
+                    </button>
+                </div>
+
+                <!-- Paginación completa para desktop -->
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Mostrando elementos del
+                            <span class="font-medium">{{ getStartElement() }}</span>
+                            al
+                            <span class="font-medium">{{ getEndElement() }}</span>
+                            de
+                            <span class="font-medium">{{ totalelements() }}</span>
+                        </p>
+                    </div>
+
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <!-- Botón Primera página -->
+                            <button
+                                (click)="goToPage(1)"
+                                [disabled]="currentPage() <= 1"
+                                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                title="Primera página">
+                                <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+                            </button>
+                            <!-- Botón Página anterior -->
+                            <button
+                                (click)="previousPage()"
+                                [disabled]="currentPage() <= 1"
+                                class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                title="Página anterior">
+                                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                            </button>
+
+                            <!-- Números de página -->
+                            @for (page of getVisiblePages(); track page) {
+                                <button (click)="goToPage(page)" [class.bg-blue-50]="page === currentPage()" [class.border-blue-500]="page === currentPage()"
+                                        [class.text-blue-600]="page === currentPage()" [class.bg-white]="page !== currentPage()" [class.border-gray-300]="page !== currentPage()"
+                                        [class.text-gray-500]="page !== currentPage()" class="relative inline-flex items-center px-4 py-2 border text-sm font-medium hover:bg-gray-50">
+                                    {{ page }}
+                                </button>
+                            }
+
+                            <!-- Botón Página siguiente -->
+                            <button (click)="nextPage()" [disabled]="currentPage() >= totalPages()" class="relative inline-flex items-center px-2 py-2 border border-gray-300
+                            bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                    title="Página siguiente">
+                                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                            </button>
+
+                            <!-- Botón Última página -->
+                            <button
+                                (click)="goToPage(totalPages())"
+                                [disabled]="currentPage() >= totalPages()"
+                                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                title="Última página">
+                                <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        }
+        <!-- Botón Añadir Economico -->
         <div class="mt-6 flex justify-end">
             <button (click)="nuevoEconomico()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors shadow-lg hover:shadow-xl">
-                <svg class="w-5 h-5"  stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Añadir Economico
+                <i class="fa fa-plus" aria-hidden="true"></i> Añadir Economico
             </button>
         </div>
     }
