@@ -18,7 +18,6 @@ import Swal from 'sweetalert2';
 })
 export class ListadoPersonal implements OnInit {
     private economicoPersonalService: EconomicoPersonalService = inject(EconomicoPersonalService);
-    private route: ActivatedRoute = inject(ActivatedRoute);
 
     @ViewChild('fileInput') public fileInput!: ElementRef<HTMLInputElement>;
     // ID del económico
@@ -49,7 +48,6 @@ export class ListadoPersonal implements OnInit {
     public personalForm: FormGroup;
 
     // URL base de la API (ajustar según tu configuración)
-    private apiUrl: string = environment.apiPersonal;
 
     constructor(private fb: FormBuilder, private http: HttpClient) {
         this.personalForm = this.fb.group({
@@ -395,10 +393,6 @@ export class ListadoPersonal implements OnInit {
         formData.append('file', file);
 
         try {
-            await firstValueFrom(
-                this.http.post(`${this.apiUrl}/upload`, formData)
-            );
-
             this.cerrarModalFichero();
             this.loadData();
         } catch (err: any) {

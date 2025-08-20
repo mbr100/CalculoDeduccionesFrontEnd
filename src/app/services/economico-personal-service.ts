@@ -62,4 +62,15 @@ export class EconomicoPersonalService {
         });
     }
 
+    public getAltaPersonalEconomico(idEconomico: number): Observable<PaginacionResponse<AltaEjercicioDTO>> {
+        return this.http.get<PaginacionResponse<AltaEjercicioDTO>>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/alta-ejercicio`, {
+            headers: {'Content-Type': 'application/json'}
+        });
+    }
+
+   public actualizarAltaEjercicio(actualizacion: actualizarAltaEjercicioDTO) {
+        return this.http.put<void>(`${this.baseUrl}/${this.apiPersonal}/alta-ejercicio`, actualizacion, {
+            headers: {'Content-Type': 'application/json'}
+        });
+    }
 }

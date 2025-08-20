@@ -3,14 +3,12 @@
         <!-- Navegación del sidebar -->
         <nav class="space-y-2 flex-1">
             <!-- Botón Economico -->
-            <button (click)="goToEconomico()" title="Economico"
-                    class="w-12 h-12 flex items-center justify-center text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200">
+            <button (click)="goToEconomico()" title="Economico" [class]="getButtonClass('economico')">
                 <i class="fas fa-coins text-blue-500"></i>
             </button>
 
             <!-- Botón Personal -->
-            <button (click)="goToPersonal()" title="Personal"
-                    class="w-12 h-12 flex items-center justify-center text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200">
+            <button (click)="goToPersonal()" title="Personal" [class]="getButtonClass('personal')">
                 <i class="fas fa-users text-lg text-blue-500"></i>
             </button>
         </nav>

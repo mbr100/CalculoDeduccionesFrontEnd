@@ -4,6 +4,7 @@ import {ActivatedRoute} from '@angular/router';
 import {Sidebar} from '../../../components/personal/sidebar/sidebar';
 import {RetribucionesPersonal} from '../retribuciones-personal/retribuciones-personal';
 import {BasesCotizacionPersonal} from '../bases-cotizacion-personal/bases-cotizacion-personal';
+import {AltaEjercicioPersonal} from '../alta-ejercicio-personal/alta-ejercicio-personal';
 
 @Component({
   selector: 'app-personal-economico',
@@ -12,7 +13,8 @@ import {BasesCotizacionPersonal} from '../bases-cotizacion-personal/bases-cotiza
         Sidebar,
         RetribucionesPersonal,
         BasesCotizacionPersonal,
-        RetribucionesPersonal
+        RetribucionesPersonal,
+        AltaEjercicioPersonal
     ],
   templateUrl: './personal-economico.html',
   styleUrl: './personal-economico.css'
@@ -27,8 +29,8 @@ export class PersonalEconomico {
         { id: 'personal', label: 'Personal', icon: 'fas fa-user' },
         { id: 'retribuciones', label: 'Retribuciones', icon: 'fas fa-sack-dollar' },
         { id: 'rnts', label: 'RNTs', icon: 'fas fa-file-invoice' },
-        { id: 'bajas', label: 'Bajas', icon: 'fas fa-user-injured' },
         { id: 'altas', label: 'Alta en ejercicio', icon: 'fas fa-calendar' },
+        { id: 'bajas', label: 'Bajas', icon: 'fas fa-user-injured' },
         { id: 'bonificaciones', label: 'Bonificaciones', icon: 'fas fa-percent' },
     ] as const;
 

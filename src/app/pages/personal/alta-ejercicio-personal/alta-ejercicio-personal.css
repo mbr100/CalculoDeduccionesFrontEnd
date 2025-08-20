@@ -1,0 +1,37 @@
+/* Zoom solo para la tabla */
+.tabla-container {
+    zoom: 0.75;
+}
+
+/* Mejoras adicionales para mejor visualización */
+.tabla-responsiva {
+    min-width: 1000px; /* Ancho mínimo reducido */
+}
+
+/* Scrollbar personalizado para mejor UX */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Estilos para campos de fecha */
+.campo-fecha {
+    min-width: 140px;
+}
+
+.campo-horas {
+    min-width: 120px;
+}

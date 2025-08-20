@@ -70,3 +70,21 @@ interface BbccPersonalDTO {
     basesCotizacionContingenciasComunesNoviembre: number | null;
     basesCotizacionContingenciasComunesDiciembre: number | null;
 }
+
+interface AltaEjercicioDTO {
+    idPersona: number;
+    nombre: string;
+    dni: string;
+    idAltaEjercicio: number;
+    fechaAltaEjercicio: Date;
+    fechaBajaEjercicio: Date;
+    horasConvenioAnual: number;
+    horasMaximasAnuales: number;
+}
+
+interface actualizarAltaEjercicioDTO {
+    idAltaEjercicio: number;
+    campoActualizado: keyof AltaEjercicioDTO;
+    valor: Date | number;
+}
+
