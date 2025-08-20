@@ -1,0 +1,71 @@
+<div class="w-full h-screen flex">
+    <!-- Sidebar -->
+    <app-sidebar [idEconomico]="this.economicoId" ></app-sidebar>
+
+    <!-- Contenido principal -->
+    <div class="flex-1 flex flex-col p-4">
+        <!-- Navegación de pestañas -->
+        <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-6 w-full">
+            @for (tab of tabs; track tab.id) {
+                <button (click)="setActiveTab(tab.id)" [class]="getTabButtonClass(tab.id)">
+                    <i [class]="tab.icon" class="mr-2"></i>
+                    <span>{{ tab.label }}</span>
+                </button>
+            }
+        </div>
+
+        <!-- Contenido de las pestañas -->
+        <div class="bg-gray-50 rounded-lg p-6 flex-1 w-full overflow-auto">
+
+            <!-- PESTAÑA PERSONAL -->
+            @if (activeTab() === 'personal') {
+                <app-listado-personal [idEconomico]="this.economicoId"></app-listado-personal>
+            }
+
+            <!-- PESTAÑA PROYECTOS -->
+            @if (activeTab() === 'retribuciones') {
+                <app-retribuciones-personal [idEconomico]="this.economicoId"></app-retribuciones-personal>
+            }
+
+            <!-- PESTAÑA CONFIGURACIÓN -->
+            @if (activeTab() === 'rnts') {
+                <app-bases-cotizacion-personal [idEconomico]="this.economicoId"></app-bases-cotizacion-personal>
+            }
+
+            <!-- PESTAÑA REPORTES -->
+            @if (activeTab() === 'altas') {
+
+            }
+
+            <!-- PESTAÑA REPORTES -->
+            @if (activeTab() === 'bajas') {
+
+            }
+
+            <!-- PESTAÑA REPORTES -->
+            @if (activeTab() === 'bonificaciones') {
+
+            }
+        </div>
+    </div>
+</div>
+
+<!--            &lt;!&ndash; PESTAÑA REPORTES &ndash;&gt;-->
+<!--            @if (activeTab() === 'bonificaciones') {-->
+<!--                <div class="tab-panel animate-fade-in">-->
+<!--                    &lt;!&ndash;-->
+<!--                      🔥 AQUÍ INSERTA TU COMPONENTE DE REPORTES-->
+<!--                      Ejemplo: <app-reportes-component />-->
+<!--                    &ndash;&gt;-->
+<!--                    <div class="text-center py-16">-->
+<!--                        <div class="mb-4">-->
+<!--                            <i class="fas fa-chart-bar text-6xl text-orange-500"></i>-->
+<!--                        </div>-->
+<!--                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Sección Reportes</h2>-->
+<!--                        <p class="text-gray-600">Reemplaza este contenido con tu componente de reportes</p>-->
+<!--                        <div class="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg max-w-md mx-auto">-->
+<!--                            <code class="text-sm text-orange-800">&lt;app-reportes-component /&gt;</code>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            }-->

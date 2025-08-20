@@ -1,0 +1,486 @@
+<!-- listado-personal-economico.component.html -->
+
+<!-- Contenedor principal -->
+<div class="p-6 bg-gray-50 min-h-screen">
+    <!-- Header con título y botones -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-3xl font-bold text-gray-900">Listado de Personal Económico</h1>
+            <div class="flex gap-3">
+                <!-- Botón subir fichero -->
+                <button (click)="abrirModalSubirFichero()"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                    <i class="fa fa-upload" aria-hidden="true"></i>
+                    Subir Fichero
+                </button>
+                <!-- Botón actualizar -->
+                <button (click)="refreshData()"
+                        [disabled]="loading()"
+                        class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                    {{ loading() ? 'Cargando...' : 'Actualizar' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensaje de error -->
+    @if (error()) {
+        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+            {{ error() }}
+        </div>
+    }
+
+    <!-- Loading spinner -->
+    @if (loading()) {
+        <div class="flex justify-center items-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+    }
+
+    <!-- Tabla de datos -->
+    @if (!loading()) {
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <p class="text-sm text-gray-600">
+                        Mostrando la página {{currentPage()}} de {{ totalPages() }} ({{ totalelements() }} elementos en total)
+                    </p>
+
+                    <!-- Selector de tamaño de página -->
+                    <div class="flex items-center gap-2">
+                        <label for="pageSize" class="text-sm text-gray-600">Elementos por página:</label>
+                        <select id="pageSize"
+                                [value]="pagesize()"
+                                (change)="changePageSize($event)"
+                                class="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <!-- Header de la tabla -->
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center gap-1">
+                                Nombre Completo
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center gap-1">
+                                DNI
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center gap-1">
+                                Puesto
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center gap-1">
+                                Departamento
+                            </div>
+                        </th><th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center gap-1">
+                                Titulacion 1
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Investigador
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acciones
+                        </th>
+                    </tr>
+                    </thead>
+
+                    <!-- Body de la tabla -->
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @for (personal of personalList(); track personal.idPersona) {
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ personal.nombre }} {{ personal.apellidos }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900 font-mono">{{ personal.dni }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ personal.puesto }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ personal.departamento }}</div>
+                                </td><td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ personal.titulacion1 }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                                          [class.bg-green-100]="personal.esPersonalInvestigador"
+                                          [class.text-green-800]="personal.esPersonalInvestigador"
+                                          [class.bg-gray-100]="!personal.esPersonalInvestigador"
+                                          [class.text-gray-800]="!personal.esPersonalInvestigador">
+                                        {{ personal.esPersonalInvestigador ? 'Sí' : 'No' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <div class="flex justify-center space-x-2">
+                                        <!-- Botón Editar -->
+                                        <button (click)="editarPersonal(personal)"
+                                                class="text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50 p-2 rounded-full transition-colors"
+                                                title="Editar">
+                                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                                        </button>
+                                        <!-- Botón Eliminar -->
+                                        <button (click)="eliminarPersonal(personal)"
+                                                class="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-full transition-colors"
+                                                title="Eliminar">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        @if (totalPages() > 1) {
+            <div class="bg-white px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                <!-- Información de página en móvil -->
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <button (click)="previousPage()"
+                            [disabled]="currentPage() <= 1"
+                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
+                        Anterior
+                    </button>
+                    <button (click)="nextPage()"
+                            [disabled]="currentPage() >= totalPages()"
+                            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
+                        Siguiente
+                    </button>
+                </div>
+
+                <!-- Paginación completa para desktop -->
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Mostrando elementos del
+                            <span class="font-medium">{{ getStartElement() }}</span>
+                            al
+                            <span class="font-medium">{{ getEndElement() }}</span>
+                            de
+                            <span class="font-medium">{{ totalelements() }}</span>
+                        </p>
+                    </div>
+
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <!-- Botón Primera página -->
+                            <button (click)="goToPage(1)"
+                                    [disabled]="currentPage() <= 1"
+                                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                    title="Primera página">
+                                <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+                            </button>
+
+                            <!-- Botón Página anterior -->
+                            <button (click)="previousPage()"
+                                    [disabled]="currentPage() <= 1"
+                                    class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                    title="Página anterior">
+                                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                            </button>
+
+                            <!-- Números de página -->
+                            @for (page of getVisiblePages(); track page) {
+                                <button (click)="goToPage(page)"
+                                        [class.bg-blue-50]="page === currentPage()"
+                                        [class.border-blue-500]="page === currentPage()"
+                                        [class.text-blue-600]="page === currentPage()"
+                                        [class.bg-white]="page !== currentPage()"
+                                        [class.border-gray-300]="page !== currentPage()"
+                                        [class.text-gray-500]="page !== currentPage()"
+                                        class="relative inline-flex items-center px-4 py-2 border text-sm font-medium hover:bg-gray-50">
+                                    {{ page }}
+                                </button>
+                            }
+
+                            <!-- Botón Página siguiente -->
+                            <button (click)="nextPage()"
+                                    [disabled]="currentPage() >= totalPages()"
+                                    class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                    title="Página siguiente">
+                                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                            </button>
+
+                            <!-- Botón Última página -->
+                            <button (click)="goToPage(totalPages())"
+                                    [disabled]="currentPage() >= totalPages()"
+                                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                    title="Última página">
+                                <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Botón Añadir Personal -->
+        <div class="mt-6 flex justify-end">
+            <button (click)="nuevoPersonal()"
+                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors shadow-lg hover:shadow-xl">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                Añadir Personal
+            </button>
+        </div>
+    }
+</div>
+
+<!-- Modal Crear/Editar Personal -->
+@if (mostrarModal()) {
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" (click)="cerrarModal()">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white" (click)="$event.stopPropagation()">
+
+            <!-- Header del modal -->
+            <div class="flex justify-between items-center pb-3 border-b">
+                <h3 class="text-xl font-bold text-gray-900">
+                    {{ personalSeleccionado()?.idPersona ? 'Editar Personal' : 'Nuevo Personal' }}
+                </h3>
+                <button (click)="cerrarModal()"
+                        class="text-gray-400 hover:text-gray-600">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Formulario -->
+            <form [formGroup]="personalForm" (ngSubmit)="guardarPersonal()" class="mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <!-- Nombre -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Nombre <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text"
+                               formControlName="nombre"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Nombre">
+                        @if (personalForm.get('nombre')?.invalid && personalForm.get('nombre')?.touched) {
+                            <p class="mt-1 text-sm text-red-600">El nombre es requerido</p>
+                        }
+                    </div>
+
+                    <!-- Apellidos -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Apellidos <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text"
+                               formControlName="apellidos"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Apellidos">
+                        @if (personalForm.get('apellidos')?.invalid && personalForm.get('apellidos')?.touched) {
+                            <p class="mt-1 text-sm text-red-600">Los apellidos son requeridos</p>
+                        }
+                    </div>
+
+                    <!-- DNI -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            DNI <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text"
+                               formControlName="dni"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="12345678A">
+                        @if (personalForm.get('dni')?.invalid && personalForm.get('dni')?.touched) {
+                            <p class="mt-1 text-sm text-red-600">El DNI es requerido</p>
+                        }
+                    </div>
+
+                    <!-- Puesto -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Puesto <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text"
+                               formControlName="puesto"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Puesto de trabajo">
+                        @if (personalForm.get('puesto')?.invalid && personalForm.get('puesto')?.touched) {
+                            <p class="mt-1 text-sm text-red-600">El puesto es requerido</p>
+                        }
+                    </div>
+
+                    <!-- Departamento -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Departamento <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text"
+                               formControlName="departamento"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Departamento">
+                        @if (personalForm.get('departamento')?.invalid && personalForm.get('departamento')?.touched) {
+                            <p class="mt-1 text-sm text-red-600">El departamento es requerido</p>
+                        }
+                    </div>
+
+                    <!-- Titulaciones -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Titulaciones
+                        </label>
+                        <div class="space-y-2">
+                            <input type="text"
+                                   formControlName="titulacion1"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Titulación 1">
+                            <input type="text"
+                                   formControlName="titulacion2"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Titulación 2">
+                            <input type="text"
+                                   formControlName="titulacion3"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Titulación 3">
+                            <input type="text"
+                                   formControlName="titulacion4"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Titulación 4">
+                        </div>
+                    </div>
+
+                    <!-- Es Personal Investigador -->
+                    <div class="md:col-span-2">
+                        <label class="flex items-center">
+                            <input type="checkbox"
+                                   formControlName="esPersonalInvestigador"
+                                   class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm font-medium text-gray-700">
+                                Es Personal Investigador
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Botones del formulario -->
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button"(click)="cerrarModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" [disabled]="personalForm.invalid || guardando()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300 transition-colors">
+                        {{ guardando() ? 'Guardando...' : 'Guardar' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<!-- Modal Subir Fichero -->
+@if (mostrarModalFichero()) {
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+         (click)="cerrarModalFichero()">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white"
+             (click)="$event.stopPropagation()">
+
+            <!-- Header del modal -->
+            <div class="flex justify-between items-center pb-3 border-b">
+                <h3 class="text-xl font-bold text-gray-900">
+                    Subir Fichero de Personal
+                </h3>
+                <button (click)="cerrarModalFichero()"
+                        class="text-gray-400 hover:text-gray-600">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Contenido del modal -->
+            <div class="mt-4">
+                <!-- Zona de arrastre -->
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors"
+                     (drop)="onDrop($event)"
+                     (dragover)="onDragOver($event)"
+                     (dragleave)="onDragLeave($event)"
+                     [class.border-blue-500]="isDragging"
+                     [class.bg-blue-50]="isDragging">
+
+                    <i class="fa fa-cloud-upload text-4xl text-gray-400 mb-3"></i>
+
+                    <p class="text-sm text-gray-600 mb-2">
+                        Arrastra y suelta tu archivo aquí o
+                    </p>
+
+                    <input type="file"
+                           #fileInput
+                           (change)="onFileSelected($event)"
+                           accept=".csv,.xlsx,.xls"
+                           class="hidden">
+
+                    <button type="button"
+                            (click)="fileInput.click()"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                        Seleccionar archivo
+                    </button>
+
+                    <p class="text-xs text-gray-500 mt-2">
+                        Formatos aceptados: CSV, XLSX, XLS
+                    </p>
+                </div>
+
+                <!-- Archivo seleccionado -->
+                @if (archivoSeleccionado()) {
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fa fa-file-text text-gray-600 mr-2"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ archivoSeleccionado()?.name }}</p>
+                                <p class="text-xs text-gray-500">{{ formatFileSize(archivoSeleccionado()?.size || 0) }}</p>
+                            </div>
+                        </div>
+                        <button (click)="eliminarArchivo()"
+                                class="text-red-600 hover:text-red-800">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                }
+
+                <!-- Mensaje de error -->
+                @if (errorFichero()) {
+                    <div class="mt-4 bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm">
+                        {{ errorFichero() }}
+                    </div>
+                }
+
+                <!-- Botones -->
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button"
+                            (click)="cerrarModalFichero()"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="button"
+                            (click)="subirArchivo()"
+                            [disabled]="!archivoSeleccionado() || subiendoArchivo()"
+                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-green-300 transition-colors">
+                        {{ subiendoArchivo() ? 'Subiendo...' : 'Subir archivo' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

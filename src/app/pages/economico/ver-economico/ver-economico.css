@@ -1,0 +1,42 @@
+.custom-editor {
+    max-height: 300px; /* Aproximadamente 12 líneas (25px por línea) */
+    min-height: 300px; /* Altura mínima fija para mantener consistencia */
+    overflow-y: auto;  /* Scroll vertical cuando sea necesario */
+    line-height: 1.5;  /* Espaciado entre líneas */
+    width: 100%;       /* Asegurar que ocupe todo el ancho */
+}
+
+/* Opcional: Estilizar el área de contenido del editor */
+.custom-editor ::ng-deep .NgxEditor__Content {
+    min-height: 270px; /* Altura del área de contenido */
+    max-height: 270px;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+.custom-editor {
+    max-height: 300px;
+    min-height: 300px;
+    overflow-y: auto;
+    line-height: 1.5;
+    width: 100%;
+}
+
+.custom-editor ::ng-deep .NgxEditor__Content {
+    min-height: 270px;
+    max-height: 270px;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+/* Estilo para editores deshabilitados */
+.editor-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.editor-disabled ::ng-deep .NgxEditor__Content {
+    background-color: #f9fafb !important;
+    color: #6b7280 !important;
+    cursor: not-allowed;
+}

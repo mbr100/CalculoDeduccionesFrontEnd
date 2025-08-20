@@ -1,0 +1,370 @@
+<div class="min-h-screen bg-gray-50 p-6">
+    <div class="max-w-7xl mx-auto">
+
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-100 p-2 rounded-lg">
+                        <i class="fas fa-euro-sign text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Gestión de Retribuciones</h1>
+                        <p class="text-gray-600">Edita las retribuciones directamente en la tabla</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <i class="fas fa-users"></i>
+                        <span>{{ totalElements() }} empleados</span>
+                    </div>
+                    <button
+                        (click)="loadData()"
+                        [disabled]="isLoading()"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                        <i [class]="isLoading() ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
+                        <span>Actualizar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla Excel -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200">
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 min-w-[200px]">
+                            <i class="fas fa-user mr-2"></i>Empleado
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-[200px] bg-gray-50 min-w-[120px]">
+                            <i class="fas fa-id-card mr-2"></i>DNI
+                        </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">
+                            <i class="fas fa-money-bill-wave mr-2"></i>Importe No IT
+                        </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">
+                            <i class="fas fa-gift mr-2"></i>Retribución en Especie
+                        </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[180px]">
+                            <i class="fas fa-shield-alt mr-2"></i>Aportaciones Prev. Social
+                        </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">
+                            <i class="fas fa-plane mr-2"></i>Dietas Viaje Exentas
+                        </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">
+                            <i class="fas fa-file-invoice mr-2"></i>Rentas Exentas 190
+                        </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px] bg-blue-50">
+                            <i class="fas fa-calculator mr-2"></i>Total Percepciones
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                    <!-- Loading State -->
+                        @if (isLoading()) {
+                            <tr>
+                                <td colspan="8" class="px-4 py-12 text-center">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <i class="fas fa-spinner fa-spin text-blue-500 text-lg"></i>
+                                        <span class="text-gray-500">Cargando datos...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                    <!-- Empty State -->
+                        @if (!isLoading() && !hasRetribuciones()) {
+                            <tr>
+                                <td colspan="8" class="px-4 py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center space-y-2">
+                                        <i class="fas fa-inbox text-gray-400 text-3xl"></i>
+                                        <span class="text-gray-500 text-lg">No hay retribuciones disponibles</span>
+                                        <p class="text-gray-400 text-sm">Los datos aparecerán aquí cuando estén disponibles</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                    <!-- Data Rows -->
+                        @for (item of retribuciones(); track item.idRetribucion) {
+                            <tr class="hover:bg-gray-50 transition-colors">
+
+                                <!-- Nombre (Sticky) -->
+                                <td class="px-4 py-3 sticky left-0 bg-white border-r border-gray-200">
+                                    <div class="font-medium text-gray-900 text-sm">{{ item.nombre }}</div>
+                                </td>
+
+                                <!-- DNI (Sticky) -->
+                                <td class="px-4 py-3 sticky left-[200px] bg-white border-r border-gray-200">
+                                    <div class="text-sm text-gray-700">{{ item.dni }}</div>
+                                </td>
+
+                                <!-- Importe Retribución No IT -->
+                                <td class="px-4 py-3">
+                                    <div class="relative">
+                                        <input
+                                            type="number"
+                                            [(ngModel)]="item.importeRetribucionNoIT"
+                                            (keyup)="onKeyPress($event, item.idRetribucion, 'importeRetribucionNoIT', item.importeRetribucionNoIT)"
+                                            (blur)="updateField(item.idRetribucion, 'importeRetribucionNoIT', item.importeRetribucionNoIT)"
+                                            [class]="getInputClass(item.idRetribucion) + ' text-right'"
+                                            step="0.01">
+                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                            @switch (savingStates()[item.idRetribucion]) {
+                                                @case ('saving') {
+                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                }
+                                                @case ('success') {
+                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                }
+                                                @case ('error') {
+                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Retribución en Especie -->
+                                <td class="px-4 py-3">
+                                    <div class="relative">
+                                        <input
+                                            type="number"
+                                            [(ngModel)]="item.importeRetribucionExpecie"
+                                            (blur)="updateField(item.idRetribucion, 'importeRetribucionExpecie', item.importeRetribucionExpecie)"
+                                            (keyup)="onKeyPress($event, item.idRetribucion, 'importeRetribucionExpecie', item.importeRetribucionExpecie)"
+                                            [class]="getInputClass(item.idRetribucion) + ' text-right'"
+                                            step="0.01">
+                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                            @switch (savingStates()[item.idRetribucion]) {
+                                                @case ('saving') {
+                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                }
+                                                @case ('success') {
+                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                }
+                                                @case ('error') {
+                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Aportaciones Prevención Social -->
+                                <td class="px-4 py-3">
+                                    <div class="relative">
+                                        <input
+                                            type="number"
+                                            [(ngModel)]="item.aportacionesPrevencionSocial"
+                                            (blur)="updateField(item.idRetribucion, 'aportacionesPrevencionSocial', item.aportacionesPrevencionSocial)"
+                                            (keyup)="onKeyPress($event, item.idRetribucion, 'aportacionesPrevencionSocial', item.aportacionesPrevencionSocial)"
+                                            [class]="getInputClass(item.idRetribucion) + ' text-right'"
+                                            step="0.01">
+                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                            @switch (savingStates()[item.idRetribucion]) {
+                                                @case ('saving') {
+                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                }
+                                                @case ('success') {
+                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                }
+                                                @case ('error') {
+                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Dietas Viaje Exentas -->
+                                <td class="px-4 py-3">
+                                    <div class="relative">
+                                        <input
+                                            type="number"
+                                            [(ngModel)]="item.dietasViajeExentas"
+                                            (blur)="updateField(item.idRetribucion, 'dietasViajeExentas', item.dietasViajeExentas)"
+                                            (keyup)="onKeyPress($event, item.idRetribucion, 'dietasViajeExentas', item.dietasViajeExentas)"
+                                            [class]="getInputClass(item.idRetribucion) + ' text-right'"
+                                            step="0.01">
+                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                            @switch (savingStates()[item.idRetribucion]) {
+                                                @case ('saving') {
+                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                }
+                                                @case ('success') {
+                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                }
+                                                @case ('error') {
+                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Rentas Exentas 190 -->
+                                <td class="px-4 py-3">
+                                    <div class="relative">
+                                        <input
+                                            type="number"
+                                            [(ngModel)]="item.rentasExentas190"
+                                            (blur)="updateField(item.idRetribucion, 'rentasExentas190', item.rentasExentas190)"
+                                            (keyup)="onKeyPress($event, item.idRetribucion, 'rentasExentas190', item.rentasExentas190)"
+                                            [class]="getInputClass(item.idRetribucion) + ' text-right'"
+                                            step="0.01">
+                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                            @switch (savingStates()[item.idRetribucion]) {
+                                                @case ('saving') {
+                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                }
+                                                @case ('success') {
+                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                }
+                                                @case ('error') {
+                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Total Percepciones -->
+                                <td class="px-4 py-3 bg-blue-50 font-semibold text-right text-blue-900">
+                                    {{ formatCurrency(getTotalPercepciones(item)) }}
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        @if (totalPages() > 1) {
+            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow-sm">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <button
+                        (click)="previousPage()"
+                        [disabled]="!canGoPrevious()"
+                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                        <i class="fas fa-chevron-left mr-2"></i>Anterior
+                    </button>
+                    <button
+                        (click)="nextPage()"
+                        [disabled]="!canGoNext()"
+                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                        Siguiente<i class="fas fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Mostrando
+                            <span class="font-medium"> {{ currentPage() * pageSize() + 1 }} </span>
+                            a
+                            <span class="font-medium"> {{ Math.min((currentPage() + 1) * pageSize(), totalElements()) }} </span>
+                            de
+                            <span class="font-medium"> {{ totalElements() }} </span>
+                            resultados
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                            <button
+                                (click)="previousPage()"
+                                [disabled]="!canGoPrevious()"
+                                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            @for (page of visiblePages(); track page) {
+                                <button
+                                    (click)="goToPage(page)"
+                                    [class]="getPageButtonClass(page)">
+                                    {{ page + 1 }}
+                                </button>
+                            }
+                            <button
+                                (click)="nextPage()"
+                                [disabled]="!canGoNext()"
+                                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Información de página actual (solo visible cuando hay paginación) -->
+        @if (totalPages() > 1) {
+            <div class="text-center mt-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <i class="fas fa-page mr-1"></i>
+                    Página {{ currentPage() + 1 }} de {{ totalPages() }}
+                </span>
+            </div>
+        }
+
+        <!-- Leyenda de estados -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mt-6">
+            <h3 class="text-sm font-medium text-gray-900 mb-3">
+                <i class="fas fa-info-circle mr-2"></i>Estados de guardado:
+            </h3>
+            <div class="flex flex-wrap gap-4 text-sm">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-spinner fa-spin text-blue-500"></i>
+                    <span class="text-gray-600">Guardando...</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-check-circle text-green-500"></i>
+                    <span class="text-gray-600">Guardado correctamente</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-exclamation-circle text-red-500"></i>
+                    <span class="text-gray-600">Error al guardar</span>
+                </div>
+            </div>
+            <div class="mt-3 p-3 bg-gray-50 rounded-lg">
+                <p class="text-xs text-gray-600">
+                    <i class="fas fa-lightbulb mr-1 text-yellow-500"></i>
+                    <strong>Tip:</strong> Presiona <kbd class="px-1 py-0.5 bg-gray-200 rounded text-xs">Enter</kbd> en cualquier campo para guardar automáticamente los cambios.
+                </p>
+            </div>
+        </div>
+
+        <!-- Estadísticas rápidas -->
+        @if (hasRetribuciones()) {
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mt-6">
+                <h3 class="text-sm font-medium text-gray-900 mb-3">
+                    <i class="fas fa-chart-bar mr-2"></i>Resumen de la página actual:
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div class="text-center p-2 bg-blue-50 rounded">
+                        <div class="font-semibold text-blue-900">{{ retribuciones().length }}</div>
+                        <div class="text-blue-700 text-xs">Empleados mostrados</div>
+                    </div>
+                    <div class="text-center p-2 bg-green-50 rounded">
+                        <div class="font-semibold text-green-900">
+                            {{ formatCurrency(totalPercepcionesPage()) }}
+                        </div>
+                        <div class="text-green-700 text-xs">Total percepciones</div>
+                    </div>
+                    <div class="text-center p-2 bg-purple-50 rounded">
+                        <div class="font-semibold text-purple-900">
+                            {{ formatCurrency(promedioPercepciones()) }}
+                        </div>
+                        <div class="text-purple-700 text-xs">Promedio por empleado</div>
+                    </div>
+                    <div class="text-center p-2 bg-orange-50 rounded">
+                        <div class="font-semibold text-orange-900">{{ currentPage() + 1 }}/{{ totalPages() }}</div>
+                        <div class="text-orange-700 text-xs">Página actual</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -8,4 +9,13 @@ import { Component } from '@angular/core';
 })
 export class Navbar {
 
+    private router: Router = inject(Router);
+
+    irAInicio() {
+        this.router.navigate(['']).then(r => {
+            console.log('Navigated to home successfully');
+        }).catch(error => {
+            console.error('Error navigating to home:', error);
+        });
+    }
 }
