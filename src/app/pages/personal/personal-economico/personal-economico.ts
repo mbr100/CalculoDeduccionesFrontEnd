@@ -5,6 +5,7 @@ import {Sidebar} from '../../../components/personal/sidebar/sidebar';
 import {RetribucionesPersonal} from '../retribuciones-personal/retribuciones-personal';
 import {BasesCotizacionPersonal} from '../bases-cotizacion-personal/bases-cotizacion-personal';
 import {AltaEjercicioPersonal} from '../alta-ejercicio-personal/alta-ejercicio-personal';
+import {BajasPersonal} from '../bajas-personal/bajas-personal';
 
 @Component({
   selector: 'app-personal-economico',
@@ -14,7 +15,8 @@ import {AltaEjercicioPersonal} from '../alta-ejercicio-personal/alta-ejercicio-p
         RetribucionesPersonal,
         BasesCotizacionPersonal,
         RetribucionesPersonal,
-        AltaEjercicioPersonal
+        AltaEjercicioPersonal,
+        BajasPersonal
     ],
   templateUrl: './personal-economico.html',
   styleUrl: './personal-economico.css'
@@ -22,7 +24,7 @@ import {AltaEjercicioPersonal} from '../alta-ejercicio-personal/alta-ejercicio-p
 export class PersonalEconomico {
     private route: ActivatedRoute = inject(ActivatedRoute);
 
-    public activeTab: WritableSignal<string> = signal<string>('personal');
+    public activeTab: WritableSignal<string> = signal<string>('bajas');
     public economicoId: number;
 
     public tabs = [

@@ -1,7 +1,10 @@
-import {Component, computed, effect, inject, Input, OnInit, signal} from '@angular/core';
+import {Component, computed, effect, inject, Input, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import {FormsModule} from '@angular/forms';
+import {EconomicoService} from '../../../services/economico-service';
+import {EconomicoDto} from '../../../models/economico';
+import {getVisiblePages} from '../../../utils/pagination.util';
 
 @Component({
   selector: 'app-alta-ejercicio-personal',
@@ -12,70 +15,29 @@ import {FormsModule} from '@angular/forms';
   styleUrls: ['./alta-ejercicio-personal.css'],
 })
 export class AltaEjercicioPersonal implements OnInit {
-    @Input() idEconomico!: number;
+    @Input() public idEconomico!: number;
     private economicoPersonalService: EconomicoPersonalService = inject(EconomicoPersonalService);
+    private economicoService: EconomicoService = inject(EconomicoService);
 
     // Signals para el estado del componente
-    altasEjercicio = signal<AltaEjercicioDTO[]>([]);
-    loading = signal(false);
-    savingStates = signal<{ [key: number]: SavingState }>({});
+    public altasEjercicio: WritableSignal<AltaEjercicioDTO[]> = signal<AltaEjercicioDTO[]>([]);
+    public loading: WritableSignal<boolean> = signal(false);
+    public savingStates: WritableSignal<{ [key: number]: SavingState }> = signal<{ [key: number]: SavingState }>({});
 
     // Signals para paginación
-    currentPage = signal(0);
-    pageSize = signal(10);
-    totalElements = signal(0);
-    totalPages = signal(0);
+    public currentPage: WritableSignal<number> = signal(0);
+    public pageSize: WritableSignal<number> = signal(10);
+    public totalElements: WritableSignal<number> = signal(0);
+    public totalPages: WritableSignal<number> = signal(0);
+    public horasConvenioAnual: WritableSignal<number> = signal(0);
 
     // Computed signals
-    visiblePages = computed(() => {
-        const maxVisiblePages = 5;
-        const halfVisible = Math.floor(maxVisiblePages / 2);
-        const current = this.currentPage();
-        const total = this.totalPages();
-
-        let startPage = Math.max(0, current - halfVisible);
-        let endPage = Math.min(total - 1, startPage + maxVisiblePages - 1);
-
-        if (endPage - startPage + 1 < maxVisiblePages) {
-            startPage = Math.max(0, endPage - maxVisiblePages + 1);
-        }
-
-        const pages: number[] = [];
-        for (let i = startPage; i <= endPage; i++) {
-            pages.push(i);
-        }
-        return pages;
-    });
-
-    // Computed signals para estadísticas
-    totalHorasConvenio = computed(() => {
-        return this.altasEjercicio().reduce((sum: number, item: AltaEjercicioDTO) =>
-            sum + (item.horasConvenioAnual || 0), 0
-        );
-    });
-
-    // totalHorasMaximas = computed(() => {
-    //     return this.altasEjercicio().reduce((sum: number, item: AltaEjercicioDTO) =>
-    //         sum + (item.horasMaximasAnuales || 0), 0
-    //     );
-    // });
-    //
-    // promedioHorasConvenio = computed(() => {
-    //     const items = this.altasEjercicio();
-    //     if (items.length === 0) return 0;
-    //     return this.totalHorasConvenio() / items.length;
-    // });
-
-    // promedioHorasMaximas = computed(() => {
-    //     const items = this.altasEjercicio();
-    //     if (items.length === 0) return 0;
-    //     return this.totalHorasMaximas() / items.length;
-    // });
+    public visiblePages: Signal<number[]> = computed((): number[] => getVisiblePages(this.currentPage(), this.totalPages()));
 
     // Para acceder a Math en el template
-    Math = Math;
+    public Math: Math = Math;
 
-    constructor() {
+    public constructor() {
         // Effect para recargar datos cuando cambie la página
         effect(() => {
             const page = this.currentPage();
@@ -85,7 +47,7 @@ export class AltaEjercicioPersonal implements OnInit {
         });
     }
 
-    ngOnInit(): void {
+    public ngOnInit(): void {
         this.loadData();
     }
 
@@ -109,6 +71,14 @@ export class AltaEjercicioPersonal implements OnInit {
                     this.loading.set(false);
                 }
             });
+            this.economicoService.getEconomicoById(this.idEconomico).subscribe({
+                next: (economico: EconomicoDto) => {
+                    this.horasConvenioAnual.set(economico.horasConvenio || 0);
+                },
+                error: (error) => {
+                    console.error('Error cargando económico:', error);
+                }
+            })
         } catch (error) {
             console.error('Error cargando datos:', error);
             this.loading.set(false);
@@ -149,35 +119,43 @@ export class AltaEjercicioPersonal implements OnInit {
                 valor: valorFinal
             };
 
-            // Asumiendo que usas un metodo específico para actualizar altas
-            this.economicoPersonalService.actualizarAltaEjercicio(actualizacion).subscribe({
-                next: () => {
-                    this.savingStates.update(states => ({
-                        ...states,
-                        [idAltaEjercicio]: 'success'
-                    }));
-
-                    // Actualizar el valor en la lista local
-                    this.altasEjercicio.update(items =>
-                        items.map(item =>
-                            item.idAltaEjercicio === idAltaEjercicio
-                                ? { ...item, [field]: valorFinal }
-                                : item
-                        )
-                    );
-
-                    setTimeout(() => {
+            if (actualizacion.valor === null || actualizacion.valor === undefined) {
+                console.warn(`Valor para el campo ${field} es nulo o indefinido, no se actualizará.`);
+                this.savingStates.update(states => ({
+                    ...states,
+                    [idAltaEjercicio]: 'idle'
+                }));
+                return;
+            } else {
+                this.economicoPersonalService.actualizarAltaEjercicio(actualizacion).subscribe({
+                    next: () => {
                         this.savingStates.update(states => ({
                             ...states,
-                            [idAltaEjercicio]: 'idle'
+                            [idAltaEjercicio]: 'success'
                         }));
-                    }, 2000);
-                },
-                error: (error) => {
-                    console.error('Error actualizando alta de ejercicio:', error);
-                    this.handleSavingError(idAltaEjercicio);
-                }
-            });
+
+                        // Actualizar el valor en la lista local
+                        this.altasEjercicio.update(items =>
+                            items.map(item =>
+                                item.idAltaEjercicio === idAltaEjercicio
+                                    ? { ...item, [field]: valorFinal }
+                                    : item
+                            )
+                        );
+
+                        setTimeout(() => {
+                            this.savingStates.update(states => ({
+                                ...states,
+                                [idAltaEjercicio]: 'idle'
+                            }));
+                        }, 2000);
+                    },
+                    error: (error) => {
+                        console.error('Error actualizando alta de ejercicio:', error);
+                        this.handleSavingError(idAltaEjercicio);
+                    }
+                });
+            }
 
             console.log(`Actualizando campo ${field} para alta ID ${idAltaEjercicio} con valor ${value}`);
         } catch (error) {
@@ -200,14 +178,14 @@ export class AltaEjercicioPersonal implements OnInit {
         }, 3000);
     }
 
-    onKeyPress(event: KeyboardEvent, idAltaEjercicio: number, field: keyof AltaEjercicioDTO, value: string | number): void {
+    public onKeyPress(event: KeyboardEvent, idAltaEjercicio: number, field: keyof AltaEjercicioDTO, value: string | number): void {
         if (event.key === 'Enter') {
             (event.target as HTMLInputElement).blur();
             this.updateField(idAltaEjercicio, field, value);
         }
     }
 
-    getInputClass(idAltaEjercicio: number): string {
+    public getInputClass(idAltaEjercicio: number): string {
         const savingState = this.savingStates()[idAltaEjercicio] || 'idle';
         let borderColor: string;
 
@@ -228,17 +206,7 @@ export class AltaEjercicioPersonal implements OnInit {
         return `w-full px-3 py-2 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors ${borderColor}`;
     }
 
-    // // Métodos específicos para fechas y horas
-    // getHorasDisponibles(item: AltaEjercicioDTO): number {
-    //     return Math.max(0, item.horasMaximasAnuales - item.horasConvenioAnual);
-    // }
-    //
-    // getPorcentajeUsoHoras(item: AltaEjercicioDTO): number {
-    //     if (item.horasMaximasAnuales === 0) return 0;
-    //     return (item.horasConvenioAnual / item.horasMaximasAnuales) * 100;
-    // }
-
-    formatDateForInput(date: Date | string | null): string {
+    public formatDateForInput(date: Date | string | null): string {
         if (!date) return '';
         try {
             const d = new Date(date);
@@ -249,7 +217,7 @@ export class AltaEjercicioPersonal implements OnInit {
         }
     }
 
-    parseNumberValue(value: string | number): number {
+    public parseNumberValue(value: string | number): number {
         if (value === null || value === undefined || value === '') {
             return 0;
         }
@@ -261,23 +229,23 @@ export class AltaEjercicioPersonal implements OnInit {
     }
 
     // Métodos de paginación
-    previousPage(): void {
+    public previousPage(): void {
         if (this.currentPage() > 0) {
             this.currentPage.update(page => page - 1);
         }
     }
 
-    nextPage(): void {
+    public nextPage(): void {
         if (this.currentPage() < this.totalPages() - 1) {
             this.currentPage.update(page => page + 1);
         }
     }
 
-    goToPage(page: number): void {
+    public goToPage(page: number): void {
         this.currentPage.set(page);
     }
 
-    getPageButtonClass(page: number): string {
+    public getPageButtonClass(page: number): string {
         const baseClass = 'relative inline-flex items-center px-4 py-2 border text-sm font-medium';
         if (this.currentPage() === page) {
             return `${baseClass} z-10 bg-blue-50 border-blue-500 text-blue-600`;
@@ -286,27 +254,19 @@ export class AltaEjercicioPersonal implements OnInit {
     }
 
     // Métodos de conveniencia para el template
-    isLoading(): boolean {
+    public isLoading(): boolean {
         return this.loading();
     }
 
-    hasAltasEjercicio(): boolean {
+    public hasAltasEjercicio(): boolean {
         return this.altasEjercicio().length > 0;
     }
 
-    canGoPrevious(): boolean {
+    public canGoPrevious(): boolean {
         return this.currentPage() > 0;
     }
 
-    canGoNext(): boolean {
+    public canGoNext(): boolean {
         return this.currentPage() < this.totalPages() - 1;
     }
-
-    // Metodo para obtener el color del porcentaje de horas
-    // getColorPorcentajeHoras(porcentaje: number): string {
-    //     if (porcentaje >= 90) return 'text-red-600 bg-red-50';
-    //     if (porcentaje >= 75) return 'text-orange-600 bg-orange-50';
-    //     if (porcentaje >= 50) return 'text-yellow-600 bg-yellow-50';
-    //     return 'text-green-600 bg-green-50';
-    // }
 }

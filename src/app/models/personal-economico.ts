@@ -88,3 +88,30 @@ interface actualizarAltaEjercicioDTO {
     valor: Date | number;
 }
 
+interface BajasLaboralesDTO {
+    idPersona: number;
+    nombre: string;
+    dni: string;
+    idBajaLaboral: number;
+    fechaInicio: Date;
+    fechaFin: Date;
+    horasDeBaja: number;
+}
+
+interface ListadoPersonalSelectorEconomicoDTO {
+    idPersona: number;
+    nombre: string;
+}
+
+interface CrearBajaLaboralDTO {
+    idPersona: number;
+    fechaInicio: Date;
+    fechaFin: Date;
+}
+
+interface ActualizarBajaLaboralDTO {
+    idBajaLaboral: number;
+    campoActualizado: keyof BajasLaboralesDTO;
+    valor: Date | number;
+}
+

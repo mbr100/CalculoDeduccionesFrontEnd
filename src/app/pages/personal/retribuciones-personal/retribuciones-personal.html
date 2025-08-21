@@ -18,9 +18,7 @@
                         <i class="fas fa-users"></i>
                         <span>{{ totalElements() }} empleados</span>
                     </div>
-                    <button
-                        (click)="loadData()"
-                        [disabled]="isLoading()"
+                    <button (click)="loadData()" [disabled]="isLoading()"
                         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
                         <i [class]="isLoading() ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
                         <span>Actualizar</span>
@@ -104,9 +102,7 @@
                                 <!-- Importe Retribución No IT -->
                                 <td class="px-4 py-3">
                                     <div class="relative">
-                                        <input
-                                            type="number"
-                                            [(ngModel)]="item.importeRetribucionNoIT"
+                                        <input type="number" [(ngModel)]="item.importeRetribucionNoIT"
                                             (keyup)="onKeyPress($event, item.idRetribucion, 'importeRetribucionNoIT', item.importeRetribucionNoIT)"
                                             (blur)="updateField(item.idRetribucion, 'importeRetribucionNoIT', item.importeRetribucionNoIT)"
                                             [class]="getInputClass(item.idRetribucion) + ' text-right'"
@@ -130,10 +126,8 @@
                                 <!-- Retribución en Especie -->
                                 <td class="px-4 py-3">
                                     <div class="relative">
-                                        <input
-                                            type="number"
-                                            [(ngModel)]="item.importeRetribucionExpecie"
-                                            (blur)="updateField(item.idRetribucion, 'importeRetribucionExpecie', item.importeRetribucionExpecie)"
+                                        <input type="number" [(ngModel)]="item.importeRetribucionExpecie"
+                                               (blur)="updateField(item.idRetribucion, 'importeRetribucionExpecie', item.importeRetribucionExpecie)"
                                             (keyup)="onKeyPress($event, item.idRetribucion, 'importeRetribucionExpecie', item.importeRetribucionExpecie)"
                                             [class]="getInputClass(item.idRetribucion) + ' text-right'"
                                             step="0.01">
@@ -156,13 +150,10 @@
                                 <!-- Aportaciones Prevención Social -->
                                 <td class="px-4 py-3">
                                     <div class="relative">
-                                        <input
-                                            type="number"
-                                            [(ngModel)]="item.aportacionesPrevencionSocial"
-                                            (blur)="updateField(item.idRetribucion, 'aportacionesPrevencionSocial', item.aportacionesPrevencionSocial)"
-                                            (keyup)="onKeyPress($event, item.idRetribucion, 'aportacionesPrevencionSocial', item.aportacionesPrevencionSocial)"
-                                            [class]="getInputClass(item.idRetribucion) + ' text-right'"
-                                            step="0.01">
+                                        <input type="number" [(ngModel)]="item.aportacionesPrevencionSocial"
+                                               (blur)="updateField(item.idRetribucion, 'aportacionesPrevencionSocial', item.aportacionesPrevencionSocial)"
+                                               (keyup)="onKeyPress($event, item.idRetribucion, 'aportacionesPrevencionSocial', item.aportacionesPrevencionSocial)"
+                                               [class]="getInputClass(item.idRetribucion) + ' text-right'" step="0.01">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
                                             @switch (savingStates()[item.idRetribucion]) {
                                                 @case ('saving') {
@@ -182,9 +173,7 @@
                                 <!-- Dietas Viaje Exentas -->
                                 <td class="px-4 py-3">
                                     <div class="relative">
-                                        <input
-                                            type="number"
-                                            [(ngModel)]="item.dietasViajeExentas"
+                                        <input type="number" [(ngModel)]="item.dietasViajeExentas"
                                             (blur)="updateField(item.idRetribucion, 'dietasViajeExentas', item.dietasViajeExentas)"
                                             (keyup)="onKeyPress($event, item.idRetribucion, 'dietasViajeExentas', item.dietasViajeExentas)"
                                             [class]="getInputClass(item.idRetribucion) + ' text-right'"
@@ -208,13 +197,9 @@
                                 <!-- Rentas Exentas 190 -->
                                 <td class="px-4 py-3">
                                     <div class="relative">
-                                        <input
-                                            type="number"
-                                            [(ngModel)]="item.rentasExentas190"
-                                            (blur)="updateField(item.idRetribucion, 'rentasExentas190', item.rentasExentas190)"
-                                            (keyup)="onKeyPress($event, item.idRetribucion, 'rentasExentas190', item.rentasExentas190)"
-                                            [class]="getInputClass(item.idRetribucion) + ' text-right'"
-                                            step="0.01">
+                                        <input type="number" [(ngModel)]="item.rentasExentas190" (blur)="updateField(item.idRetribucion, 'rentasExentas190', item.rentasExentas190)"
+                                               (keyup)="onKeyPress($event, item.idRetribucion, 'rentasExentas190', item.rentasExentas190)" [class]="getInputClass(item.idRetribucion) + ' text-right'"
+                                               step="0.01">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
                                             @switch (savingStates()[item.idRetribucion]) {
                                                 @case ('saving') {
@@ -246,16 +231,12 @@
         @if (totalPages() > 1) {
             <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow-sm">
                 <div class="flex-1 flex justify-between sm:hidden">
-                    <button
-                        (click)="previousPage()"
-                        [disabled]="!canGoPrevious()"
+                    <button (click)="previousPage()" [disabled]="!canGoPrevious()"
                         class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
                         <i class="fas fa-chevron-left mr-2"></i>Anterior
                     </button>
-                    <button
-                        (click)="nextPage()"
-                        [disabled]="!canGoNext()"
-                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                    <button (click)="nextPage()" [disabled]="!canGoNext()"
+                            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
                         Siguiente<i class="fas fa-chevron-right ml-2"></i>
                     </button>
                 </div>
@@ -274,23 +255,17 @@
                     </div>
                     <div>
                         <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                            <button
-                                (click)="previousPage()"
-                                [disabled]="!canGoPrevious()"
-                                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                            <button (click)="previousPage()" [disabled]="!canGoPrevious()"
+                                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
                                 <i class="fas fa-chevron-left"></i>
                             </button>
                             @for (page of visiblePages(); track page) {
-                                <button
-                                    (click)="goToPage(page)"
-                                    [class]="getPageButtonClass(page)">
+                                <button (click)="goToPage(page)" [class]="getPageButtonClass(page)">
                                     {{ page + 1 }}
                                 </button>
                             }
-                            <button
-                                (click)="nextPage()"
-                                [disabled]="!canGoNext()"
-                                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                            <button (click)="nextPage()" [disabled]="!canGoNext()"
+                                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
                                 <i class="fas fa-chevron-right"></i>
                             </button>
                         </nav>
@@ -308,63 +283,5 @@
                 </span>
             </div>
         }
-
-<!--        &lt;!&ndash; Leyenda de estados &ndash;&gt;-->
-<!--        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mt-6">-->
-<!--            <h3 class="text-sm font-medium text-gray-900 mb-3">-->
-<!--                <i class="fas fa-info-circle mr-2"></i>Estados de guardado:-->
-<!--            </h3>-->
-<!--            <div class="flex flex-wrap gap-4 text-sm">-->
-<!--                <div class="flex items-center space-x-2">-->
-<!--                    <i class="fas fa-spinner fa-spin text-blue-500"></i>-->
-<!--                    <span class="text-gray-600">Guardando...</span>-->
-<!--                </div>-->
-<!--                <div class="flex items-center space-x-2">-->
-<!--                    <i class="fas fa-check-circle text-green-500"></i>-->
-<!--                    <span class="text-gray-600">Guardado correctamente</span>-->
-<!--                </div>-->
-<!--                <div class="flex items-center space-x-2">-->
-<!--                    <i class="fas fa-exclamation-circle text-red-500"></i>-->
-<!--                    <span class="text-gray-600">Error al guardar</span>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="mt-3 p-3 bg-gray-50 rounded-lg">-->
-<!--                <p class="text-xs text-gray-600">-->
-<!--                    <i class="fas fa-lightbulb mr-1 text-yellow-500"></i>-->
-<!--                    <strong>Tip:</strong> Presiona <kbd class="px-1 py-0.5 bg-gray-200 rounded text-xs">Enter</kbd> en cualquier campo para guardar automáticamente los cambios.-->
-<!--                </p>-->
-<!--            </div>-->
-<!--        </div>-->
-
-<!--        &lt;!&ndash; Estadísticas rápidas &ndash;&gt;-->
-<!--        @if (hasRetribuciones()) {-->
-<!--            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mt-6">-->
-<!--                <h3 class="text-sm font-medium text-gray-900 mb-3">-->
-<!--                    <i class="fas fa-chart-bar mr-2"></i>Resumen de la página actual:-->
-<!--                </h3>-->
-<!--                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">-->
-<!--                    <div class="text-center p-2 bg-blue-50 rounded">-->
-<!--                        <div class="font-semibold text-blue-900">{{ retribuciones().length }}</div>-->
-<!--                        <div class="text-blue-700 text-xs">Empleados mostrados</div>-->
-<!--                    </div>-->
-<!--                    <div class="text-center p-2 bg-green-50 rounded">-->
-<!--                        <div class="font-semibold text-green-900">-->
-<!--                            {{ formatCurrency(totalPercepcionesPage()) }}-->
-<!--                        </div>-->
-<!--                        <div class="text-green-700 text-xs">Total percepciones</div>-->
-<!--                    </div>-->
-<!--                    <div class="text-center p-2 bg-purple-50 rounded">-->
-<!--                        <div class="font-semibold text-purple-900">-->
-<!--                            {{ formatCurrency(promedioPercepciones()) }}-->
-<!--                        </div>-->
-<!--                        <div class="text-purple-700 text-xs">Promedio por empleado</div>-->
-<!--                    </div>-->
-<!--                    <div class="text-center p-2 bg-orange-50 rounded">-->
-<!--                        <div class="font-semibold text-orange-900">{{ currentPage() + 1 }}/{{ totalPages() }}</div>-->
-<!--                        <div class="text-orange-700 text-xs">Página actual</div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        }-->
     </div>
 </div>

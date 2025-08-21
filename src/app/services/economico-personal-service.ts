@@ -68,9 +68,44 @@ export class EconomicoPersonalService {
         });
     }
 
-   public actualizarAltaEjercicio(actualizacion: actualizarAltaEjercicioDTO) {
+   public actualizarAltaEjercicio(actualizacion: actualizarAltaEjercicioDTO): Observable<void> {
         return this.http.put<void>(`${this.baseUrl}/${this.apiPersonal}/alta-ejercicio`, actualizacion, {
             headers: {'Content-Type': 'application/json'}
         });
+    }
+
+    public obtenerBajasLaboralesPorIdEconomico(idEconomico: number):Observable<PaginacionResponse<BajasLaboralesDTO>> {
+        return this.http.get<PaginacionResponse<BajasLaboralesDTO>>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/bajas-laborales`, {
+            headers: {'Content-Type': 'application/json'}
+        });
+
+    }
+
+    obtenerListadoPersonalSelector(idEconomico: number): Observable<ListadoPersonalSelectorEconomicoDTO[]> {
+        return this.http.get<ListadoPersonalSelectorEconomicoDTO[]>(`${this.baseUrl}/${this.apiPersonal}/selector/${idEconomico}`, {
+            headers: {'Content-Type': 'application/json'}
+        });
+
+    }
+
+    actualizarBajaLaboral(actualizacion: ActualizarBajaLaboralDTO) {
+        return this.http.put<void>(`${this.baseUrl}/${this.apiPersonal}/baja-laboral`, actualizacion, {
+            headers: {'Content-Type': 'application/json'}
+        });
+
+    }
+
+    eliminarBajaLaboral(idBajaLaboral: number) {
+        return this.http.delete<void>(`${this.baseUrl}/${this.apiPersonal}/baja-laboral/${idBajaLaboral}`, {
+            headers: {'Content-Type': 'application/json'}
+        });
+
+    }
+
+    crearBajaLaboral(nuevaBaja: CrearBajaLaboralDTO) {
+        return this.http.post<void>(`${this.baseUrl}/${this.apiPersonal}/baja-laboral`, nuevaBaja, {
+            headers: {'Content-Type': 'application/json'}
+        });
+
     }
 }
