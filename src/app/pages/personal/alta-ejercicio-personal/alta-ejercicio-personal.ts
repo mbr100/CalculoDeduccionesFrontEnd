@@ -1,7 +1,9 @@
-import {Component, computed, effect, inject, Input, OnInit, signal} from '@angular/core';
+import {Component, computed, effect, inject, Input, OnInit, Signal, signal} from '@angular/core';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import {FormsModule} from '@angular/forms';
+import {actualizarAltaEjercicioDTO, AltaEjercicioDTO} from '../../../models/personal-economico';
+import {getVisiblePages, SavingState} from '../../../models/savingState';
 
 @Component({
   selector: 'app-alta-ejercicio-personal',
@@ -27,25 +29,8 @@ export class AltaEjercicioPersonal implements OnInit {
     totalPages = signal(0);
 
     // Computed signals
-    visiblePages = computed(() => {
-        const maxVisiblePages = 5;
-        const halfVisible = Math.floor(maxVisiblePages / 2);
-        const current = this.currentPage();
-        const total = this.totalPages();
+    public visiblePages: Signal<number[]> = computed((): number[] => getVisiblePages(this.currentPage(), this.totalPages()));
 
-        let startPage = Math.max(0, current - halfVisible);
-        let endPage = Math.min(total - 1, startPage + maxVisiblePages - 1);
-
-        if (endPage - startPage + 1 < maxVisiblePages) {
-            startPage = Math.max(0, endPage - maxVisiblePages + 1);
-        }
-
-        const pages: number[] = [];
-        for (let i = startPage; i <= endPage; i++) {
-            pages.push(i);
-        }
-        return pages;
-    });
 
     // Computed signals para estadísticas
     totalHorasConvenio = computed(() => {
@@ -53,24 +38,6 @@ export class AltaEjercicioPersonal implements OnInit {
             sum + (item.horasConvenioAnual || 0), 0
         );
     });
-
-    // totalHorasMaximas = computed(() => {
-    //     return this.altasEjercicio().reduce((sum: number, item: AltaEjercicioDTO) =>
-    //         sum + (item.horasMaximasAnuales || 0), 0
-    //     );
-    // });
-    //
-    // promedioHorasConvenio = computed(() => {
-    //     const items = this.altasEjercicio();
-    //     if (items.length === 0) return 0;
-    //     return this.totalHorasConvenio() / items.length;
-    // });
-
-    // promedioHorasMaximas = computed(() => {
-    //     const items = this.altasEjercicio();
-    //     if (items.length === 0) return 0;
-    //     return this.totalHorasMaximas() / items.length;
-    // });
 
     // Para acceder a Math en el template
     Math = Math;
@@ -204,6 +171,7 @@ export class AltaEjercicioPersonal implements OnInit {
         if (event.key === 'Enter') {
             (event.target as HTMLInputElement).blur();
             this.updateField(idAltaEjercicio, field, value);
+            this.loadDataInternal();
         }
     }
 
@@ -227,16 +195,6 @@ export class AltaEjercicioPersonal implements OnInit {
 
         return `w-full px-3 py-2 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors ${borderColor}`;
     }
-
-    // // Métodos específicos para fechas y horas
-    // getHorasDisponibles(item: AltaEjercicioDTO): number {
-    //     return Math.max(0, item.horasMaximasAnuales - item.horasConvenioAnual);
-    // }
-    //
-    // getPorcentajeUsoHoras(item: AltaEjercicioDTO): number {
-    //     if (item.horasMaximasAnuales === 0) return 0;
-    //     return (item.horasConvenioAnual / item.horasMaximasAnuales) * 100;
-    // }
 
     formatDateForInput(date: Date | string | null): string {
         if (!date) return '';
@@ -301,12 +259,4 @@ export class AltaEjercicioPersonal implements OnInit {
     canGoNext(): boolean {
         return this.currentPage() < this.totalPages() - 1;
     }
-
-    // Metodo para obtener el color del porcentaje de horas
-    // getColorPorcentajeHoras(porcentaje: number): string {
-    //     if (porcentaje >= 90) return 'text-red-600 bg-red-50';
-    //     if (porcentaje >= 75) return 'text-orange-600 bg-orange-50';
-    //     if (porcentaje >= 50) return 'text-yellow-600 bg-yellow-50';
-    //     return 'text-green-600 bg-green-50';
-    // }
 }

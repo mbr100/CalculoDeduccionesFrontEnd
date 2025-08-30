@@ -1,10 +1,14 @@
 import {Component, inject, signal, WritableSignal} from '@angular/core';
 import {ListadoPersonal} from '../listado-personal/listado-personal';
-import {ActivatedRoute} from '@angular/router';
 import {Sidebar} from '../../../components/personal/sidebar/sidebar';
 import {RetribucionesPersonal} from '../retribuciones-personal/retribuciones-personal';
 import {BasesCotizacionPersonal} from '../bases-cotizacion-personal/bases-cotizacion-personal';
 import {AltaEjercicioPersonal} from '../alta-ejercicio-personal/alta-ejercicio-personal';
+import {BajasPersonal} from '../bajas-personal/bajas-personal';
+import {ActivatedRoute} from '@angular/router';
+import {BonificacionesPersonal} from '../bonificaciones-personal/bonificaciones-personal';
+import {ResumenCosteHoraPersonal} from '../resumen-coste-hora-personal/resumen-coste-hora-personal';
+
 
 @Component({
   selector: 'app-personal-economico',
@@ -13,16 +17,18 @@ import {AltaEjercicioPersonal} from '../alta-ejercicio-personal/alta-ejercicio-p
         Sidebar,
         RetribucionesPersonal,
         BasesCotizacionPersonal,
-        RetribucionesPersonal,
-        AltaEjercicioPersonal
+        AltaEjercicioPersonal,
+        BonificacionesPersonal,
+        BajasPersonal,
+        ResumenCosteHoraPersonal,
     ],
   templateUrl: './personal-economico.html',
   styleUrl: './personal-economico.css'
 })
 export class PersonalEconomico {
     private route: ActivatedRoute = inject(ActivatedRoute);
+    public activeTab: WritableSignal<string> = signal<string>('resumen');
 
-    public activeTab: WritableSignal<string> = signal<string>('personal');
     public economicoId: number;
 
     public tabs = [
@@ -32,6 +38,7 @@ export class PersonalEconomico {
         { id: 'altas', label: 'Alta en ejercicio', icon: 'fas fa-calendar' },
         { id: 'bajas', label: 'Bajas', icon: 'fas fa-user-injured' },
         { id: 'bonificaciones', label: 'Bonificaciones', icon: 'fas fa-percent' },
+        { id: 'resumen', label: 'Resumen', icon: 'fas fa-chart-pie' },
     ] as const;
 
     public constructor() {
