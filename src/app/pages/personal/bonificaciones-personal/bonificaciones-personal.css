@@ -1,0 +1,60 @@
+.tabla-container {
+    zoom: 0.75;
+}
+
+/* Mejoras adicionales para mejor visualización */
+.tabla-responsiva {
+    min-width: 1000px;
+}
+
+/* Scrollbar personalizado */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Modal styles */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+.modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Estilos para bonificaciones */
+.bonificacion-alta {
+    background-color: #f0fdf4;
+}
+
+.bonificacion-media {
+    background-color: #fefce8;
+}
+
+.bonificacion-baja {
+    background-color: #fef2f2;
+}
+
+/* Estilos para campos */
+.campo-porcentaje {
+    min-width: 120px;
+}
+
+.campo-tipo {
+    min-width: 200px;
+}
