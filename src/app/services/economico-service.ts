@@ -41,4 +41,10 @@ export class EconomicoService {
             headers: {'Content-Type': 'application/json'}
         });
     }
+
+    public resumenGastoProyectoEconomico(idEconomico: number): Observable<any> {
+        return this.http.get<any>(`${this.baseUrl}/${this.apiEconomicos}/${idEconomico}/resumen`,{
+            headers: {'Content-Type': 'application/json'}
+        });
+    }
 }

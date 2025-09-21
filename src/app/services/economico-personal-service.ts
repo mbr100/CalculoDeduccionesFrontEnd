@@ -6,7 +6,7 @@ import {PaginacionResponse} from '../models/paginacion-response';
 import {
     actualizarAltaEjercicioDTO, ActualizarBajaLaboralDTO,
     actualizarBbccDTO,
-    ActualizarBonificacionDTO, ActualizarCosteHoraDTO,
+    ActualizarBonificacionDTO,
     actualizarRetribucionDTO,
     AltaEjercicioDTO, BajasLaboralesDTO,
     BbccPersonalDTO, BonificacionesEmpleadoEconomicoDTO, CosteHoraPersonalDTO, CrearBajaLaboralDTO,
@@ -150,21 +150,23 @@ export class EconomicoPersonalService {
         });
     }
 
-    public obtenerCosteHoraPorIdEconomico(idEconomico: number) {
+    public obtenerCosteHoraPorIdEconomico(idEconomico: number, paginaActual: number, tamano: number): Observable<PaginacionResponse<CosteHoraPersonalDTO>> {
         return this.http.get<PaginacionResponse<CosteHoraPersonalDTO>>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/resumen-coste-personal`, {
-            headers: {'Content-Type': 'application/json'}
+            headers: {'Content-Type': 'application/json'},
+            params: {
+                page: paginaActual.toString(),
+                size: tamano.toString()
+            }
         });
     }
 
-    actualizarCosteHora(actualizacion: ActualizarCosteHoraDTO) {
-        return this.http.put<void>(`${this.baseUrl}/${this.apiPersonal}/coste-hora`, actualizacion, {
-            headers: {'Content-Type': 'application/json'}
-        });
-    }
-
-    recalcularCostesHora(idEconomico: number) {
-        return this.http.post<void>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/recalcular-costes`, {}, {
-            headers: {'Content-Type': 'application/json'}
+    public recalcularCostesHora(idEconomico: number, paginaActual: number, tamano: number): Observable<PaginacionResponse<CosteHoraPersonalDTO>> {
+        return this.http.post<PaginacionResponse<CosteHoraPersonalDTO>>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/actualizarCosteHoraPersonal`, {}, {
+            headers: {'Content-Type': 'application/json'},
+            params: {
+                page: paginaActual.toString(),
+                size: tamano.toString()
+            }
         });
 
     }

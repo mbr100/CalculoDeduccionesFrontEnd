@@ -1,7 +1,5 @@
-import {Component, inject, Input, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
-import Swal from 'sweetalert2';
-import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
-import {NgClass} from '@angular/common';
+import {Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import {NavigationEnd, Router} from '@angular/router';
 import {filter, Subscription} from 'rxjs';
 
 @Component({
@@ -73,5 +71,29 @@ export class Sidebar implements OnInit, OnDestroy {
         const inactiveClasses = 'text-gray-700 hover:bg-blue-50 hover:text-blue-700';
 
         return `${baseClasses} ${this.activeRoute === buttonId ? activeClasses : inactiveClasses}`;
+    }
+
+    public goToProyectos(): void {
+        this.router.navigate(['/economico/proyectos', this.idEconomico]).then((success) => {
+            if (success) {
+                this.updateActiveRoute(this.router.url);
+            }
+        });
+    }
+
+    public goToAsignaciones(): void {
+        this.router.navigate(['/economico/asignaciones', this.idEconomico]).then((success) => {
+            if (success) {
+                this.updateActiveRoute(this.router.url);
+            }
+        });
+    }
+
+    goToResumen() {
+        this.router.navigate(['/economico/resumen', this.idEconomico]).then((success) => {
+            if (success) {
+                this.updateActiveRoute(this.router.url);
+            }
+        });
     }
 }

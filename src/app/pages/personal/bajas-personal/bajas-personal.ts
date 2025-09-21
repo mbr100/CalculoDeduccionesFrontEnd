@@ -14,7 +14,8 @@ import {getVisiblePages, ModalMode, SavingState} from '../../../models/savingSta
   styleUrl: './bajas-personal.css'
 })
 export class BajasPersonal implements OnInit {
-    @Input() idEconomico!: number;
+    @Input()
+    public idEconomico!: number;
     private economicoPersonalService: EconomicoPersonalService = inject(EconomicoPersonalService);
     private personalService: EconomicoPersonalService = inject(EconomicoPersonalService);
 
@@ -47,7 +48,7 @@ export class BajasPersonal implements OnInit {
 
     public constructor() {
         // Effect para recargar datos cuando cambie la página
-        effect(() => {
+        effect((): void => {
             const page = this.currentPage();
             if (page >= 0) {
                 this.loadDataInternal();
@@ -418,7 +419,6 @@ export class BajasPersonal implements OnInit {
         return this.currentPage() < this.totalPages() - 1;
     }
 
-    // Metodo para actualizar el formulario cuando cambia la selección de personal
     public onPersonalChange(): void {
         const form = this.formData();
         const personalSeleccionado = this.listadoPersonal().find(p => p.idPersona === form.idPersona);

@@ -11,6 +11,20 @@
             <button (click)="goToPersonal()" title="Personal" [class]="getButtonClass('personal')">
                 <i class="fas fa-users text-lg text-blue-500"></i>
             </button>
+
+            <!-- Botón Proyectos -->
+            <button (click)="goToProyectos()" title="Proyectos" [class]="getButtonClass('proyectos')">
+                <i class="fas fa-project-diagram text-blue-500"></i>
+            </button>
+
+            <!-- Botón Asignaciones -->
+            <button (click)="goToAsignaciones()" title="Asignaciones" [class]="getButtonClass('asignaciones')">
+                <i class="fas fa-tasks text-blue-500"></i>
+            </button>
+            <!-- Botón Resumen -->
+            <button (click)="goToResumen()" title="Resumen" [class]="getButtonClass('resumen')">
+                <i class="fas fa-chart-bar text-blue-500"></i>
+            </button>
         </nav>
     </div>
 </div>

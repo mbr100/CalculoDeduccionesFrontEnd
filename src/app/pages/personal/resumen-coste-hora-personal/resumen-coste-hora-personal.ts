@@ -1,48 +1,38 @@
 import {Component, computed, effect, inject, Input, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
-import {ActualizarCosteHoraDTO, CosteHoraPersonalDTO} from '../../../models/personal-economico';
+import {CosteHoraPersonalDTO} from '../../../models/personal-economico';
 import {getVisiblePages, SavingState} from '../../../models/savingState';
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import {FormsModule} from '@angular/forms';
 
 @Component({
-  selector: 'app-resumen-coste-hora-personal',
-    imports: [
-        FormsModule
-    ],
-  templateUrl: './resumen-coste-hora-personal.html',
-  styleUrl: './resumen-coste-hora-personal.css'
+    selector: 'app-resumen-coste-hora-personal',
+    imports: [FormsModule],
+    templateUrl: './resumen-coste-hora-personal.html',
+    styleUrl: './resumen-coste-hora-personal.css'
 })
 export class ResumenCosteHoraPersonal implements OnInit {
     @Input() idEconomico!: number;
     private economicoPersonalService: EconomicoPersonalService = inject(EconomicoPersonalService);
 
     // Signals principales
-    costesHora: WritableSignal<CosteHoraPersonalDTO[]> = signal<CosteHoraPersonalDTO[]>([]);
-    loading: WritableSignal<boolean> = signal(false);
-    savingStates: WritableSignal<{[key: number]: SavingState }> = signal<{[key: number]: SavingState }>({});
+    public costesHora: WritableSignal<CosteHoraPersonalDTO[]> = signal<CosteHoraPersonalDTO[]>([]);
+    public loading: WritableSignal<boolean> = signal(false);
+    public savingStates: WritableSignal<{ [key: number]: SavingState }> = signal<{ [key: number]: SavingState }>({});
 
     // Signals para paginación
-    currentPage: WritableSignal<number> = signal(0);
-    pageSize: WritableSignal<number> = signal(10);
-    totalElements: WritableSignal<number> = signal(0);
-    totalPages: WritableSignal<number> = signal(0);
+    public currentPage: WritableSignal<number> = signal(0);
+    public pageSize: WritableSignal<number> = signal(10);
+    public totalElements: WritableSignal<number> = signal(0);
+    public totalPages: WritableSignal<number> = signal(0);
 
     // Computed signals
-    visiblePages :Signal<number[]> = computed((): number[] => getVisiblePages(this.currentPage(), this.totalPages()));
-
-    costeHoraPromedio = computed(() => {
-        const items = this.costesHora();
-        if (items.length === 0) return 0;
-        return items.reduce((sum: number, item: CosteHoraPersonalDTO) =>
-            sum + (item.costeHora || 0), 0) / items.length;
-    });
-
+    public visiblePages: Signal<number[]> = computed((): number[] => getVisiblePages(this.currentPage(), this.totalPages()));
 
     // Para acceder a Math en el template
-    Math = Math;
+    public Math: Math = Math;
 
-    constructor() {
+    public constructor() {
         // Effect para recargar datos cuando cambie la página
         effect(() => {
             const page = this.currentPage();
@@ -52,7 +42,7 @@ export class ResumenCosteHoraPersonal implements OnInit {
         });
     }
 
-    ngOnInit(): void {
+    public ngOnInit(): void {
         this.loadData();
     }
 
@@ -64,7 +54,7 @@ export class ResumenCosteHoraPersonal implements OnInit {
     private loadDataInternal(): void {
         this.loading.set(true);
         try {
-            this.economicoPersonalService.obtenerCosteHoraPorIdEconomico(this.idEconomico).subscribe({
+            this.economicoPersonalService.obtenerCosteHoraPorIdEconomico(this.idEconomico, this.currentPage(), this.pageSize()).subscribe({
                 next: (response: PaginacionResponse<CosteHoraPersonalDTO>) => {
                     this.costesHora.set(response.content);
                     this.totalElements.set(response.totalElements);
@@ -82,77 +72,11 @@ export class ResumenCosteHoraPersonal implements OnInit {
         }
     }
 
-    // Métodos de actualización (solo para campos editables)
-    public updateField(id: number, field: keyof CosteHoraPersonalDTO, value: string | number): void {
-        // Solo algunos campos son editables (si el backend los permite)
-        const editableFields = ['retribucionTotal', 'costeSS', 'horasMaximas'];
-
-        if (!editableFields.includes(field as string)) {
-            console.warn(`Campo ${field} no es editable - se calcula automáticamente`);
-            return;
-        }
-
-        this.savingStates.update(states => ({
-            ...states,
-            [id]: 'saving'
-        }));
-
-        try {
-            const valorFinal = this.parseNumberValue(value);
-
-            const actualizacion: ActualizarCosteHoraDTO = {
-                id: id,
-                campoActualizado: field,
-                valor: valorFinal
-            };
-
-            this.economicoPersonalService.actualizarCosteHora(actualizacion).subscribe({
-                next: () => {
-                    this.savingStates.update(states => ({
-                        ...states,
-                        [id]: 'success'
-                    }));
-
-                    // Actualizar el valor en la lista local y recalcular
-                    this.costesHora.update(items =>
-                        items.map(item => {
-                            if (item.id === id) {
-                                const updatedItem = { ...item, [field]: valorFinal };
-                                // Recalcular coste hora si es necesario
-                                if (field === 'retribucionTotal' || field === 'costeSS' || field === 'horasMaximas') {
-                                    updatedItem.costeHora = this.calcularCosteHora(updatedItem);
-                                }
-                                return updatedItem;
-                            }
-                            return item;
-                        })
-                    );
-
-                    setTimeout(() => {
-                        this.savingStates.update(states => ({
-                            ...states,
-                            [id]: 'idle'
-                        }));
-                    }, 2000);
-                },
-                error: (error) => {
-                    console.error('Error actualizando coste hora:', error);
-                    this.handleSavingError(id);
-                }
-            });
-
-            console.log(`Actualizando campo ${field} para coste ID ${id} con valor ${value}`);
-        } catch (error) {
-            console.error('Error actualizando campo:', error);
-            this.handleSavingError(id);
-        }
-    }
-
-    // Método para recalcular costes
+    // Mtodo para recalcular costes
     public recalcularCostes(): void {
         this.loading.set(true);
 
-        this.economicoPersonalService.recalcularCostesHora(this.idEconomico).subscribe({
+        this.economicoPersonalService.recalcularCostesHora(this.idEconomico, this.currentPage(), this.pageSize()).subscribe({
             next: () => {
                 this.loadData(); // Recargar datos actualizados
             },
@@ -163,98 +87,11 @@ export class ResumenCosteHoraPersonal implements OnInit {
         });
     }
 
-    // Métodos auxiliares
-    private handleSavingError(id: number): void {
-        this.savingStates.update(states => ({
-            ...states,
-            [id]: 'error'
-        }));
-
-        setTimeout(() => {
-            this.savingStates.update(states => ({
-                ...states,
-                [id]: 'idle'
-            }));
-        }, 3000);
-    }
-
-    public onKeyPress(event: KeyboardEvent, id: number, field: keyof CosteHoraPersonalDTO, value: string | number): void {
-        if (event.key === 'Enter') {
-            (event.target as HTMLInputElement).blur();
-            this.updateField(id, field, value);
-        }
-    }
-
-    public getInputClass(id: number): string {
-        const savingState = this.savingStates()[id] || 'idle';
-        let borderColor: string;
-
-        switch (savingState) {
-            case 'saving':
-                borderColor = 'border-blue-400';
-                break;
-            case 'success':
-                borderColor = 'border-green-400';
-                break;
-            case 'error':
-                borderColor = 'border-red-400';
-                break;
-            default:
-                borderColor = 'border-gray-200';
-        }
-
-        return `w-full px-3 py-2 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors ${borderColor}`;
-    }
-
-    // Métodos específicos de costes
-    public getCosteNivel(costeHora: number): 'alto' | 'medio' | 'bajo' {
-        if (costeHora >= 25) return 'alto';
-        if (costeHora >= 15) return 'medio';
-        return 'bajo';
-    }
-
-    public getCosteClass(costeHora: number): string {
-        const nivel = this.getCosteNivel(costeHora);
-        switch (nivel) {
-            case 'alto': return 'coste-alto';
-            case 'medio': return 'coste-medio';
-            case 'bajo': return 'coste-bajo';
-            default: return '';
-        }
-    }
-
-    public parseNumberValue(value: string | number): number {
-        if (value === null || value === undefined || value === '') {
-            return 0;
-        }
-        if (typeof value === 'number') {
-            return value;
-        }
-        const parsed = parseFloat(value);
-        return isNaN(parsed) ? 0 : Math.max(0, parsed);
-    }
-
     public formatCurrency(value: number): string {
         return new Intl.NumberFormat('es-ES', {
             style: 'currency',
             currency: 'EUR'
         }).format(value || 0);
-    }
-
-    private calcularCosteHora(item: CosteHoraPersonalDTO): number {
-        if (!item.horasMaximas || item.horasMaximas === 0) return 0;
-        return (item.retribucionTotal + item.costeSS) / item.horasMaximas;
-    }
-
-    // Métodos de análisis
-    public getEficienciaCoste(item: CosteHoraPersonalDTO): string {
-        const costeHora = item.costeHora;
-        const promedio = this.costeHoraPromedio();
-
-        if (costeHora <= promedio * 0.8) return 'Muy eficiente';
-        if (costeHora <= promedio * 1.1) return 'Eficiente';
-        if (costeHora <= promedio * 1.3) return 'Moderado';
-        return 'Alto coste';
     }
 
     // Métodos de paginación
@@ -298,6 +135,4 @@ export class ResumenCosteHoraPersonal implements OnInit {
     public canGoNext(): boolean {
         return this.currentPage() < this.totalPages() - 1;
     }
-
-
 }
