@@ -1,59 +1,29 @@
-# CalculoDeduccionesFrontEnd
+# Calculadora de Deducciones I+D+i - Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.2.
+## 📄 Descripción
 
-## Development server
+Esta es la aplicación web frontend de la **Calculadora de Deducciones I+D+i**, destinada a gestores de proyectos de certificación I+D+i. Permite:
 
-To start a local development server, run:
+- Introducir los datos relevantes del proyecto.
+- Calcular automáticamente las deducciones aplicables según la normativa vigente.
+- Considerar deducciones por partidas de personal, incluyendo bonificaciones a la seguridad social, remuneraciones y seguros sociales de los trabajadores.
+- Tener en cuenta posibles bajas y horas máximas deducibles por trabajador.
 
-```bash
-ng serve
-```
+## 🛠 Tecnologías Utilizadas
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### 🌐 Frontend
+- **Angular 20** – Framework principal para desarrollo SPA.
+- **Tailwind CSS** – Estilos utilitarios modernos.
+- **Bootstrap** – Componentes UI y diseño responsive.
+- **RxJS** – Programación reactiva.
+- **NgxEditor** – Editor de texto enriquecido para entradas de información.
+- **Lombok** – Reducción de código boilerplate (si se usa en frontend conectado con Java).
 
-## Code scaffolding
+## Licencia
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Este proyecto se distribuye bajo licencia **propietaria**.
 
-```bash
-ng generate component component-name
-```
+- Uso personal y educativo: gratuito.
+- Uso comercial: requiere adquirir una licencia.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Para más información sobre licencias comerciales, contactar con [tu correo o web].
