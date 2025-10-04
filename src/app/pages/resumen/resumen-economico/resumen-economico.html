@@ -1,0 +1,215 @@
+<div class="min-h-screen bg-gray-50 p-6">
+    <div class="max-w-full mx-auto">
+
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-green-100 p-2 rounded-lg">
+                        <i class="fas fa-calculator text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Resumen de Gastos y Deducción por Proyecto</h1>
+<!--                        <p class="text-gray-600">Gestiona los gastos detallados por proyecto y partida</p>-->
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <i class="fas fa-folder-open"></i>
+                        <span>{{ totalProyectos() }} proyectos</span>
+                    </div>
+                    <button
+                        (click)="exportToExcel()"
+                        [disabled]="isLoading() || !hasData()"
+                        class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Descargar Excel</span>
+                    </button>
+                    <button
+                        (click)="loadData()"
+                        [disabled]="isLoading()"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                        <i [class]="isLoading() ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
+                        <span>Actualizar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        @if (isLoading()) {
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                <div class="flex items-center justify-center space-x-2">
+                    <i class="fas fa-spinner fa-spin text-green-500 text-2xl"></i>
+                    <span class="text-gray-500 text-lg">Cargando matriz de gastos...</span>
+                </div>
+            </div>
+        }
+
+        <!-- Empty State -->
+        @if (!isLoading() && !hasData()) {
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                <div class="flex flex-col items-center justify-center space-y-4">
+                    <i class="fas fa-receipt text-gray-400 text-5xl"></i>
+                    <div class="text-center">
+                        <span class="text-gray-500 text-xl block mb-2">No hay datos de gastos</span>
+                        <p class="text-gray-400">Agrega proyectos para comenzar a gestionar gastos</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Tabla de Matriz -->
+        @if (!isLoading() && hasData()) {
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden tabla-container">
+                <div class="overflow-x-auto">
+                    <table class="w-full tabla-matriz">
+                        <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200 sticky-header">
+                            <!-- Columna fija de proyectos -->
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky-col min-w-[250px]">
+                                <i class="fas fa-folder-open mr-2"></i>Proyecto
+                            </th>
+                            <!-- Columnas dinámicas de partidas -->
+                            @for (tipoGasto of tiposGasto(); track tipoGasto) {
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px] partida-header">
+                                    <div class="flex flex-col items-center">
+                                        <i [class]="getIconoPartida(tipoGasto) + ' mb-1'"></i>
+                                        <span class="font-bold text-center leading-tight">{{ tipoGasto }}</span>
+                                    </div>
+                                </th>
+                            }
+                            <!-- Columnas de cálculos -->
+                            <th class="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider bg-blue-600 min-w-[100px]">
+                                <i class="fas fa-percentage mr-2"></i>% Deduc.
+                            </th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider bg-purple-600 min-w-[120px]">
+                                <i class="fas fa-calculator mr-2"></i>Deducción
+                            </th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider bg-green-600 min-w-[120px]">
+                                <i class="fas fa-euro-sign mr-2"></i>Total
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @for (proyecto of gastosProyectos(); track proyecto.idProyecto) {
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <!-- Información del proyecto (Sticky) -->
+                                    <td class="px-4 py-3 sticky-col border-r border-gray-200 z-10">
+                                        <div class="space-y-1">
+                                            <div class="font-medium text-gray-900 text-sm">
+                                                <i class="fas fa-folder mr-2 text-green-500"></i>
+                                                {{ proyecto.acronimo }}
+                                            </div>
+                                            <div class="text-xs text-gray-600 line-clamp-2" [title]="proyecto.titulo">
+                                                {{ proyecto.titulo }}
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Celdas de importes por partida (SOLO LECTURA) -->
+                                    @for (tipoGasto of tiposGasto(); track tipoGasto) {
+                                        <td class="px-4 py-3 text-center">
+                                            <span class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-gray-50 text-gray-800 border">
+                                                {{ formatCurrency(getImportePartida(proyecto, tipoGasto)) }}
+                                            </span>
+                                        </td>
+                                    }
+
+                                    <!-- Porcentaje de deducción -->
+                                    <td class="px-4 py-3 text-center font-bold bg-blue-50 border-l border-blue-200">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                            {{ proyecto.porcentajeDeduccion }}%
+                                        </span>
+                                    </td>
+
+                                    <!-- Deducción calculada -->
+                                    <td class="px-4 py-3 text-center font-bold bg-purple-50 border-l border-purple-200">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                            <i class="fas fa-calculator mr-1 text-xs"></i>
+                                            {{ formatCurrency(proyecto.deduccion) }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Total del proyecto -->
+                                    <td class="px-4 py-3 text-center font-bold bg-green-50 border-l-2 border-green-200">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-euro-sign mr-1 text-xs"></i>
+                                            {{ formatCurrency(proyecto.total) }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                        <!-- Fila de totales por partida -->
+                        <tr class="total-row border-t-2 border-gray-300">
+                            <td class="px-4 py-3 font-bold text-gray-900 sticky-col">
+                                <i class="fas fa-calculator mr-2"></i>TOTAL POR PARTIDA
+                            </td>
+                            @for (tipoGasto of tiposGasto(); track tipoGasto) {
+                                <td class="px-4 py-3 text-center font-bold text-green-900 bg-green-50">
+                                    {{ formatCurrency(getTotalPorPartida(tipoGasto)) }}
+                                </td>
+                            }
+                            <td class="px-4 py-3 text-center font-bold bg-blue-100 text-blue-800">
+                                -
+                            </td>
+                            <td class="px-4 py-3 text-center font-bold bg-purple-100 text-purple-800">
+                                {{ formatCurrency(getTotalDeducciones()) }}
+                            </td>
+                            <td class="px-4 py-3 text-center font-bold total-cell">
+                                {{ formatCurrency(getTotalGeneral()) }}
+                            </td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Resumen estadísticas -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Total Gastos</p>
+                            <p class="text-2xl font-bold text-green-600">{{ formatCurrency(getTotalGeneral()) }}</p>
+                        </div>
+                        <i class="fas fa-euro-sign text-green-400 text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Total Deducciones</p>
+                            <p class="text-2xl font-bold text-purple-600">{{ formatCurrency(getTotalDeducciones()) }}</p>
+                        </div>
+                        <i class="fas fa-calculator text-purple-400 text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Promedio por Proyecto</p>
+                            <p class="text-2xl font-bold text-blue-600">{{ formatCurrency(getPromedioPorProyecto()) }}</p>
+                        </div>
+                        <i class="fas fa-chart-bar text-blue-400 text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Partida Mayor</p>
+                            <p class="text-xl font-bold text-red-600">{{ getPartidaMayor().tipo }}</p>
+                            <p class="text-sm text-gray-500">{{ formatCurrency(getPartidaMayor().total) }}</p>
+                        </div>
+                        <i class="fas fa-crown text-red-400 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

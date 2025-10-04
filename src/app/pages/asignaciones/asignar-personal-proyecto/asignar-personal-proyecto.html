@@ -1,0 +1,233 @@
+<div class="min-h-screen bg-gray-50 p-6">
+    <div class="max-w-full mx-auto">
+
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-100 p-2 rounded-lg">
+                        <i class="fas fa-project-diagram text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Matriz de Asignaciones</h1>
+                        <p class="text-gray-600">Gestiona las horas asignadas por persona y proyecto</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <i class="fas fa-users"></i>
+                        <span>{{ totalPersonas() }} personas</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <i class="fas fa-folder"></i>
+                        <span>{{ totalProyectos() }} proyectos</span>
+                    </div>
+                    <button
+                        (click)="loadData()"
+                        [disabled]="isLoading()"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                        <i [class]="isLoading() ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
+                        <span>Actualizar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        @if (isLoading()) {
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                <div class="flex items-center justify-center space-x-2">
+                    <i class="fas fa-spinner fa-spin text-blue-500 text-2xl"></i>
+                    <span class="text-gray-500 text-lg">Cargando matriz de asignaciones...</span>
+                </div>
+            </div>
+        }
+
+        <!-- Empty State -->
+        @if (!isLoading() && !hasData()) {
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                <div class="flex flex-col items-center justify-center space-y-4">
+                    <i class="fas fa-clipboard-list text-gray-400 text-5xl"></i>
+                    <div class="text-center">
+                        <span class="text-gray-500 text-xl block mb-2">No hay datos de asignaciones</span>
+                        <p class="text-gray-400">Agrega proyectos y personal para comenzar</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Tabla de Matriz -->
+        @if (!isLoading() && hasData()) {
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden tabla-container">
+                <div class="overflow-x-auto">
+                    <table class="w-full tabla-matriz">
+                        <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200 sticky-header">
+                            <!-- Columna fija de nombres -->
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky-col min-w-[200px]">
+                                <i class="fas fa-user mr-2"></i>Personal
+                            </th>
+                            <!-- Columnas dinámicas de proyectos -->
+                            @for (proyecto of matrizData().proyectos; track proyecto.idProyecto) {
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] proyecto-header">
+                                    <div class="flex flex-col items-center">
+                                        <i class="fas fa-folder text-blue-500 mb-1"></i>
+                                        <span class="font-bold">{{ proyecto.acronimo }}</span>
+                                    </div>
+                                </th>
+                            }
+                            <!-- Columna de horas máximas -->
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-yellow-50 min-w-[100px]">
+                                <i class="fas fa-hourglass-half mr-2"></i>Máximo
+                            </th>
+                            <!-- Columna de horas restantes -->
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-orange-50 min-w-[100px]">
+                                <i class="fas fa-hourglass-end mr-2"></i>Restantes
+                            </th>
+                            <!-- Columna de totales -->
+                            <th class="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider bg-blue-600 min-w-[100px]">
+                                <i class="fas fa-sum mr-2"></i>Total
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @for (fila of matrizData().filas; track fila.idPersonal) {
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <!-- Nombre (Sticky) -->
+                                    <td class="px-4 py-3 sticky-col border-r border-gray-200 z-10">
+                                        <div class="font-medium text-gray-900 text-sm">
+                                            <i class="fas fa-user-circle mr-2 text-gray-400"></i>
+                                            {{ fila.nombreCompleto }}
+                                        </div>
+                                    </td>
+
+                                    <!-- Celdas de horas por proyecto -->
+                                    @for (proyecto of matrizData().proyectos; track proyecto.idProyecto; let i = $index) {
+                                        <td class="px-4 py-3 text-center">
+                                            <div class="relative">
+                                                <input
+                                                    type="number"
+                                                    [value]="fila.horas[i] || 0"
+                                                    (change)="updateHoras(fila.idPersonal, i, $any($event.target).value)"
+                                                    (keyup)="onKeyPress($event, fila.idPersonal, i, $any($event.target).value)"
+                                                    (input)="validateHorasMaximas($event, fila)"
+                                                    [class]="getInputClass(fila.idPersonal, i)"
+                                                    [max]="getMaxHorasDisponibles(fila, i)"
+                                                    min="0"
+                                                    step="0.5"
+                                                    placeholder="0"
+                                                    [title]="'Máximo disponible: ' + getMaxHorasDisponibles(fila, i) + 'h'">
+                                                <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                                    @switch (getSavingState(fila.idPersonal, i)) {
+                                                        @case ('saving') {
+                                                            <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                        }
+                                                        @case ('success') {
+                                                            <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                        }
+                                                        @case ('error') {
+                                                            <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                    }
+
+                                    <!-- Horas máximas -->
+                                    <td class="px-4 py-3 text-center font-bold bg-yellow-50 border-l border-yellow-200">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                            <i class="fas fa-hourglass-half mr-1 text-xs"></i>
+                                            {{ fila.horasMaximas }}h
+                                        </span>
+                                    </td>
+
+                                    <!-- Horas restantes -->
+                                    <td class="px-4 py-3 text-center font-bold border-l border-orange-200"
+                                        [class]="getHorasRestantesClass(fila)">
+                                        <span [class]="getHorasRestantesSpanClass(fila)">
+                                            <i class="fas fa-hourglass-end mr-1 text-xs"></i>
+                                            {{ getHorasRestantes(fila) }}h
+                                        </span>
+                                    </td>
+
+                                    <!-- Total por persona -->
+                                    <td class="px-4 py-3 text-center font-bold bg-blue-50 border-l-2 border-blue-200">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                            <i class="fas fa-clock mr-1 text-xs"></i>
+                                            {{ getTotalPorPersona(fila.horas) }}h
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                        <tr class="total-row border-t-2 border-gray-300">
+                            <td class="px-4 py-3 font-bold text-gray-900 sticky-col">
+                                <i class="fas fa-calculator mr-2"></i>TOTAL POR PROYECTO
+                            </td>
+                            @for (proyecto of matrizData().proyectos; track proyecto.idProyecto; let i = $index) {
+                                <td class="px-4 py-3 text-center font-bold text-blue-900 bg-blue-50">
+                                    {{ getTotalPorProyecto(i) }}h
+                                </td>
+                            }
+                            <td class="px-4 py-3 text-center font-bold bg-yellow-100 text-yellow-800">
+                                {{ getTotalHorasMaximas() }}h
+                            </td>
+                            <td class="px-4 py-3 text-center font-bold bg-orange-100 text-orange-800">
+                                {{ getTotalHorasRestantes() }}h
+                            </td>
+                            <td class="px-4 py-3 text-center font-bold total-cell">
+                                {{ getTotalGeneral() }}h
+                            </td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Promedio por Persona</p>
+                            <p class="text-2xl font-bold text-blue-600">{{ getPromedioPorPersona() }}h</p>
+                        </div>
+                        <i class="fas fa-user-clock text-blue-400 text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Promedio por Proyecto</p>
+                            <p class="text-2xl font-bold text-green-600">{{ getPromedioPorProyecto() }}h</p>
+                        </div>
+                        <i class="fas fa-project-diagram text-green-400 text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Máximo Individual</p>
+                            <p class="text-2xl font-bold text-purple-600">{{ getMaximoIndividual() }}h</p>
+                        </div>
+                        <i class="fas fa-chart-line text-purple-400 text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Total General</p>
+                            <p class="text-2xl font-bold text-red-600">{{ getTotalGeneral() }}h</p>
+                        </div>
+                        <i class="fas fa-clock text-red-400 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,107 @@
+.tabla-matriz {
+    min-width: 1200px;
+    zoom: 0.85;
+}
+
+.tabla-container {
+    zoom: 0.8;
+}
+
+/* Scrollbar personalizado */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #10b981;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #059669;
+}
+
+/* Sticky columns */
+.sticky-col {
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 10;
+    box-shadow: 2px 0 5px -2px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 20;
+}
+
+/* Input de euros personalizado */
+.input-euros {
+    width: 100px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.input-euros:focus {
+    transform: scale(1.05);
+    z-index: 30;
+    position: relative;
+}
+
+/* Estados de guardado */
+.saving {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+.success {
+    border-color: #10b981;
+    background-color: #ecfdf5;
+}
+
+.error {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+}
+
+/* Totales resaltados */
+.total-row {
+    background: linear-gradient(90deg, #f8fafc 0%, #e2e8f0 100%);
+    font-weight: 600;
+}
+
+.total-cell {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+/* Headers de partidas */
+.partida-header {
+    background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
+    border-left: 1px solid #bbf7d0;
+    border-right: 1px solid #bbf7d0;
+}
+
+/* Títulos de proyecto truncados */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .tabla-container { zoom: 0.7; }
+}
+
+@media (max-width: 768px) {
+    .tabla-container { zoom: 0.65; }
+}
