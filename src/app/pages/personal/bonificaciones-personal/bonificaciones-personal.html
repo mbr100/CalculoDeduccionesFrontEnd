@@ -1,0 +1,388 @@
+<div class="min-h-screen bg-gray-50 p-6">
+    <div class="max-w-full mx-auto">
+
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-green-100 p-2 rounded-lg">
+                        <i class="fas fa-percentage text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Gestión de Bonificaciones</h1>
+                        <p class="text-gray-600">Administra las bonificaciones a la Seguridad Social del personal</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button
+                        (click)="openCreateModal()"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                        <i class="fas fa-plus"></i>
+                        <span>Nueva Bonificación</span>
+                    </button>
+
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <i class="fas fa-percentage"></i>
+                        <span>{{ totalElements() }} bonificaciones activas</span>
+                    </div>
+
+                    <button
+                        (click)="loadData()"
+                        [disabled]="isLoading()"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                        <i [class]="isLoading() ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
+                        <span>Actualizar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Bonificaciones -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden tabla-container">
+            <div class="overflow-x-auto">
+                <table class="w-full tabla-responsiva">
+                    <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200">
+                        <!-- Información básica -->
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 min-w-[200px] z-20">
+                            <i class="fas fa-user mr-2"></i>Empleado
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-[200px] bg-gray-50 min-w-[120px] z-20">
+                            <i class="fas fa-id-card mr-2"></i>DNI
+                        </th>
+
+                        <!-- Bonificación -->
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[250px] bg-blue-50">
+                            <i class="fas fa-tags mr-2"></i>Tipo Bonificación
+                        </th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px] bg-green-50">
+                            <i class="fas fa-percentage mr-2"></i>Porcentaje
+                        </th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] bg-yellow-50">
+                            <i class="fas fa-cogs mr-2"></i>Acciones
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+
+                    <!-- Loading State -->
+                        @if (isLoading()) {
+                            <tr>
+                                <td colspan="5" class="px-4 py-12 text-center">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <i class="fas fa-spinner fa-spin text-green-500 text-lg"></i>
+                                        <span class="text-gray-500">Cargando datos...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                    <!-- Empty State -->
+                        @if (!isLoading() && !hasBonificaciones()) {
+                            <tr>
+                                <td colspan="5" class="px-4 py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center space-y-4">
+                                        <i class="fas fa-percentage text-gray-400 text-4xl"></i>
+                                        <div class="text-center">
+                                            <span class="text-gray-500 text-lg block mb-2">No hay bonificaciones registradas</span>
+                                            <p class="text-gray-400 text-sm mb-4">Configura bonificaciones para optimizar los costes de Seguridad Social</p>
+                                            <button
+                                                (click)="openCreateModal()"
+                                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                                <i class="fas fa-plus mr-2"></i>Crear Primera Bonificación
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                    <!-- Data Rows -->
+                        @for (item of bonificaciones(); track item.idBonificacionTrabajador) {
+                            <tr>
+
+                                <!-- Nombre (Sticky) -->
+                                <td class="px-4 py-3 sticky left-0 bg-white border-r border-gray-200 z-10">
+                                    <div class="font-medium text-gray-900 text-sm">{{ item.nombre }}</div>
+                                </td>
+
+                                <!-- DNI (Sticky) -->
+                                <td class="px-4 py-3 sticky left-[200px] bg-white border-r border-gray-200 z-10">
+                                    <div class="text-sm text-gray-700">{{ item.dni }}</div>
+                                </td>
+
+                                <!-- Tipo Bonificación -->
+                                <td class="px-4 py-3">
+                                    <div class="relative campo-tipo">
+                                        <select
+                                            [(ngModel)]="item.tipoBonificacion"
+                                            (change)="updateField(item.idBonificacionTrabajador, 'tipoBonificacion', item.tipoBonificacion)"
+                                            [class]="getInputClass(item.idBonificacionTrabajador) + ' text-sm'">
+                                            @for (tipo of tiposBonificacion; track tipo.value) {
+                                                <option [value]="tipo.value">{{ tipo.label }}</option>
+                                            }
+                                        </select>
+                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                            @switch (savingStates()[item.idBonificacionTrabajador]) {
+                                                @case ('saving') {
+                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                }
+                                                @case ('success') {
+                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                }
+                                                @case ('error') {
+                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Porcentaje -->
+                                <td class="px-4 py-3">
+                                    <div class="relative campo-porcentaje">
+                                        <input
+                                            type="number"
+                                            [(ngModel)]="item.porcentajeBonificacion"
+                                            (keyup)="onKeyPress($event, item.idBonificacionTrabajador, 'porcentajeBonificacion', item.porcentajeBonificacion)"
+                                            (blur)="updateField(item.idBonificacionTrabajador, 'porcentajeBonificacion', item.porcentajeBonificacion)"
+                                            [class]="getInputClass(item.idBonificacionTrabajador) + ' text-center'"
+                                            placeholder="% Bonif"
+                                            min="0"
+                                            max="100"
+                                            step="1">
+                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                            @switch (savingStates()[item.idBonificacionTrabajador]) {
+                                                @case ('saving') {
+                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                }
+                                                @case ('success') {
+                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                }
+                                                @case ('error') {
+                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Acciones -->
+                                <td class="px-4 py-3 text-center">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <button
+                                            (click)="deleteBonificacion(item.idBonificacionTrabajador)"
+                                            class="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded transition-colors"
+                                            title="Eliminar bonificación">
+                                            <i class="fas fa-trash text-sm"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        @if (totalPages() > 1) {
+            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow-sm">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <button
+                        (click)="previousPage()"
+                        [disabled]="!canGoPrevious()"
+                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                        <i class="fas fa-chevron-left mr-2"></i>Anterior
+                    </button>
+                    <button
+                        (click)="nextPage()"
+                        [disabled]="!canGoNext()"
+                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                        Siguiente<i class="fas fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Mostrando
+                            <span class="font-medium"> {{ currentPage() * pageSize() + 1 }} </span>
+                            a
+                            <span class="font-medium"> {{ Math.min((currentPage() + 1) * pageSize(), totalElements()) }} </span>
+                            de
+                            <span class="font-medium"> {{ totalElements() }} </span>
+                            resultados
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                            <button
+                                (click)="previousPage()"
+                                [disabled]="!canGoPrevious()"
+                                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            @for (page of visiblePages(); track page) {
+                                <button
+                                    (click)="goToPage(page)"
+                                    [class]="getPageButtonClass(page)">
+                                    {{ page + 1 }}
+                                </button>
+                            }
+                            <button
+                                (click)="nextPage()"
+                                [disabled]="!canGoNext()"
+                                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Modal para crear/editar bonificación -->
+        @if (modalOpen()) {
+            <div class="fixed inset-0 z-50 overflow-y-auto modal-backdrop" (click)="onBackdropClick($event)">
+                <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+
+                    <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6 modal-content"
+                         (click)="$event.stopPropagation()">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">
+                                <i class="fas fa-percentage mr-2 text-green-600"></i>
+                                @if (modalMode() === 'create') {
+                                    Nueva Bonificación
+                                } @else {
+                                    Editar Bonificación
+                                }
+                            </h3>
+                            <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <!-- Formulario -->
+                        <div class="space-y-4">
+                            <!-- Selector de Personal -->
+                            @if (modalMode() === 'create') {
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-user mr-1"></i>Empleado
+                                    </label>
+                                    <select
+                                        [(ngModel)]="formData().idPersona"
+                                        (change)="onPersonalChange()"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500">
+                                        <option value="0">Seleccionar empleado...</option>
+                                        @for (persona of personalDisponible(); track persona.idPersona) {
+                                            <option [value]="persona.idPersona">{{ persona.nombre }}</option>
+                                        }
+                                    </select>
+                                </div>
+                            } @else {
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-user mr-1"></i>Empleado
+                                    </label>
+                                    <input
+                                        type="text"
+                                        [value]="formData().nombre"
+                                        readonly
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600">
+                                </div>
+                            }
+
+                            <!-- Tipo de Bonificación -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-tags mr-1"></i>Tipo de Bonificación <span class="text-red-500">*</span>
+                                </label>
+                                <select
+                                    [(ngModel)]="formData().tipoBonificacion"
+                                    (change)="onTipoBonificacionChange()"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500">
+                                    @for (tipo of tiposBonificacion; track tipo.value) {
+                                        <option [value]="tipo.value">{{ tipo.label }} ({{ tipo.porcentajeDefault }}%)</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Porcentaje -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-percentage mr-1"></i>Porcentaje de Bonificación <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input
+                                        type="number"
+                                        [(ngModel)]="formData().porcentajeBonificacion"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
+                                        placeholder="Porcentaje"
+                                        min="0"
+                                        max="100"
+                                        step="1">
+                                    <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                                        %
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Porcentaje entre 0 y 100</p>
+                            </div>
+
+                            <!-- Información adicional -->
+                            <div class="bg-blue-50 p-3 rounded-lg">
+                                <h4 class="text-sm font-medium text-blue-900 mb-2">
+                                    <i class="fas fa-info-circle mr-1"></i>Información de la bonificación
+                                </h4>
+                                <div class="text-xs text-blue-800 space-y-1">
+                                    <p><strong>Empleado:</strong> {{ formData().nombre || 'No seleccionado' }}</p>
+                                    <p><strong>Tipo:</strong> {{ getTipoLabel(formData().tipoBonificacion) }}</p>
+                                    <p><strong>Ahorro estimado SS:</strong> {{ formData().porcentajeBonificacion }}% de las cuotas</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button
+                                (click)="closeModal()"
+                                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                                Cancelar
+                            </button>
+                            <button
+                                (click)="saveModal()"
+                                [disabled]="modalLoading()"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                                @if (modalLoading()) {
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <span>Guardando...</span>
+                                } @else {
+                                    <i class="fas fa-save"></i>
+                                    <span>
+                                        @if (modalMode() === 'create') {
+                                            Crear Bonificación
+                                        } @else {
+                                            Guardar Cambios
+                                        }
+                                    </span>
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Información de página actual -->
+        @if (totalPages() > 1) {
+            <div class="text-center mt-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-percentage mr-1"></i>
+                    Página {{ currentPage() + 1 }} de {{ totalPages() }}
+                </span>
+            </div>
+        }
+    </div>
+</div>

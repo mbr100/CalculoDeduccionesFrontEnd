@@ -1,0 +1,57 @@
+/* Zoom solo para la tabla */
+.tabla-container {
+    zoom: 0.75;
+}
+
+/* Mejoras adicionales para mejor visualización */
+.tabla-responsiva {
+    min-width: 1000px;
+}
+
+/* Scrollbar personalizado */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Modal styles */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+.modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Estados de baja */
+.baja-activa {
+    background-color: #fef3c7;
+}
+
+.baja-finalizada {
+    background-color: #f3f4f6;
+}
+
+/* Estilos para campos */
+.campo-fecha {
+    min-width: 140px;
+}
+
+.campo-horas {
+    min-width: 100px;
+}

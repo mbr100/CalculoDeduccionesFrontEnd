@@ -2,6 +2,8 @@ import {Component, computed, effect, inject, Input, OnInit, signal} from '@angul
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import {FormsModule} from '@angular/forms';
+import {actualizarBbccDTO, BbccPersonalDTO} from '../../../models/personal-economico';
+import {MonthConfig, SavingState} from '../../../models/savingState';
 
 
 @Component({

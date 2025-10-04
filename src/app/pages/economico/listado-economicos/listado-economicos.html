@@ -190,11 +190,7 @@
                             </button>
 
                             <!-- Botón Última página -->
-                            <button
-                                (click)="goToPage(totalPages())"
-                                [disabled]="currentPage() >= totalPages()"
-                                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
-                                title="Última página">
+                            <button (click)="goToPage(totalPages())" [disabled]="currentPage() >= totalPages()" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed" title="Última página">
                                 <i class="fa fa-angle-double-right" aria-hidden="true"></i>
                             </button>
                         </nav>

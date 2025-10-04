@@ -3,9 +3,21 @@ import {environment} from '../../environments/environment.development';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {PaginacionResponse} from '../models/paginacion-response';
+import {
+    actualizarAltaEjercicioDTO, ActualizarBajaLaboralDTO,
+    actualizarBbccDTO,
+    ActualizarBonificacionDTO,
+    actualizarRetribucionDTO,
+    AltaEjercicioDTO, BajasLaboralesDTO,
+    BbccPersonalDTO, BonificacionesEmpleadoEconomicoDTO, CosteHoraPersonalDTO, CrearBajaLaboralDTO,
+    CrearBonificacionDTO,
+    CrearPersonalEconomico, ListadoPersonalSelectorEconomicoDTO,
+    PersonalEconomico,
+    RetribucionesPersonalDTO
+} from '../models/personal-economico';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class EconomicoPersonalService {
     private baseUrl: string = environment.apiUrl;
@@ -22,19 +34,19 @@ export class EconomicoPersonalService {
         });
     }
 
-    public eliminarPersonal(idEconomico: number,idPersona: number):Observable<void> {
+    public eliminarPersonal(idEconomico: number, idPersona: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/${idPersona}`, {
             headers: {'Content-Type': 'application/json'}
         });
     }
 
-    public actualizarPersonalEconomico(personalactualizar: CrearPersonalEconomico):Observable<void> {
+    public actualizarPersonalEconomico(personalactualizar: CrearPersonalEconomico): Observable<void> {
         return this.http.put<void>(`${this.baseUrl}/${this.apiPersonal}/actualizar`, personalactualizar, {
             headers: {'Content-Type': 'application/json'}
         });
     }
 
-    public obtenerRetribucionesPorIdEconomico(idEconomico: number, paginaActual:number, tamano:number): Observable<PaginacionResponse<RetribucionesPersonalDTO>> {
+    public obtenerRetribucionesPorIdEconomico(idEconomico: number, paginaActual: number, tamano: number): Observable<PaginacionResponse<RetribucionesPersonalDTO>> {
         return this.http.get<PaginacionResponse<RetribucionesPersonalDTO>>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/retribuciones`, {
             headers: {'Content-Type': 'application/json'},
             params: {
@@ -68,43 +80,93 @@ export class EconomicoPersonalService {
         });
     }
 
-   public actualizarAltaEjercicio(actualizacion: actualizarAltaEjercicioDTO): Observable<void> {
+    public actualizarAltaEjercicio(actualizacion: actualizarAltaEjercicioDTO) {
         return this.http.put<void>(`${this.baseUrl}/${this.apiPersonal}/alta-ejercicio`, actualizacion, {
             headers: {'Content-Type': 'application/json'}
         });
     }
 
-    public obtenerBajasLaboralesPorIdEconomico(idEconomico: number):Observable<PaginacionResponse<BajasLaboralesDTO>> {
+    public obtenerBajasLaboralesPorIdEconomico(idEconomico: number, paginaActual: number, tamano: number): Observable<PaginacionResponse<BajasLaboralesDTO>> {
         return this.http.get<PaginacionResponse<BajasLaboralesDTO>>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/bajas-laborales`, {
-            headers: {'Content-Type': 'application/json'}
+            headers: {'Content-Type': 'application/json'},
+            params: {
+                page: paginaActual.toString(),
+                size: tamano.toString()
+            }
         });
 
     }
 
-    obtenerListadoPersonalSelector(idEconomico: number): Observable<ListadoPersonalSelectorEconomicoDTO[]> {
+    public obtenerListadoPersonalSelector(idEconomico: number): Observable<ListadoPersonalSelectorEconomicoDTO[]> {
         return this.http.get<ListadoPersonalSelectorEconomicoDTO[]>(`${this.baseUrl}/${this.apiPersonal}/selector/${idEconomico}`, {
             headers: {'Content-Type': 'application/json'}
+
         });
 
     }
 
-    actualizarBajaLaboral(actualizacion: ActualizarBajaLaboralDTO) {
+    public actualizarBajaLaboral(actualizacion: ActualizarBajaLaboralDTO): Observable<void> {
         return this.http.put<void>(`${this.baseUrl}/${this.apiPersonal}/baja-laboral`, actualizacion, {
             headers: {'Content-Type': 'application/json'}
         });
 
     }
 
-    eliminarBajaLaboral(idBajaLaboral: number) {
+    public eliminarBajaLaboral(idBajaLaboral: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/${this.apiPersonal}/baja-laboral/${idBajaLaboral}`, {
             headers: {'Content-Type': 'application/json'}
         });
 
     }
 
-    crearBajaLaboral(nuevaBaja: CrearBajaLaboralDTO) {
+    public crearBajaLaboral(nuevaBaja: CrearBajaLaboralDTO): Observable<void> {
         return this.http.post<void>(`${this.baseUrl}/${this.apiPersonal}/baja-laboral`, nuevaBaja, {
             headers: {'Content-Type': 'application/json'}
+        });
+
+    }
+
+    public obtenerBonificacionesPorIdEconomico(idEconomico: number): Observable<PaginacionResponse<BonificacionesEmpleadoEconomicoDTO>> {
+        return this.http.get<PaginacionResponse<BonificacionesEmpleadoEconomicoDTO>>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/bonificaciones`, {
+            headers: {'Content-Type': 'application/json'}
+        });
+    }
+
+    public actualizarBonificacion(actualizacion: ActualizarBonificacionDTO) {
+        return this.http.put<void>(`${this.baseUrl}/${this.apiPersonal}/bonificacion`, actualizacion, {
+            headers: {'Content-Type': 'application/json'}
+        });
+    }
+
+    public eliminarBonificacion(idBonificacionTrabajador: number) {
+        return this.http.delete<void>(`${this.baseUrl}/${this.apiPersonal}/bonificacion/${idBonificacionTrabajador}`, {
+            headers: {'Content-Type': 'application/json'}
+        });
+    }
+
+    public crearBonificacion(nuevaBonificacion: CrearBonificacionDTO) {
+        return this.http.post<void>(`${this.baseUrl}/${this.apiPersonal}/bonificacion`, nuevaBonificacion, {
+            headers: {'Content-Type': 'application/json'}
+        });
+    }
+
+    public obtenerCosteHoraPorIdEconomico(idEconomico: number, paginaActual: number, tamano: number): Observable<PaginacionResponse<CosteHoraPersonalDTO>> {
+        return this.http.get<PaginacionResponse<CosteHoraPersonalDTO>>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/resumen-coste-personal`, {
+            headers: {'Content-Type': 'application/json'},
+            params: {
+                page: paginaActual.toString(),
+                size: tamano.toString()
+            }
+        });
+    }
+
+    public recalcularCostesHora(idEconomico: number, paginaActual: number, tamano: number): Observable<PaginacionResponse<CosteHoraPersonalDTO>> {
+        return this.http.post<PaginacionResponse<CosteHoraPersonalDTO>>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/actualizarCosteHoraPersonal`, {}, {
+            headers: {'Content-Type': 'application/json'},
+            params: {
+                page: paginaActual.toString(),
+                size: tamano.toString()
+            }
         });
 
     }

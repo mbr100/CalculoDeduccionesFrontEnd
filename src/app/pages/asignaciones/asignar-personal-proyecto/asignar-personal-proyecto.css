@@ -1,0 +1,100 @@
+/* Tabla responsive con scroll horizontal */
+.tabla-matriz {
+    min-width: 800px;
+    zoom: 0.85;
+}
+
+.tabla-container {
+    zoom: 0.8;
+}
+
+/* Scrollbar personalizado */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #3b82f6;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #2563eb;
+}
+
+/* Sticky columns */
+.sticky-col {
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 10;
+    box-shadow: 2px 0 5px -2px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 20;
+}
+
+/* Input de horas personalizado */
+.input-horas {
+    width: 80px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.input-horas:focus {
+    transform: scale(1.05);
+    z-index: 30;
+    position: relative;
+}
+
+/* Estados de guardado */
+.saving {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+.success {
+    border-color: #10b981;
+    background-color: #ecfdf5;
+}
+
+.error {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+}
+
+/* Totales resaltados */
+.total-row {
+    background: linear-gradient(90deg, #f8fafc 0%, #e2e8f0 100%);
+    font-weight: 600;
+}
+
+.total-cell {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+}
+
+/* Headers de proyectos */
+.proyecto-header {
+    background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+    border-left: 1px solid #cbd5e1;
+    border-right: 1px solid #cbd5e1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .tabla-container { zoom: 0.7; }
+}
+
+@media (max-width: 768px) {
+    .tabla-container { zoom: 0.65; }
+}

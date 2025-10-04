@@ -1,12 +1,9 @@
 import {Component, ElementRef, inject, Input, OnInit, signal, ViewChild, WritableSignal} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {HttpClient} from '@angular/common/http';
-import {firstValueFrom} from 'rxjs';
 import {PaginacionResponse} from '../../../models/paginacion-response';
-import {environment} from '../../../../environments/environment';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
-import {ActivatedRoute} from '@angular/router';
 import Swal from 'sweetalert2';
+import {CrearPersonalEconomico, PersonalEconomico} from '../../../models/personal-economico';
 
 @Component({
   selector: 'app-listado-personal',
@@ -49,7 +46,7 @@ export class ListadoPersonal implements OnInit {
 
     // URL base de la API (ajustar según tu configuración)
 
-    constructor(private fb: FormBuilder, private http: HttpClient) {
+    constructor(private fb: FormBuilder) {
         this.personalForm = this.fb.group({
             nombre: ['Mario', Validators.required],
             apellidos: ['Borrego Rodríguez', Validators.required],

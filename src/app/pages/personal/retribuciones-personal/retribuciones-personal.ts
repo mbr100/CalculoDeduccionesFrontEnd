@@ -2,7 +2,7 @@ import {Component, computed, effect, inject, Input, OnInit, Signal, signal, Writ
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import {FormsModule} from '@angular/forms';
-import {getVisiblePages} from '../../../utils/pagination.util';
+import {actualizarRetribucionDTO, RetribucionesPersonalDTO} from '../../../models/personal-economico';
 
 type SavingState = 'idle' | 'saving' | 'success' | 'error';
 

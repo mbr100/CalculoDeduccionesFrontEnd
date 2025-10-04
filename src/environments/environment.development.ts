@@ -5,6 +5,7 @@ export const environment = {
     apiUrl: 'http://localhost:8080',
     apiEconomicos: 'api/economicos',
     apiPersonal: 'api/personal',
+    apiProyectos: '/api/proyectos',
     editorToolbar: <Toolbar>[
         ['bold', 'italic'],
         ['underline', 'strike'],

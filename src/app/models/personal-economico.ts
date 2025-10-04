@@ -1,4 +1,4 @@
-interface PersonalEconomico {
+export interface PersonalEconomico {
     idPersona: number;
     nombre: string;
     apellidos: string;
@@ -12,7 +12,7 @@ interface PersonalEconomico {
     esPersonalInvestigador: boolean;
 }
 
-interface CrearPersonalEconomico {
+export interface CrearPersonalEconomico {
     idPersona: number;
     nombre: string;
     apellidos: string;
@@ -27,7 +27,7 @@ interface CrearPersonalEconomico {
     idEconomico: number;
 }
 
-interface RetribucionesPersonalDTO {
+export interface RetribucionesPersonalDTO {
     idPersonal: number;
     nombre: string;
     dni: string;
@@ -39,20 +39,19 @@ interface RetribucionesPersonalDTO {
     rentasExentas190: number;            // Long -> number
 }
 
-interface actualizarRetribucionDTO {
+export interface actualizarRetribucionDTO {
     idRetribucion: number;
     campoActualizado: string;
     valor: number;
 }
 
-interface actualizarBbccDTO{
+export interface actualizarBbccDTO{
     idBbccPersonal: number;
     campoActualizado: string;
     valor: number | null; // Long -> number, puede ser null
 }
 
-
-interface BbccPersonalDTO {
+export interface BbccPersonalDTO {
     idPersonal: number;
     nombre: string;
     dni: string;
@@ -71,7 +70,7 @@ interface BbccPersonalDTO {
     basesCotizacionContingenciasComunesDiciembre: number | null;
 }
 
-interface AltaEjercicioDTO {
+export interface AltaEjercicioDTO {
     idPersona: number;
     nombre: string;
     dni: string;
@@ -82,13 +81,13 @@ interface AltaEjercicioDTO {
     horasMaximasAnuales: number;
 }
 
-interface actualizarAltaEjercicioDTO {
+export interface actualizarAltaEjercicioDTO {
     idAltaEjercicio: number;
     campoActualizado: keyof AltaEjercicioDTO;
     valor: Date | number;
 }
 
-interface BajasLaboralesDTO {
+export interface BajasLaboralesDTO {
     idPersona: number;
     nombre: string;
     dni: string;
@@ -98,20 +97,88 @@ interface BajasLaboralesDTO {
     horasDeBaja: number;
 }
 
-interface ListadoPersonalSelectorEconomicoDTO {
+export interface ListadoPersonalSelectorEconomicoDTO {
     idPersona: number;
     nombre: string;
 }
 
-interface CrearBajaLaboralDTO {
+export interface CrearBajaLaboralDTO {
     idPersona: number;
     fechaInicio: Date;
     fechaFin: Date;
 }
 
-interface ActualizarBajaLaboralDTO {
+export interface ActualizarBajaLaboralDTO {
     idBajaLaboral: number;
     campoActualizado: keyof BajasLaboralesDTO;
     valor: Date | number;
 }
 
+export interface BajaPersona {
+    idPersona: number;
+    fechaInicio: string;  // puedes usar Date si quieres manejarlo como objeto Date
+    fechaFin: string;
+    nombre: string;
+}
+
+export interface BonificacionesEmpleadoEconomicoDTO {
+    idPersona: number;
+    nombre: string;
+    dni: string;
+    idBonificacionTrabajador: number;
+    tipoBonificacion: TiposBonificacion;
+    porcentajeBonificacion: number;
+}
+
+export interface ListadoPersonalSelectorEconomicoDTO {
+    idPersona: number;
+    nombre: string;
+}
+
+export interface CrearBonificacionDTO {
+    idPersona: number;
+    tipoBonificacion: TiposBonificacion;
+    porcentajeBonificacion: number;
+}
+
+export interface ActualizarBonificacionDTO {
+    idBonificacionTrabajador: number;
+    campoActualizado: keyof BonificacionesEmpleadoEconomicoDTO;
+    valor: TiposBonificacion | number;
+}
+
+// Enum para tipos de bonificación
+export enum TiposBonificacion {
+    BONIFICACION_PERSONAL_INVESTIGADOR = 'BONIFICACION_PERSONAL_INVESTIGADOR',
+    OTRA_BONIFICACION = 'OTRA_BONIFICACION'
+}
+
+export interface formBonificacion {
+    idPersona: number
+    tipoBonificacion: TiposBonificacion
+    porcentajeBonificacion: number
+    nombre: string
+
+}
+export interface tiposBonificacion {
+    value: TiposBonificacion
+    label: string
+    porcentajeDefault: number
+}
+
+export interface CosteHoraPersonalDTO {
+    idPersona: number;
+    nombre: string;
+    dni: string;
+    id: number;
+    retribucionTotal: number;
+    costeSS: number;
+    horasMaximas: number;
+    costeHora: number;
+}
+
+export interface ActualizarCosteHoraDTO {
+    id: number;
+    campoActualizado: keyof CosteHoraPersonalDTO;
+    valor: number;
+}

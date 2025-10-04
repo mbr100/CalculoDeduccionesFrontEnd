@@ -4,7 +4,8 @@ export const environment = {
     production: true,
     apiUrl: 'http://localhost:8080',
     apiEconomicos: 'api/economicos',
-    apiPersonal: '/api/personal',
+    apiPersonal: 'api/personal',
+    apiProyectos: 'api/proyectos',
     editorToolbar: <Toolbar>[
         ['bold', 'italic'],
         ['underline', 'strike'],

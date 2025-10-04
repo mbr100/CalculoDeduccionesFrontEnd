@@ -44,7 +44,12 @@
 
             <!-- PESTAÑA REPORTES -->
             @if (activeTab() === 'bonificaciones') {
+                <app-bonificaciones-personal [idEconomico]="this.economicoId"></app-bonificaciones-personal>
+            }
 
+            <!-- PESTAÑA RESUMEN -->
+            @if (activeTab() === 'resumen') {
+                <app-resumen-coste-hora-personal [idEconomico]="this.economicoId"></app-resumen-coste-hora-personal>
             }
         </div>
     </div>

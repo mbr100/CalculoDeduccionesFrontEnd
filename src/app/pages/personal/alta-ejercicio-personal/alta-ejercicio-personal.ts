@@ -1,10 +1,9 @@
-import {Component, computed, effect, inject, Input, OnInit, Signal, signal, WritableSignal} from '@angular/core';
+import {Component, computed, effect, inject, Input, OnInit, Signal, signal} from '@angular/core';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import {FormsModule} from '@angular/forms';
-import {EconomicoService} from '../../../services/economico-service';
-import {EconomicoDto} from '../../../models/economico';
-import {getVisiblePages} from '../../../utils/pagination.util';
+import {actualizarAltaEjercicioDTO, AltaEjercicioDTO} from '../../../models/personal-economico';
+import {getVisiblePages, SavingState} from '../../../models/savingState';
 
 @Component({
   selector: 'app-alta-ejercicio-personal',
@@ -33,6 +32,14 @@ export class AltaEjercicioPersonal implements OnInit {
 
     // Computed signals
     public visiblePages: Signal<number[]> = computed((): number[] => getVisiblePages(this.currentPage(), this.totalPages()));
+
+
+    // Computed signals para estadísticas
+    totalHorasConvenio = computed(() => {
+        return this.altasEjercicio().reduce((sum: number, item: AltaEjercicioDTO) =>
+            sum + (item.horasConvenioAnual || 0), 0
+        );
+    });
 
     // Para acceder a Math en el template
     public Math: Math = Math;
@@ -182,6 +189,7 @@ export class AltaEjercicioPersonal implements OnInit {
         if (event.key === 'Enter') {
             (event.target as HTMLInputElement).blur();
             this.updateField(idAltaEjercicio, field, value);
+            this.loadDataInternal();
         }
     }
 
@@ -206,7 +214,7 @@ export class AltaEjercicioPersonal implements OnInit {
         return `w-full px-3 py-2 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors ${borderColor}`;
     }
 
-    public formatDateForInput(date: Date | string | null): string {
+    formatDateForInput(date: Date | string | null): string {
         if (!date) return '';
         try {
             const d = new Date(date);
