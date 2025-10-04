@@ -19,7 +19,8 @@
                         <span>{{ totalElements() }} empleados</span>
                     </div>
 
-                    <button (click)="loadData()" [disabled]="isLoading()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                    <button (click)="loadData()" [disabled]="isLoading()"
+                            class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
                         <i [class]="isLoading() ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
                         <span>Actualizar</span>
                     </button>
@@ -45,8 +46,8 @@
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-600">Total Horas Convenio</p>
-                            <p class="text-2xl font-bold text-blue-900">{{ totalHorasConvenio() }}</p>
+                            <p class="text-sm text-gray-600">Total Convenio</p>
+                            <p class="text-2xl font-bold text-blue-900">{{ horasConvenioAnual() }}</p>
                         </div>
                         <div class="p-3 bg-blue-100 rounded-full">
                             <i class="fas fa-clock text-blue-600"></i>
@@ -54,29 +55,6 @@
                     </div>
                 </div>
 
-<!--                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">-->
-<!--                    <div class="flex items-center justify-between">-->
-<!--                        <div>-->
-<!--                            <p class="text-sm text-gray-600">Total Horas Máximas</p>-->
-<!--                            <p class="text-2xl font-bold text-purple-900">{{ totalHorasMaximas() }}</p>-->
-<!--                        </div>-->
-<!--                        <div class="p-3 bg-purple-100 rounded-full">-->
-<!--                            <i class="fas fa-stopwatch text-purple-600"></i>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">-->
-<!--                    <div class="flex items-center justify-between">-->
-<!--                        <div>-->
-<!--                            <p class="text-sm text-gray-600">Promedio Horas Convenio</p>-->
-<!--                            <p class="text-2xl font-bold text-orange-900">{{ Math.round(promedioHorasConvenio()) }}</p>-->
-<!--                        </div>-->
-<!--                        <div class="p-3 bg-orange-100 rounded-full">-->
-<!--                            <i class="fas fa-chart-line text-orange-600"></i>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
             </div>
         }
 
@@ -85,37 +63,31 @@
             <div class="overflow-x-auto">
                 <table class="w-full tabla-responsiva">
                     <thead>
-                    <tr class="bg-gray-50 border-b border-gray-200">
-                        <!-- Información básica -->
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 min-w-[200px] z-20">
-                            <i class="fas fa-user mr-2"></i>Empleado
-                        </th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-[200px] bg-gray-50 min-w-[120px] z-20">
-                            <i class="fas fa-id-card mr-2"></i>DNI
-                        </th>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <!-- Información básica -->
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 min-w-[200px] z-20">
+                                <i class="fas fa-user mr-2"></i>Empleado
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-[200px] bg-gray-50 min-w-[120px] z-20">
+                                <i class="fas fa-id-card mr-2"></i>DNI
+                            </th>
 
-                        <!-- Fechas -->
-                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px] bg-blue-50">
-                            <i class="fas fa-calendar-plus mr-2"></i>Fecha Alta
-                        </th>
-                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px] bg-red-50">
-                            <i class="fas fa-calendar-minus mr-2"></i>Fecha Baja
-                        </th>
+                            <!-- Fechas -->
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px] bg-blue-50">
+                                <i class="fas fa-calendar-plus mr-2"></i>Fecha Alta
+                            </th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px] bg-red-50">
+                                <i class="fas fa-calendar-minus mr-2"></i>Fecha Baja
+                            </th>
 
-                        <!-- Horas -->
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px] bg-yellow-50">
-                            <i class="fas fa-clock mr-2"></i>Horas Convenio
-                        </th>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px] bg-orange-50">
-                            <i class="fas fa-stopwatch mr-2"></i>Horas Máximas
-                        </th>
-<!--                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] bg-green-50">-->
-<!--                            <i class="fas fa-battery-three-quarters mr-2"></i>Disponibles-->
-<!--                        </th>-->
-<!--                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] bg-purple-50">-->
-<!--                            <i class="fas fa-percentage mr-2"></i>% Uso-->
-<!--                        </th>-->
-                    </tr>
+                            <!-- Horas -->
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px] bg-yellow-50">
+                                <i class="fas fa-clock mr-2"></i>Horas Convenio
+                            </th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px] bg-orange-50">
+                                <i class="fas fa-stopwatch mr-2"></i>Horas Máximas
+                            </th>
+                        </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
 
@@ -264,20 +236,6 @@
                                         </div>
                                     </div>
                                 </td>
-
-<!--                                &lt;!&ndash; Horas Disponibles &ndash;&gt;-->
-<!--                                <td class="px-4 py-3 text-right">-->
-<!--                                <span class="font-semibold text-green-900">-->
-<!--                                    {{ getHorasDisponibles(item) }}h-->
-<!--                                </span>-->
-<!--                                </td>-->
-
-<!--                                &lt;!&ndash; Porcentaje de Uso &ndash;&gt;-->
-<!--                                <td class="px-4 py-3 text-center">-->
-<!--                                    <div [class]="'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ' + getColorPorcentajeHoras(getPorcentajeUsoHoras(item))">-->
-<!--                                        {{ Math.round(getPorcentajeUsoHoras(item)) }}%-->
-<!--                                    </div>-->
-<!--                                </td>-->
                             </tr>
                         }
                     </tbody>
@@ -351,105 +309,5 @@
                 </span>
             </div>
         }
-
-<!--        &lt;!&ndash; Resumen detallado &ndash;&gt;-->
-<!--        @if (hasAltasEjercicio()) {-->
-<!--            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-6">-->
-<!--                <h3 class="text-lg font-semibold text-gray-900 mb-4">-->
-<!--                    <i class="fas fa-chart-bar mr-2"></i>Resumen de la página actual:-->
-<!--                </h3>-->
-<!--                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">-->
-<!--                    <div class="text-center p-3 bg-emerald-50 rounded-lg border border-emerald-200">-->
-<!--                        <div class="font-semibold text-emerald-900 text-lg">{{ altasEjercicio().length }}</div>-->
-<!--                        <div class="text-emerald-700 text-sm">Empleados mostrados</div>-->
-<!--                    </div>-->
-<!--                    <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">-->
-<!--                        <div class="font-semibold text-blue-900 text-lg">{{ totalHorasConvenio() }}</div>-->
-<!--                        <div class="text-blue-700 text-sm">Total horas convenio</div>-->
-<!--                    </div>-->
-<!--                    <div class="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">-->
-<!--                        <div class="font-semibold text-yellow-900 text-lg">{{ totalHorasMaximas() }}</div>-->
-<!--                        <div class="text-yellow-700 text-sm">Total horas máximas</div>-->
-<!--                    </div>-->
-<!--                    <div class="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">-->
-<!--                        <div class="font-semibold text-purple-900 text-lg">{{ Math.round(promedioHorasConvenio()) }}</div>-->
-<!--                        <div class="text-purple-700 text-sm">Promedio convenio</div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        }-->
-
-<!--        &lt;!&ndash; Leyenda de estados y ayuda &ndash;&gt;-->
-<!--        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mt-6">-->
-<!--            <div class="grid md:grid-cols-2 gap-6">-->
-<!--                &lt;!&ndash; Estados de guardado &ndash;&gt;-->
-<!--                <div>-->
-<!--                    <h3 class="text-sm font-medium text-gray-900 mb-3">-->
-<!--                        <i class="fas fa-info-circle mr-2"></i>Estados de guardado:-->
-<!--                    </h3>-->
-<!--                    <div class="space-y-2 text-sm">-->
-<!--                        <div class="flex items-center space-x-2">-->
-<!--                            <i class="fas fa-spinner fa-spin text-blue-500"></i>-->
-<!--                            <span class="text-gray-600">Guardando...</span>-->
-<!--                        </div>-->
-<!--                        <div class="flex items-center space-x-2">-->
-<!--                            <i class="fas fa-check-circle text-green-500"></i>-->
-<!--                            <span class="text-gray-600">Guardado correctamente</span>-->
-<!--                        </div>-->
-<!--                        <div class="flex items-center space-x-2">-->
-<!--                            <i class="fas fa-exclamation-circle text-red-500"></i>-->
-<!--                            <span class="text-gray-600">Error al guardar</span>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--                &lt;!&ndash; Información de uso de horas &ndash;&gt;-->
-<!--                <div>-->
-<!--                    <h3 class="text-sm font-medium text-gray-900 mb-3">-->
-<!--                        <i class="fas fa-percentage mr-2"></i>Indicadores de horas:-->
-<!--                    </h3>-->
-<!--                    <div class="space-y-2 text-xs">-->
-<!--                        <div class="flex items-center space-x-2">-->
-<!--                            <div class="w-3 h-3 rounded bg-green-200"></div>-->
-<!--                            <span class="text-gray-600">< 50% - Uso normal</span>-->
-<!--                        </div>-->
-<!--                        <div class="flex items-center space-x-2">-->
-<!--                            <div class="w-3 h-3 rounded bg-yellow-200"></div>-->
-<!--                            <span class="text-gray-600">50-75% - Moderado</span>-->
-<!--                        </div>-->
-<!--                        <div class="flex items-center space-x-2">-->
-<!--                            <div class="w-3 h-3 rounded bg-orange-200"></div>-->
-<!--                            <span class="text-gray-600">75-90% - Alto</span>-->
-<!--                        </div>-->
-<!--                        <div class="flex items-center space-x-2">-->
-<!--                            <div class="w-3 h-3 rounded bg-red-200"></div>-->
-<!--                            <span class="text-gray-600">≥ 90% - Crítico</span>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Tips adicionales &ndash;&gt;-->
-<!--            <div class="mt-4 p-3 bg-gray-50 rounded-lg">-->
-<!--                <div class="grid md:grid-cols-2 gap-4 text-xs text-gray-600">-->
-<!--                    <p>-->
-<!--                        <i class="fas fa-lightbulb mr-1 text-yellow-500"></i>-->
-<!--                        <strong>Tip:</strong> Presiona <kbd class="px-1 py-0.5 bg-gray-200 rounded text-xs">Enter</kbd> para guardar automáticamente.-->
-<!--                    </p>-->
-<!--                    <p>-->
-<!--                        <i class="fas fa-calendar-alt mr-1 text-blue-500"></i>-->
-<!--                        <strong>Fechas:</strong> Las fechas se guardan automáticamente al cambiarlas.-->
-<!--                    </p>-->
-<!--                    <p>-->
-<!--                        <i class="fas fa-clock mr-1 text-green-500"></i>-->
-<!--                        <strong>Horas:</strong> Las horas disponibles se calculan automáticamente (Máximas - Convenio).-->
-<!--                    </p>-->
-<!--                    <p>-->
-<!--                        <i class="fas fa-percentage mr-1 text-purple-500"></i>-->
-<!--                        <strong>Porcentaje:</strong> Indica el uso de horas convenio respecto a las máximas.-->
-<!--                    </p>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
     </div>
 </div>

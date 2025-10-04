@@ -28,47 +28,15 @@ export class RetribucionesPersonal implements OnInit {
     public totalPages: WritableSignal<number> = signal(0);
 
     // Computed signals
-    public visiblePages: Signal<number[]> = computed((): number[] => {
-        const maxVisiblePages = 5;
-        const halfVisible: number = Math.floor(maxVisiblePages / 2);
-        const current: number = this.currentPage();
-        const total: number = this.totalPages();
-
-        let startPage: number = Math.max(0, current - halfVisible);
-        let endPage: number = Math.min(total - 1, startPage + maxVisiblePages - 1);
-
-        // Ajustar startPage si estamos cerca del final
-        if (endPage - startPage + 1 < maxVisiblePages) {
-            startPage = Math.max(0, endPage - maxVisiblePages + 1);
-        }
-
-        const pages: number[] = [];
-        for (let i: number = startPage; i <= endPage; i++) {
-            pages.push(i);
-        }
-        return pages;
-    });
-
-    // Computed signals para estadísticas
-    public totalPercepcionesPage: Signal<number> = computed(():number => {
-        return this.retribuciones().reduce((sum: number, item: RetribucionesPersonalDTO) =>
-            sum + this.getTotalPercepciones(item), 0
-        );
-    });
-
-    public promedioPercepciones: Signal<number> = computed(():number => {
-        const items = this.retribuciones();
-        if (items.length === 0) return 0;
-        return this.totalPercepcionesPage() / items.length;
-    });
+    public visiblePages: Signal<number[]> = computed((): number[] => getVisiblePages(this.currentPage(), this.totalPages()));
 
     // Para acceder a Math en el template
     public Math: Math = Math;
 
     public constructor() {
         // Effect para recargar datos cuando cambie la página
-        effect(() => {
-            const page = this.currentPage();
+        effect((): void => {
+            const page: number = this.currentPage();
             if (page >= 0) {
                 this.loadDataInternal();
             }
@@ -171,14 +139,14 @@ export class RetribucionesPersonal implements OnInit {
         }, 3000);
     }
 
-    onKeyPress(event: KeyboardEvent, idRetribucion: number, field: keyof RetribucionesPersonalDTO, value: number): void {
+    public onKeyPress(event: KeyboardEvent, idRetribucion: number, field: keyof RetribucionesPersonalDTO, value: number): void {
         if (event.key === 'Enter') {
             (event.target as HTMLInputElement).blur();
             this.updateField(idRetribucion, field, value);
         }
     }
 
-    getInputClass(idRetribucion: number): string {
+    public getInputClass(idRetribucion: number): string {
         const savingState = this.savingStates()[idRetribucion] || 'idle';
         let borderColor: string;
 
@@ -199,7 +167,7 @@ export class RetribucionesPersonal implements OnInit {
         return `w-full px-3 py-2 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors ${borderColor}`;
     }
 
-    getTotalPercepciones(item: RetribucionesPersonalDTO): number {
+    public getTotalPercepciones(item: RetribucionesPersonalDTO): number {
         return item.importeRetribucionNoIT +
             item.importeRetribucionExpecie +
             item.aportacionesPrevencionSocial +
@@ -207,7 +175,7 @@ export class RetribucionesPersonal implements OnInit {
             item.rentasExentas190;
     }
 
-    formatCurrency(value: number): string {
+    public formatCurrency(value: number): string {
         return new Intl.NumberFormat('es-ES', {
             style: 'currency',
             currency: 'EUR'
@@ -215,23 +183,23 @@ export class RetribucionesPersonal implements OnInit {
     }
 
     // Métodos de paginación simplificados
-    previousPage(): void {
+    public previousPage(): void {
         if (this.currentPage() > 0) {
             this.currentPage.update(page => page - 1);
         }
     }
 
-    nextPage(): void {
+    public nextPage(): void {
         if (this.currentPage() < this.totalPages() - 1) {
             this.currentPage.update(page => page + 1);
         }
     }
 
-    goToPage(page: number): void {
+    public goToPage(page: number): void {
         this.currentPage.set(page);
     }
 
-    getPageButtonClass(page: number): string {
+    public getPageButtonClass(page: number): string {
         const baseClass = 'relative inline-flex items-center px-4 py-2 border text-sm font-medium';
         if (this.currentPage() === page) {
             return `${baseClass} z-10 bg-blue-50 border-blue-500 text-blue-600`;
@@ -240,19 +208,19 @@ export class RetribucionesPersonal implements OnInit {
     }
 
     // Métodos de conveniencia para el template
-    isLoading(): boolean {
+    public isLoading(): boolean {
         return this.loading();
     }
 
-    hasRetribuciones(): boolean {
+    public hasRetribuciones(): boolean {
         return this.retribuciones().length > 0;
     }
 
-    canGoPrevious(): boolean {
+    public canGoPrevious(): boolean {
         return this.currentPage() > 0;
     }
 
-    canGoNext(): boolean {
+    public canGoNext(): boolean {
         return this.currentPage() < this.totalPages() - 1;
     }
 }
