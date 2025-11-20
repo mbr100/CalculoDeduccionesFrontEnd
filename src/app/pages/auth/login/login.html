@@ -1,0 +1,142 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <!-- Logo y título -->
+    <div class="text-center">
+      <div class="mx-auto h-16 w-16 bg-blue-600 rounded-full flex items-center justify-center">
+        <i class="fas fa-calculator text-white text-2xl"></i>
+      </div>
+      <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+        Cálculo de Deducciones
+      </h2>
+      <p class="mt-2 text-sm text-gray-600">
+        Inicia sesión para acceder al sistema
+      </p>
+    </div>
+
+    <!-- Formulario de login -->
+    <div class="bg-white shadow-xl rounded-lg p-8">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+        <!-- Campo de usuario -->
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+            Usuario
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-user text-gray-400"></i>
+            </div>
+            <input
+              id="username"
+              type="text"
+              formControlName="username"
+              class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              [class.border-red-500]="hasError('username', 'required') || hasError('username', 'minlength')"
+              placeholder="Ingresa tu usuario"
+              autocomplete="username"
+            />
+          </div>
+          @if (hasError('username', 'required') || hasError('username', 'minlength')) {
+            <p class="mt-2 text-sm text-red-600">
+              {{ getErrorMessage('username') }}
+            </p>
+          }
+        </div>
+
+        <!-- Campo de contraseña -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+            Contraseña
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-lock text-gray-400"></i>
+            </div>
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              class="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              [class.border-red-500]="hasError('password', 'required') || hasError('password', 'minlength')"
+              placeholder="Ingresa tu contraseña"
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center"
+            >
+              <i [class]="showPassword() ? 'fas fa-eye-slash' : 'fas fa-eye'" class="text-gray-400 hover:text-gray-600"></i>
+            </button>
+          </div>
+          @if (hasError('password', 'required') || hasError('password', 'minlength')) {
+            <p class="mt-2 text-sm text-red-600">
+              {{ getErrorMessage('password') }}
+            </p>
+          }
+        </div>
+
+        <!-- Recordarme -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <input
+              id="rememberMe"
+              type="checkbox"
+              formControlName="rememberMe"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label for="rememberMe" class="ml-2 block text-sm text-gray-700">
+              Recordarme
+            </label>
+          </div>
+
+          <div class="text-sm">
+            <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
+        </div>
+
+        <!-- Mensaje de error -->
+        @if (error()) {
+          <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="flex items-center">
+              <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
+              <p class="text-sm text-red-800">{{ error() }}</p>
+            </div>
+          </div>
+        }
+
+        <!-- Botón de submit -->
+        <button
+          type="submit"
+          [disabled]="loading()"
+          class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          @if (loading()) {
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Iniciando sesión...
+          } @else {
+            <i class="fas fa-sign-in-alt mr-2"></i>
+            Iniciar Sesión
+          }
+        </button>
+      </form>
+
+      <!-- Info adicional -->
+      <div class="mt-6 text-center">
+        <p class="text-xs text-gray-500">
+          Al iniciar sesión, aceptas nuestros términos y condiciones
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center text-sm text-gray-500">
+      <p>© 2024 Sistema de Cálculo de Deducciones</p>
+    </div>
+  </div>
+</div>

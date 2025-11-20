@@ -1,0 +1,80 @@
+/* Estilos personalizados para el componente de roles */
+
+/* Animación de entrada del modal */
+.fixed {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.bg-white.rounded-lg.shadow-xl {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Efecto hover en las cards */
+.grid > div {
+  transition: all 0.3s ease;
+}
+
+.grid > div:hover {
+  transform: translateY(-4px);
+}
+
+/* Scroll personalizado para el área de permisos */
+.max-h-96::-webkit-scrollbar {
+  width: 8px;
+}
+
+.max-h-96::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Efecto de expansión en los grupos de permisos */
+.border.border-gray-200 {
+  transition: all 0.2s ease;
+}
+
+.border.border-gray-200:hover {
+  border-color: #3b82f6;
+}
+
+/* Animación de los checkboxes */
+input[type="checkbox"] {
+  transition: all 0.2s ease;
+}
+
+/* Line clamp helper */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
