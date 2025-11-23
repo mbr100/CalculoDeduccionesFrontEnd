@@ -1,0 +1,63 @@
+/* Estilos personalizados para el componente de usuarios */
+
+/* Animación de entrada del modal */
+.fixed {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.bg-white.rounded-lg.shadow-xl {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Efecto hover en las filas de la tabla */
+tbody tr {
+  transition: all 0.2s ease;
+}
+
+/* Animación de los botones de acción */
+button i {
+  transition: transform 0.2s ease;
+}
+
+button:hover i {
+  transform: scale(1.1);
+}
+
+/* Estilo para el scroll de la tabla */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

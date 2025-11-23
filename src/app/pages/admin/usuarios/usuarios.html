@@ -1,0 +1,369 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+  <!-- Encabezado -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
+    <p class="text-gray-600 mt-2">Administra los usuarios del sistema y sus roles</p>
+  </div>
+
+  <!-- Barra de acciones -->
+  <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <!-- Búsqueda -->
+      <div class="flex-1 max-w-md">
+        <div class="relative">
+          <input
+            type="text"
+            placeholder="Buscar por nombre, usuario o email..."
+            [value]="searchTerm()"
+            (input)="searchTerm.set($any($event.target).value)"
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+        </div>
+      </div>
+
+      <!-- Filtro por rol -->
+      <select
+        [value]="selectedRole() || ''"
+        (change)="selectedRole.set($any($event.target).value ? +$any($event.target).value : null)"
+        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="">Todos los roles</option>
+        @for (rol of roles(); track rol.id) {
+          <option [value]="rol.id">{{ rol.nombre }}</option>
+        }
+      </select>
+
+      <!-- Botón crear -->
+      <button
+        *hasPermission="PERMS.CREATE"
+        (click)="openCreateModal()"
+        class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+      >
+        <i class="fas fa-plus"></i>
+        <span>Nuevo Usuario</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    @if (loading()) {
+      <div class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    } @else if (filteredUsuarios().length === 0) {
+      <div class="text-center py-12">
+        <i class="fas fa-users text-gray-400 text-5xl mb-4"></i>
+        <p class="text-gray-500 text-lg">No se encontraron usuarios</p>
+      </div>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Usuario
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Email
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Rol
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Estado
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Último Acceso
+              </th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            @for (usuario of filteredUsuarios(); track usuario.id) {
+              <tr class="hover:bg-gray-50 transition">
+                <!-- Usuario -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="h-10 w-10 flex-shrink-0">
+                      <div class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
+                        {{ usuario.nombre.charAt(0) }}{{ usuario.apellidos.charAt(0) }}
+                      </div>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">
+                        {{ usuario.nombre }} {{ usuario.apellidos }}
+                      </div>
+                      <div class="text-sm text-gray-500">
+                        &#64;{{ usuario.username }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Email -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">{{ usuario.email }}</div>
+                </td>
+
+                <!-- Rol -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                    {{ getRoleName(usuario.roleId) }}
+                  </span>
+                </td>
+
+                <!-- Estado -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span [class]="getStatusBadge(usuario.activo)" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                    {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+
+                <!-- Último acceso -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ usuario.ultimoAcceso ? (usuario.ultimoAcceso | date:'dd/MM/yyyy HH:mm') : 'Nunca' }}
+                </td>
+
+                <!-- Acciones -->
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex items-center justify-end gap-2">
+                    <button
+                      *hasPermission="PERMS.UPDATE"
+                      (click)="openEditModal(usuario)"
+                      class="text-blue-600 hover:text-blue-900"
+                      title="Editar"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button>
+
+                    <button
+                      *hasPermission="PERMS.UPDATE"
+                      (click)="toggleStatus(usuario)"
+                      [class]="usuario.activo ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'"
+                      [title]="usuario.activo ? 'Desactivar' : 'Activar'"
+                    >
+                      <i [class]="usuario.activo ? 'fas fa-ban' : 'fas fa-check-circle'"></i>
+                    </button>
+
+                    <button
+                      *hasPermission="PERMS.UPDATE"
+                      (click)="resetPassword(usuario)"
+                      class="text-purple-600 hover:text-purple-900"
+                      title="Resetear contraseña"
+                    >
+                      <i class="fas fa-key"></i>
+                    </button>
+
+                    <button
+                      *hasPermission="PERMS.DELETE"
+                      (click)="deleteUsuario(usuario)"
+                      class="text-red-600 hover:text-red-900"
+                      title="Eliminar"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <span class="text-sm text-gray-700">
+              Mostrando {{ ((currentPage() - 1) * pageSize()) + 1 }} -
+              {{ Math.min(currentPage() * pageSize(), totalElements()) }}
+              de {{ totalElements() }} usuarios
+            </span>
+
+            <select
+              [value]="pageSize()"
+              (change)="changePageSize($event)"
+              class="border border-gray-300 rounded px-2 py-1 text-sm"
+            >
+              <option [value]="10">10 por página</option>
+              <option [value]="25">25 por página</option>
+              <option [value]="50">50 por página</option>
+            </select>
+          </div>
+
+          <div class="flex gap-1">
+            <button
+              (click)="goToPage(currentPage() - 1)"
+              [disabled]="currentPage() === 1"
+              class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+
+            @for (page of getVisiblePages(); track page) {
+              <button
+                (click)="goToPage(page)"
+                [class]="page === currentPage() ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                class="px-3 py-1 border border-gray-300 rounded"
+              >
+                {{ page }}
+              </button>
+            }
+
+            <button
+              (click)="goToPage(currentPage() + 1)"
+              [disabled]="currentPage() === totalPages()"
+              class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modal de Crear/Editar Usuario -->
+@if (showModal()) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <!-- Header del modal -->
+      <div class="flex items-center justify-between p-6 border-b">
+        <h3 class="text-xl font-semibold text-gray-900">
+          {{ isEditMode() ? 'Editar Usuario' : 'Nuevo Usuario' }}
+        </h3>
+        <button
+          (click)="closeModal()"
+          class="text-gray-400 hover:text-gray-600"
+        >
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Contenido del modal -->
+      <form [formGroup]="usuarioForm" (ngSubmit)="saveUsuario()" class="p-6 space-y-4">
+        <!-- Username -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Usuario <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            formControlName="username"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            placeholder="usuario123"
+          />
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Email <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="email"
+            formControlName="email"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            placeholder="usuario@ejemplo.com"
+          />
+        </div>
+
+        <!-- Nombre y Apellidos -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Nombre <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              formControlName="nombre"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Juan"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Apellidos <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              formControlName="apellidos"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Pérez"
+            />
+          </div>
+        </div>
+
+        <!-- Contraseña -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Contraseña @if (!isEditMode()) {<span class="text-red-500">*</span>}
+            @if (isEditMode()) {<span class="text-gray-500 text-xs">(dejar en blanco para no cambiar)</span>}
+          </label>
+          <input
+            type="password"
+            formControlName="password"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <!-- Rol -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Rol <span class="text-red-500">*</span>
+          </label>
+          <select
+            formControlName="roleId"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option [value]="null">Selecciona un rol</option>
+            @for (rol of roles(); track rol.id) {
+              <option [value]="rol.id">{{ rol.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Activo -->
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            formControlName="activo"
+            id="activo"
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+          <label for="activo" class="ml-2 block text-sm text-gray-700">
+            Usuario activo
+          </label>
+        </div>
+
+        <!-- Botones del modal -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t">
+          <button
+            type="button"
+            (click)="closeModal()"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="loading()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          >
+            @if (loading()) {
+              <i class="fas fa-spinner fa-spin mr-2"></i>
+            }
+            {{ isEditMode() ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
