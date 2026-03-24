@@ -1,15 +1,14 @@
-import {Component, computed, effect, inject, Input, OnInit, Signal, signal} from '@angular/core';
+import {Component, computed, effect, inject, Input, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
 import {PaginacionResponse} from '../../../models/paginacion-response';
-import {FormsModule} from '@angular/forms';
 import {actualizarAltaEjercicioDTO, AltaEjercicioDTO} from '../../../models/personal-economico';
 import {getVisiblePages, SavingState} from '../../../models/savingState';
+import {EconomicoService} from '../../../services/economico-service';
+import {EconomicoDto} from '../../../models/economico';
 
 @Component({
   selector: 'app-alta-ejercicio-personal',
-    imports: [
-        FormsModule
-    ],
+    imports: [],
   templateUrl: './alta-ejercicio-personal.html',
   styleUrls: ['./alta-ejercicio-personal.css'],
 })
@@ -223,6 +222,48 @@ export class AltaEjercicioPersonal implements OnInit {
         } catch {
             return '';
         }
+    }
+
+    public formatHours(value: number): string {
+        return new Intl.NumberFormat('es-ES', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(value || 0) + ' h';
+    }
+
+    public onFocusHours(event: FocusEvent): void {
+        const input = event.target as HTMLInputElement;
+        const raw = this.parseHoursInput(input.value);
+        input.value = raw === 0 ? '' : raw.toString().replace('.', ',');
+    }
+
+    public onBlurHoursField(event: FocusEvent, idAltaEjercicio: number, field: keyof AltaEjercicioDTO): void {
+        const input = event.target as HTMLInputElement;
+        const value = this.parseHoursInput(input.value);
+        input.value = this.formatHours(value);
+
+        this.altasEjercicio.update(items =>
+            items.map(item =>
+                item.idAltaEjercicio === idAltaEjercicio
+                    ? { ...item, [field]: value }
+                    : item
+            )
+        );
+
+        this.updateField(idAltaEjercicio, field, value);
+    }
+
+    public onKeyPressFormatted(event: KeyboardEvent): void {
+        if (event.key === 'Enter') {
+            (event.target as HTMLInputElement).blur();
+        }
+    }
+
+    private parseHoursInput(value: string): number {
+        if (!value || value.trim() === '') return 0;
+        const cleaned = value.replace(/[h\s]/g, '').replace(/\./g, '').replace(',', '.');
+        const parsed = parseFloat(cleaned);
+        return isNaN(parsed) ? 0 : parsed;
     }
 
     public parseNumberValue(value: string | number): number {

@@ -1,54 +1,65 @@
-<nav class="bg-gray-800 border-b border-gray-700 px-4 py-3 min-w-full overflow-x-auto">
+<nav class="bg-gray-800 border-b border-gray-700 px-4 py-3 min-w-full overflow-visible">
     <div class="flex items-center justify-between h-full min-w-max">
-        <!-- Logo y Nombre -->
-        <div class="flex items-center space-x-3 clickable"  (click)="irAInicio()">
-            <!-- Icono personalizable -->
-            <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                <!-- Puedes cambiar este SVG por cualquier icono -->
-                <div class="w-8 h-8 flex items-center justify-center">
-                    <img src="logo.png" alt="Económico Logo" class="w-8 h-8 object-contain">
+        <!-- Logo, Nombre y Menú de navegación -->
+        <div class="flex items-center space-x-6">
+            <div class="flex items-center space-x-3 clickable" (click)="irAInicio()">
+                <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                    <div class="w-8 h-8 flex items-center justify-center">
+                        <img src="logo.png" alt="Económico Logo" class="w-8 h-8 object-contain">
+                    </div>
                 </div>
+                <h1 class="text-white text-xl font-semibold">iDeduct</h1>
             </div>
-            <!-- Nombre de la aplicación -->
-            <h1 class="text-white text-xl font-semibold">iDeduct</h1>
+
+            <!-- Mantenimientos dropdown -->
+            <div class="relative dropdown-mant">
+                <button (click)="toggleMant()" class="text-gray-300 hover:text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors flex items-center gap-2">
+                    <i class="fas fa-cogs"></i>
+                    Mantenimientos
+                    <svg class="w-3 h-3 transition-transform duration-200" [class.rotate-180]="mantOpen()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                @if (mantOpen()) {
+                    <div class="absolute left-0 top-full mt-1 w-56 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
+                        <div class="py-2">
+                            <a (click)="irATiposCotizacion()" class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors cursor-pointer">
+                                <i class="fas fa-percentage w-4 h-4 mr-3"></i>
+                                Tipos de Cotización
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
 
         <!-- Usuario y Dropdown -->
-        <div class="relative group">
-            <!-- Botón del usuario -->
-            <div class="flex items-center space-x-3 text-gray-300 hover:text-white focus:outline-none rounded-lg px-3 py-2 transition-colors cursor-pointer">
-                <!-- Avatar del usuario -->
+        <div class="relative dropdown-user">
+            <div (click)="toggleUser()" class="flex items-center space-x-3 text-gray-300 hover:text-white rounded-lg px-3 py-2 transition-colors cursor-pointer">
                 <div class="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
                     <span class="text-white text-sm font-medium">JD</span>
                 </div>
-                <!-- Nombre del usuario -->
                 <span class="text-sm font-medium">Juan Pérez</span>
-                <!-- Flecha del dropdown -->
-                <svg class="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 transition-transform duration-200" [class.rotate-180]="userOpen()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </div>
 
-            <!-- Dropdown Menu -->
-            <div class="absolute right-0 mt-2 w-56 bg-gray-800 border border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transform scale-95 group-hover:scale-100 transition-all duration-200 z-50">
-                <div class="py-2">
-                    <!-- Opciones del menú -->
-                    <div class="py-1">
+            @if (userOpen()) {
+                <div class="absolute right-0 top-full mt-1 w-56 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
+                    <div class="py-2">
                         <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                             <i class="fas fa-user w-4 h-4 mr-3"></i>
                             Mi Perfil
                         </a>
-
-                        <!-- Separador -->
                         <div class="border-t border-gray-700 my-1"></div>
-
                         <a href="#" class="flex items-center px-4 py-2 text-sm text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-colors">
                             <i class="fas fa-sign-out-alt w-4 h-4 mr-3"></i>
                             Cerrar Sesión
                         </a>
                     </div>
                 </div>
-            </div>
+            }
         </div>
     </div>
 </nav>

@@ -10,6 +10,7 @@ export interface PersonalEconomico {
     titulacion3?: string;
     titulacion4?: string;
     esPersonalInvestigador: boolean;
+    esContratoIndefinido: boolean;
 }
 
 export interface CrearPersonalEconomico {
@@ -24,6 +25,7 @@ export interface CrearPersonalEconomico {
     titulacion3?: string;
     titulacion4?: string;
     esPersonalInvestigador: boolean;
+    esContratoIndefinido: boolean;
     idEconomico: number;
 }
 

@@ -102,11 +102,12 @@
                                 <!-- Importe Retribución No IT -->
                                 <td class="px-4 py-3">
                                     <div class="relative">
-                                        <input type="number" [(ngModel)]="item.importeRetribucionNoIT"
-                                            (keyup)="onKeyPress($event, item.idRetribucion, 'importeRetribucionNoIT', item.importeRetribucionNoIT)"
-                                            (blur)="updateField(item.idRetribucion, 'importeRetribucionNoIT', item.importeRetribucionNoIT)"
-                                            [class]="getInputClass(item.idRetribucion) + ' text-right'"
-                                            step="0.01">
+                                        <input type="text"
+                                            [value]="formatEuro(item.importeRetribucionNoIT)"
+                                            (focus)="onFocus($event)"
+                                            (blur)="onBlurField($event, item.idRetribucion, 'importeRetribucionNoIT')"
+                                            (keyup)="onKeyPressField($event, item.idRetribucion, 'importeRetribucionNoIT')"
+                                            [class]="getInputClass(item.idRetribucion) + ' text-right'">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
                                             @switch (savingStates()[item.idRetribucion]) {
                                                 @case ('saving') {
@@ -126,11 +127,12 @@
                                 <!-- Retribución en Especie -->
                                 <td class="px-4 py-3">
                                     <div class="relative">
-                                        <input type="number" [(ngModel)]="item.importeRetribucionExpecie"
-                                               (blur)="updateField(item.idRetribucion, 'importeRetribucionExpecie', item.importeRetribucionExpecie)"
-                                            (keyup)="onKeyPress($event, item.idRetribucion, 'importeRetribucionExpecie', item.importeRetribucionExpecie)"
-                                            [class]="getInputClass(item.idRetribucion) + ' text-right'"
-                                            step="0.01">
+                                        <input type="text"
+                                            [value]="formatEuro(item.importeRetribucionExpecie)"
+                                            (focus)="onFocus($event)"
+                                            (blur)="onBlurField($event, item.idRetribucion, 'importeRetribucionExpecie')"
+                                            (keyup)="onKeyPressField($event, item.idRetribucion, 'importeRetribucionExpecie')"
+                                            [class]="getInputClass(item.idRetribucion) + ' text-right'">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
                                             @switch (savingStates()[item.idRetribucion]) {
                                                 @case ('saving') {
@@ -150,10 +152,12 @@
                                 <!-- Aportaciones Prevención Social -->
                                 <td class="px-4 py-3">
                                     <div class="relative">
-                                        <input type="number" [(ngModel)]="item.aportacionesPrevencionSocial"
-                                               (blur)="updateField(item.idRetribucion, 'aportacionesPrevencionSocial', item.aportacionesPrevencionSocial)"
-                                               (keyup)="onKeyPress($event, item.idRetribucion, 'aportacionesPrevencionSocial', item.aportacionesPrevencionSocial)"
-                                               [class]="getInputClass(item.idRetribucion) + ' text-right'" step="0.01">
+                                        <input type="text"
+                                            [value]="formatEuro(item.aportacionesPrevencionSocial)"
+                                            (focus)="onFocus($event)"
+                                            (blur)="onBlurField($event, item.idRetribucion, 'aportacionesPrevencionSocial')"
+                                            (keyup)="onKeyPressField($event, item.idRetribucion, 'aportacionesPrevencionSocial')"
+                                            [class]="getInputClass(item.idRetribucion) + ' text-right'">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
                                             @switch (savingStates()[item.idRetribucion]) {
                                                 @case ('saving') {
@@ -173,11 +177,12 @@
                                 <!-- Dietas Viaje Exentas -->
                                 <td class="px-4 py-3">
                                     <div class="relative">
-                                        <input type="number" [(ngModel)]="item.dietasViajeExentas"
-                                            (blur)="updateField(item.idRetribucion, 'dietasViajeExentas', item.dietasViajeExentas)"
-                                            (keyup)="onKeyPress($event, item.idRetribucion, 'dietasViajeExentas', item.dietasViajeExentas)"
-                                            [class]="getInputClass(item.idRetribucion) + ' text-right'"
-                                            step="0.01">
+                                        <input type="text"
+                                            [value]="formatEuro(item.dietasViajeExentas)"
+                                            (focus)="onFocus($event)"
+                                            (blur)="onBlurField($event, item.idRetribucion, 'dietasViajeExentas')"
+                                            (keyup)="onKeyPressField($event, item.idRetribucion, 'dietasViajeExentas')"
+                                            [class]="getInputClass(item.idRetribucion) + ' text-right'">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
                                             @switch (savingStates()[item.idRetribucion]) {
                                                 @case ('saving') {
@@ -197,9 +202,12 @@
                                 <!-- Rentas Exentas 190 -->
                                 <td class="px-4 py-3">
                                     <div class="relative">
-                                        <input type="number" [(ngModel)]="item.rentasExentas190" (blur)="updateField(item.idRetribucion, 'rentasExentas190', item.rentasExentas190)"
-                                               (keyup)="onKeyPress($event, item.idRetribucion, 'rentasExentas190', item.rentasExentas190)" [class]="getInputClass(item.idRetribucion) + ' text-right'"
-                                               step="0.01">
+                                        <input type="text"
+                                            [value]="formatEuro(item.rentasExentas190)"
+                                            (focus)="onFocus($event)"
+                                            (blur)="onBlurField($event, item.idRetribucion, 'rentasExentas190')"
+                                            (keyup)="onKeyPressField($event, item.idRetribucion, 'rentasExentas190')"
+                                            [class]="getInputClass(item.idRetribucion) + ' text-right'">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
                                             @switch (savingStates()[item.idRetribucion]) {
                                                 @case ('saving') {

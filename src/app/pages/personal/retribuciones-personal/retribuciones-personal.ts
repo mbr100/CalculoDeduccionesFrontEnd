@@ -1,14 +1,14 @@
 import {Component, computed, effect, inject, Input, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
 import {PaginacionResponse} from '../../../models/paginacion-response';
-import {FormsModule} from '@angular/forms';
 import {actualizarRetribucionDTO, RetribucionesPersonalDTO} from '../../../models/personal-economico';
+import {getVisiblePages} from '../../../models/savingState';
 
 type SavingState = 'idle' | 'saving' | 'success' | 'error';
 
 @Component({
     selector: 'app-retribuciones-personal',
-    imports: [ FormsModule ],
+    imports: [],
     templateUrl: './retribuciones-personal.html',
     styles: ``
 })
@@ -139,11 +139,48 @@ export class RetribucionesPersonal implements OnInit {
         }, 3000);
     }
 
-    public onKeyPress(event: KeyboardEvent, idRetribucion: number, field: keyof RetribucionesPersonalDTO, value: number): void {
+    public formatEuro(value: number): string {
+        return new Intl.NumberFormat('es-ES', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value || 0) + ' €';
+    }
+
+    public onFocus(event: FocusEvent): void {
+        const input = event.target as HTMLInputElement;
+        const raw = this.parseInputValue(input.value);
+        input.value = raw === 0 ? '' : raw.toString().replace('.', ',');
+    }
+
+    public onBlurField(event: FocusEvent, idRetribucion: number, field: keyof RetribucionesPersonalDTO): void {
+        const input = event.target as HTMLInputElement;
+        const value = this.parseInputValue(input.value);
+        input.value = this.formatEuro(value);
+
+        // Actualizar el modelo local
+        this.retribuciones.update(items =>
+            items.map(item =>
+                item.idRetribucion === idRetribucion
+                    ? { ...item, [field]: value }
+                    : item
+            )
+        );
+
+        this.updateField(idRetribucion, field, value);
+    }
+
+    public onKeyPressField(event: KeyboardEvent, idRetribucion: number, field: keyof RetribucionesPersonalDTO): void {
         if (event.key === 'Enter') {
             (event.target as HTMLInputElement).blur();
-            this.updateField(idRetribucion, field, value);
         }
+    }
+
+    private parseInputValue(value: string): number {
+        if (!value || value.trim() === '') return 0;
+        // Quitar símbolo €, espacios, y puntos de miles; cambiar coma decimal por punto
+        const cleaned = value.replace(/[€\s]/g, '').replace(/\./g, '').replace(',', '.');
+        const parsed = parseFloat(cleaned);
+        return isNaN(parsed) ? 0 : parsed;
     }
 
     public getInputClass(idRetribucion: number): string {

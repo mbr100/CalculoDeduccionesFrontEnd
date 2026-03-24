@@ -1,4 +1,9 @@
-<div class="min-h-screen bg-gray-50 p-6">
+<div class="w-full h-screen flex">
+    <!-- Sidebar -->
+    <app-sidebar [idEconomico]="this.economicoId"></app-sidebar>
+
+    <!-- Contenido principal -->
+    <div class="flex-1 flex flex-col p-4 overflow-auto bg-gray-50">
     <div class="max-w-full mx-auto">
 
         <!-- Header -->
@@ -211,5 +216,6 @@
                 </div>
             </div>
         }
+    </div>
     </div>
 </div>

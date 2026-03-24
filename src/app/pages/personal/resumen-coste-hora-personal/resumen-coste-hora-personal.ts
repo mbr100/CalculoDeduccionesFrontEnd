@@ -3,11 +3,9 @@ import {EconomicoPersonalService} from '../../../services/economico-personal-ser
 import {CosteHoraPersonalDTO} from '../../../models/personal-economico';
 import {getVisiblePages, SavingState} from '../../../models/savingState';
 import {PaginacionResponse} from '../../../models/paginacion-response';
-import {FormsModule} from '@angular/forms';
-
 @Component({
     selector: 'app-resumen-coste-hora-personal',
-    imports: [FormsModule],
+    imports: [],
     templateUrl: './resumen-coste-hora-personal.html',
     styleUrl: './resumen-coste-hora-personal.css'
 })
@@ -92,6 +90,13 @@ export class ResumenCosteHoraPersonal implements OnInit {
             style: 'currency',
             currency: 'EUR'
         }).format(value || 0);
+    }
+
+    public formatHours(value: number): string {
+        return new Intl.NumberFormat('es-ES', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(value || 0) + ' h';
     }
 
     // Métodos de paginación

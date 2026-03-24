@@ -57,7 +57,8 @@ export class ListadoPersonal implements OnInit {
             titulacion2: ['Máster en Ciencia de Datos'],
             titulacion3: [''],
             titulacion4: [''],
-            esPersonalInvestigador: [true]
+            esPersonalInvestigador: [true],
+            esContratoIndefinido: [true]
         });
     }
 
@@ -178,7 +179,8 @@ export class ListadoPersonal implements OnInit {
             titulacion2: personal.titulacion2 || '',
             titulacion3: personal.titulacion3 || '',
             titulacion4: personal.titulacion4 || '',
-            esPersonalInvestigador: personal.esPersonalInvestigador
+            esPersonalInvestigador: personal.esPersonalInvestigador,
+            esContratoIndefinido: personal.esContratoIndefinido
         });
         this.mostrarModal.set(true);
     }
@@ -238,7 +240,8 @@ export class ListadoPersonal implements OnInit {
                     titulacion2: this.personalForm.value.titulacion2 || '',
                     titulacion3: this.personalForm.value.titulacion3 || '',
                     titulacion4: this.personalForm.value.titulacion4 || '',
-                    esPersonalInvestigador: this.personalForm.value.esPersonalInvestigador || false
+                    esPersonalInvestigador: this.personalForm.value.esPersonalInvestigador || false,
+                    esContratoIndefinido: this.personalForm.value.esContratoIndefinido ?? true
                 }
                 this.economicoPersonalService.actualizarPersonalEconomico(actualizarPersonal).subscribe({
                     next: () => {
@@ -271,7 +274,8 @@ export class ListadoPersonal implements OnInit {
                     titulacion2: this.personalForm.value.titulacion2 || '',
                     titulacion3: this.personalForm.value.titulacion3 || '',
                     titulacion4: this.personalForm.value.titulacion4 || '',
-                    esPersonalInvestigador: this.personalForm.value.esPersonalInvestigador || false
+                    esPersonalInvestigador: this.personalForm.value.esPersonalInvestigador || false,
+                    esContratoIndefinido: this.personalForm.value.esContratoIndefinido ?? true
                 }
                 // Crear nuevo
                 this.economicoPersonalService.crearPersonal(crearPersonalEconomico).subscribe({

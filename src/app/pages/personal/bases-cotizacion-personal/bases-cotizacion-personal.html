@@ -110,13 +110,13 @@
                                     <td class="px-4 py-3">
                                         <div class="relative">
                                             <input
-                                                type="number"
-                                                [(ngModel)]="item[mes.key]"
-                                                (keyup)="onKeyPress($event, item.id_baseCotizacion, mes.key, item[mes.key])"
-                                                (blur)="updateField(item.id_baseCotizacion, mes.key, parseNumberValue(item[mes.key]))"
+                                                type="text"
+                                                [value]="formatEuro($any(item[mes.key]))"
+                                                (focus)="onFocus($event)"
+                                                (blur)="onBlurField($event, item.id_baseCotizacion, mes.key)"
+                                                (keyup)="onKeyPressField($event)"
                                                 [class]="getInputClass(item.idPersonal) + ' text-right'"
-                                                [placeholder]="'Base ' + mes.shortLabel"
-                                                step="0.01">
+                                                [placeholder]="'Base ' + mes.shortLabel">
                                             <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
                                                 @switch (savingStates()[item.idPersonal]) {
                                                     @case ('saving') {

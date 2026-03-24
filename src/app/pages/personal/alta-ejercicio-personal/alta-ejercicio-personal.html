@@ -47,7 +47,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-600">Total Convenio</p>
-                            <p class="text-2xl font-bold text-blue-900">{{ horasConvenioAnual() }}</p>
+                            <p class="text-2xl font-bold text-blue-900">{{ formatHours(horasConvenioAnual()) }}</p>
                         </div>
                         <div class="p-3 bg-blue-100 rounded-full">
                             <i class="fas fa-clock text-blue-600"></i>
@@ -185,14 +185,13 @@
                                 <td class="px-4 py-3">
                                     <div class="relative campo-horas">
                                         <input
-                                            type="number"
-                                            [(ngModel)]="item.horasConvenioAnual"
-                                            (keyup)="onKeyPress($event, item.idAltaEjercicio, 'horasConvenioAnual', parseNumberValue(item.horasConvenioAnual))"
-                                            (blur)="updateField(item.idAltaEjercicio, 'horasConvenioAnual', parseNumberValue(item.horasConvenioAnual))"
+                                            type="text"
+                                            [value]="formatHours(item.horasConvenioAnual)"
+                                            (focus)="onFocusHours($event)"
+                                            (blur)="onBlurHoursField($event, item.idAltaEjercicio, 'horasConvenioAnual')"
+                                            (keyup)="onKeyPressFormatted($event)"
                                             [class]="getInputClass(item.idAltaEjercicio) + ' text-right'"
-                                            placeholder="Horas convenio"
-                                            step="1"
-                                            min="0">
+                                            placeholder="Horas convenio">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
                                             @switch (savingStates()[item.idAltaEjercicio]) {
                                                 @case ('saving') {
@@ -213,14 +212,13 @@
                                 <td class="px-4 py-3">
                                     <div class="relative campo-horas">
                                         <input
-                                            type="number"
-                                            [(ngModel)]="item.horasMaximasAnuales"
-                                            (keyup)="onKeyPress($event, item.idAltaEjercicio, 'horasMaximasAnuales', parseNumberValue(item.horasMaximasAnuales))"
-                                            (blur)="updateField(item.idAltaEjercicio, 'horasMaximasAnuales', parseNumberValue(item.horasMaximasAnuales))"
+                                            type="text"
+                                            [value]="formatHours(item.horasMaximasAnuales)"
+                                            (focus)="onFocusHours($event)"
+                                            (blur)="onBlurHoursField($event, item.idAltaEjercicio, 'horasMaximasAnuales')"
+                                            (keyup)="onKeyPressFormatted($event)"
                                             [class]="getInputClass(item.idAltaEjercicio) + ' text-right'"
-                                            placeholder="Horas máximas"
-                                            step="1"
-                                            min="0">
+                                            placeholder="Horas máximas">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
                                             @switch (savingStates()[item.idAltaEjercicio]) {
                                                 @case ('saving') {

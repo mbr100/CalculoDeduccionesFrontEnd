@@ -1,14 +1,13 @@
 import {Component, computed, effect, inject, Input, OnInit, signal} from '@angular/core';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
 import {PaginacionResponse} from '../../../models/paginacion-response';
-import {FormsModule} from '@angular/forms';
 import {actualizarBbccDTO, BbccPersonalDTO} from '../../../models/personal-economico';
 import {MonthConfig, SavingState} from '../../../models/savingState';
 
 
 @Component({
     selector: 'app-bases-cotizacion-personal',
-    imports: [FormsModule],
+    imports: [],
     templateUrl: './bases-cotizacion-personal.html',
     styleUrls: ['./bases-cotizacion-personal.css'],
 })
@@ -222,6 +221,48 @@ export class BasesCotizacionPersonal implements OnInit {
                 [idPersonal]: 'idle'
             }));
         }, 3000);
+    }
+
+    public formatEuro(value: number | null): string {
+        return new Intl.NumberFormat('es-ES', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value || 0) + ' €';
+    }
+
+    public onFocus(event: FocusEvent): void {
+        const input = event.target as HTMLInputElement;
+        const raw = this.parseInputValue(input.value);
+        input.value = raw === 0 ? '' : raw.toString().replace('.', ',');
+    }
+
+    public onBlurField(event: FocusEvent, idPersonal: number, field: keyof BbccPersonalDTO): void {
+        const input = event.target as HTMLInputElement;
+        const value = this.parseInputValue(input.value);
+        input.value = this.formatEuro(value);
+
+        this.bbccPersonal.update(items =>
+            items.map(item =>
+                item.idPersonal === idPersonal
+                    ? { ...item, [field]: value }
+                    : item
+            )
+        );
+
+        this.updateField(idPersonal, field, value);
+    }
+
+    public onKeyPressField(event: KeyboardEvent): void {
+        if (event.key === 'Enter') {
+            (event.target as HTMLInputElement).blur();
+        }
+    }
+
+    private parseInputValue(value: string): number {
+        if (!value || value.trim() === '') return 0;
+        const cleaned = value.replace(/[€\s]/g, '').replace(/\./g, '').replace(',', '.');
+        const parsed = parseFloat(cleaned);
+        return isNaN(parsed) ? 0 : parsed;
     }
 
     onKeyPress(event: KeyboardEvent, idPersonal: number, field: keyof BbccPersonalDTO, value: string | number | null): void {

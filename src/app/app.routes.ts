@@ -6,10 +6,12 @@ import {PersonalEconomico} from './pages/personal/personal-economico/personal-ec
 import {ListadoProyectos} from './pages/proyectos/listado-proyectos/listado-proyectos';
 import {Asignaciones} from './pages/asignaciones/asignaciones/asignaciones';
 import {ResumenEconomico} from './pages/resumen/resumen-economico/resumen-economico';
+import {TiposCotizacion} from './pages/mantenimientos/tipos-cotizacion/tipos-cotizacion';
 
 export const routes: Routes = [
     { path: '', component: ListadoEconomicos },
     { path : 'nuevoEconomico', component: NuevoEconomico },
+    { path: 'mantenimientos/tipos-cotizacion', component: TiposCotizacion },
     { path: 'economico',
         children: [
             { path: 'ver/:id', component: VerEconomico },

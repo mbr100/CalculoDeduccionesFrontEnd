@@ -50,7 +50,7 @@ export interface ActualizarDatosEconomicoDTO {
     telefono: string;
     nombreContacto: string;
     emailContacto: string;
-    horasConvenio: number | null; // porque en Java es Long y puede ser null
+    horasConvenio: number | null;
     urllogo: string;
     urlWeb: string;
     cnae: number;

@@ -1,12 +1,13 @@
 import {Component, computed, inject, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
+import {Sidebar} from '../../../components/personal/sidebar/sidebar';
 import {EconomicoService} from '../../../services/economico-service';
 import {GastoProyectoDetalladoDTO} from '../../../models/resumen.model';
 import {SavingState} from '../../../models/savingState';
 
 @Component({
   selector: 'app-resumen-economico',
-  imports: [],
+  imports: [Sidebar],
   templateUrl: './resumen-economico.html',
   styleUrl: './resumen-economico.css'
 })

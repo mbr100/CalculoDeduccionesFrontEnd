@@ -42,6 +42,12 @@ export class Sidebar implements OnInit, OnDestroy {
             this.activeRoute = 'economico';
         } else if (url.includes('/economico/personal/')) {
             this.activeRoute = 'personal';
+        } else if (url.includes('/economico/proyectos/')) {
+            this.activeRoute = 'proyectos';
+        } else if (url.includes('/economico/asignaciones/')) {
+            this.activeRoute = 'asignaciones';
+        } else if (url.includes('/economico/resumen/')) {
+            this.activeRoute = 'resumen';
         } else {
             this.activeRoute = '';
         }
