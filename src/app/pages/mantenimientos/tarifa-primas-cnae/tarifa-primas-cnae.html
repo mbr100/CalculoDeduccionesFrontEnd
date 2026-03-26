@@ -1,0 +1,139 @@
+<div class="ui-page">
+    <div class="ui-page-header">
+        <div class="ui-title-block">
+            <div class="ui-title-icon">
+                <i class="fa fa-industry"></i>
+            </div>
+            <div>
+                <h1 class="ui-page-title">Tarifa de Primas por CNAE</h1>
+                <p class="ui-page-subtitle">Configuracion anual de IT e IMS aplicada cuando no existe clave especial de ocupacion.</p>
+            </div>
+        </div>
+        <div class="ui-toolbar">
+            <button (click)="volver()" type="button" class="ui-btn ui-btn-secondary">
+                <i class="fa fa-arrow-left"></i>
+                Volver
+            </button>
+            <button (click)="abrirFormularioNuevo()" type="button" class="ui-btn ui-btn-primary">
+                <i class="fa fa-plus"></i>
+                Nueva tarifa
+            </button>
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="ui-note">
+        Tipos de AT/EP (IT e IMS) por CNAE y año. Estos tipos se aplican cuando el trabajador no tiene clave de ocupación del Cuadro II.
+    </div>
+
+    <!-- Filtro por año -->
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+        <label class="ui-label mb-0">Filtrar por año</label>
+        <select (change)="filtrarPorAnio($event)" class="ui-select ui-select-sm max-w-xs">
+            <option value="">Todos</option>
+            @for (anio of getAniosDisponibles(); track anio) {
+                <option [value]="anio">{{ anio }}</option>
+            }
+        </select>
+    </div>
+
+    <!-- Formulario crear/editar -->
+    @if (mostrarFormulario()) {
+        <div class="ui-panel mb-6">
+            <h2 class="mb-4 text-xl font-semibold text-slate-900">
+                {{ editandoId() !== null ? 'Editar' : 'Nueva' }} Tarifa CNAE
+            </h2>
+            <form [formGroup]="form" (ngSubmit)="guardar()" class="ui-form">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                    <div class="ui-field">
+                        <label class="ui-label">CNAE</label>
+                        <input type="text" formControlName="cnae" class="ui-input" placeholder="Ej: 62, 6201">
+                    </div>
+                    <div class="ui-field">
+                        <label class="ui-label">Año</label>
+                        <input type="number" formControlName="anio" class="ui-input">
+                    </div>
+                    <div class="ui-field md:col-span-2">
+                        <label class="ui-label">Descripción</label>
+                        <input type="text" formControlName="descripcion" class="ui-input">
+                    </div>
+                </div>
+                <div class="ui-form-grid-compact">
+                    <div class="ui-field">
+                        <label class="ui-label">IT (%)</label>
+                        <input type="number" step="0.01" formControlName="tipoIt" class="ui-input">
+                    </div>
+                    <div class="ui-field">
+                        <label class="ui-label">IMS (%)</label>
+                        <input type="number" step="0.01" formControlName="tipoIms" class="ui-input">
+                    </div>
+                    <div class="ui-field">
+                        <label class="ui-label">Versión CNAE</label>
+                        <select formControlName="versionCnae" class="ui-select">
+                            <option value="2009">CNAE 2009</option>
+                            <option value="2025">CNAE 2025</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="ui-form-actions">
+                    <button type="button" (click)="cancelarFormulario()" class="ui-btn ui-btn-secondary">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="ui-btn ui-btn-success">
+                        <i class="fa fa-save"></i>
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    }
+
+    <!-- Tabla -->
+    <div class="ui-table-shell">
+        @if (loading()) {
+            <div class="p-8 text-center text-slate-500">Cargando...</div>
+        } @else if (tarifas().length === 0) {
+            <div class="p-8 text-center text-slate-500">No hay tarifas registradas.</div>
+        } @else {
+            <div class="ui-table-wrap">
+                <table class="ui-table">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-3">CNAE</th>
+                        <th class="px-4 py-3">Año</th>
+                        <th class="px-4 py-3">Descripción</th>
+                        <th class="px-4 py-3 text-right">IT %</th>
+                        <th class="px-4 py-3 text-right">IMS %</th>
+                        <th class="px-4 py-3 text-right">Total AT/EP %</th>
+                        <th class="px-4 py-3">Versión</th>
+                        <th class="px-4 py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (tarifa of tarifas(); track tarifa.id) {
+                        <tr>
+                            <td class="px-4 py-3 font-medium">{{ tarifa.cnae }}</td>
+                            <td class="px-4 py-3">{{ tarifa.anio }}</td>
+                            <td class="px-4 py-3">{{ tarifa.descripcion }}</td>
+                            <td class="px-4 py-3 text-right">{{ tarifa.tipoIt }}</td>
+                            <td class="px-4 py-3 text-right">{{ tarifa.tipoIms }}</td>
+                            <td class="px-4 py-3 text-right font-medium">{{ tarifa.tipoTotal }}</td>
+                            <td class="px-4 py-3">{{ tarifa.versionCnae }}</td>
+                            <td class="px-4 py-3 text-center">
+                                <div class="flex justify-center gap-2">
+                                    <button (click)="editarTarifa(tarifa)" class="ui-btn-icon text-indigo-600 hover:text-indigo-700" title="Editar">
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
+                                    <button (click)="eliminarTarifa(tarifa)" class="ui-btn-icon text-rose-600 hover:text-rose-700" title="Eliminar">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            </div>
+        }
+    </div>
+</div>

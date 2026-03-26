@@ -1,4 +1,4 @@
-<nav class="bg-gray-800 border-b border-gray-700 px-4 py-3 min-w-full overflow-visible">
+<nav class="app-navbar-shell min-w-full px-3 py-2 transition-colors duration-300 md:px-4 md:py-3">
     <div class="flex items-center justify-between h-full min-w-max">
         <!-- Logo, Nombre y Menú de navegación -->
         <div class="flex items-center space-x-6">
@@ -21,11 +21,19 @@
                     </svg>
                 </button>
                 @if (mantOpen()) {
-                    <div class="absolute left-0 top-full mt-1 w-56 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
+                    <div class="app-navbar-dropdown left-0">
                         <div class="py-2">
-                            <a (click)="irATiposCotizacion()" class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors cursor-pointer">
+                            <a (click)="irAConfiguracionAnualSS()" class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors cursor-pointer">
+                                <i class="fas fa-calendar-alt w-4 h-4 mr-3"></i>
+                                Configuración Anual SS
+                            </a>
+                            <a (click)="irATarifaPrimasCnae()" class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors cursor-pointer">
                                 <i class="fas fa-percentage w-4 h-4 mr-3"></i>
-                                Tipos de Cotización
+                                Tarifa Primas CNAE
+                            </a>
+                            <a (click)="irAClavesOcupacion()" class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors cursor-pointer">
+                                <i class="fas fa-id-badge w-4 h-4 mr-3"></i>
+                                Claves de Ocupación
                             </a>
                         </div>
                     </div>
@@ -46,7 +54,7 @@
             </div>
 
             @if (userOpen()) {
-                <div class="absolute right-0 top-full mt-1 w-56 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
+                <div class="app-navbar-dropdown right-0">
                     <div class="py-2">
                         <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                             <i class="fas fa-user w-4 h-4 mr-3"></i>

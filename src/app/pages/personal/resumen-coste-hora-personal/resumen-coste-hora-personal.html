@@ -50,9 +50,32 @@
                         <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px] bg-blue-50">
                             <i class="fas fa-euro-sign mr-2"></i>Retribución Total
                         </th>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px] bg-red-50">
-                            <i class="fas fa-shield-alt mr-2"></i>Coste SS
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] bg-red-50">
+                            <i class="fas fa-shield-alt mr-2"></i>SS Bruta
                         </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[130px] bg-green-50">
+                            <i class="fas fa-percentage mr-2"></i>Ahorro Bonif.
+                        </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] bg-red-50">
+                            <i class="fas fa-shield-alt mr-2"></i>SS Neta
+                        </th>
+
+                        <!-- Desglose SS -->
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[110px] bg-orange-50">CC</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[110px] bg-orange-50">AT/EP</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[110px] bg-orange-50">Desempleo</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] bg-orange-50">FOGASA</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] bg-orange-50">FP</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] bg-orange-50">MEI</th>
+
+                        <!-- Trazabilidad AT/EP -->
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px] bg-yellow-50">
+                            Tipo AT/EP
+                        </th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] bg-yellow-50">
+                            Origen AT/EP
+                        </th>
+
                         <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] bg-green-50">
                             <i class="fas fa-clock mr-2"></i>Horas Máximas
                         </th>
@@ -68,7 +91,7 @@
                     <!-- Loading State -->
                         @if (isLoading()) {
                             <tr>
-                                <td colspan="7" class="px-4 py-12 text-center">
+                                <td colspan="17" class="px-4 py-12 text-center">
                                     <div class="flex items-center justify-center space-x-2">
                                         <i class="fas fa-spinner fa-spin text-blue-500 text-lg"></i>
                                         <span class="text-gray-500">Calculando costes...</span>
@@ -80,7 +103,7 @@
                     <!-- Empty State -->
                         @if (!isLoading() && !hasCostesHora()) {
                             <tr>
-                                <td colspan="7" class="px-4 py-12 text-center">
+                                <td colspan="17" class="px-4 py-12 text-center">
                                     <div class="flex flex-col items-center justify-center space-y-4">
                                         <i class="fas fa-calculator text-gray-400 text-4xl"></i>
                                         <div class="text-center">
@@ -117,10 +140,54 @@
                                     </span>
                                 </td>
 
-                                <!-- Coste SS -->
+                                <!-- SS Bruta -->
                                 <td class="px-4 py-3 text-right">
-                                    <span class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-gray-50 text-gray-800 border">
+                                    <span class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-red-50 text-red-800 border border-red-200">
+                                        {{ formatCurrency(item.ssEmpresaBruta || item.costeSS) }}
+                                    </span>
+                                </td>
+
+                                <!-- Ahorro Bonificaciones -->
+                                <td class="px-4 py-3 text-right">
+                                    @if (item.ahorroBonificaciones && item.ahorroBonificaciones > 0) {
+                                        <span class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-green-50 text-green-800 border border-green-200">
+                                            -{{ formatCurrency(item.ahorroBonificaciones) }}
+                                        </span>
+                                    } @else {
+                                        <span class="text-sm text-gray-400">-</span>
+                                    }
+                                </td>
+
+                                <!-- SS Neta -->
+                                <td class="px-4 py-3 text-right">
+                                    <span class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-red-50 text-red-800 border border-red-200">
                                         {{ formatCurrency(item.costeSS) }}
+                                    </span>
+                                </td>
+
+                                <!-- Desglose SS -->
+                                <td class="px-4 py-3 text-right text-sm text-gray-700">{{ formatCurrency(item.cuotaCC) }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-700">
+                                    <span [class]="item.origenTipoATEP?.startsWith('CUADRO_II') ? 'font-semibold text-indigo-700' : ''">
+                                        {{ formatCurrency(item.cuotaATEP) }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-700">{{ formatCurrency(item.cuotaDesempleo) }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-700">{{ formatCurrency(item.cuotaFogasa) }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-700">{{ formatCurrency(item.cuotaFP) }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-700">{{ formatCurrency(item.cuotaMEI) }}</td>
+
+                                <!-- Trazabilidad AT/EP -->
+                                <td class="px-4 py-3 text-center text-sm">
+                                    <span class="font-medium">{{ formatPercent(item.tipoATEPAplicado) }}</span>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                                          [class.bg-indigo-100]="item.origenTipoATEP?.startsWith('CUADRO_II')"
+                                          [class.text-indigo-800]="item.origenTipoATEP?.startsWith('CUADRO_II')"
+                                          [class.bg-gray-100]="!item.origenTipoATEP?.startsWith('CUADRO_II')"
+                                          [class.text-gray-700]="!item.origenTipoATEP?.startsWith('CUADRO_II')">
+                                        {{ formatOrigenATEP(item.origenTipoATEP) }}
                                     </span>
                                 </td>
 

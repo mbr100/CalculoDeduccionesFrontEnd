@@ -36,8 +36,6 @@ export class Sidebar implements OnInit, OnDestroy {
     }
 
     private updateActiveRoute(url: string): void {
-        console.log('URL actual:', url); // Para debug
-
         if (url.includes('/economico/ver/')) {
             this.activeRoute = 'economico';
         } else if (url.includes('/economico/personal/')) {
@@ -51,8 +49,6 @@ export class Sidebar implements OnInit, OnDestroy {
         } else {
             this.activeRoute = '';
         }
-
-        console.log('Ruta activa:', this.activeRoute); // Para debug
     }
 
     public goToEconomico(): void {

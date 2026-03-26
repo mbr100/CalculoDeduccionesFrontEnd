@@ -33,6 +33,7 @@ export class NuevoEconomico {
             cnae: this.fb.nonNullable.control(6201, Validators.required),
             anualidad: this.fb.nonNullable.control(2025, Validators.required),
             esPyme: this.fb.nonNullable.control(true),
+            selloPymeInnovadora: this.fb.nonNullable.control(false),
         }) as FormGroup;
 
     }
@@ -52,7 +53,7 @@ export class NuevoEconomico {
                         icon: 'success',
                         title: 'Economico creado con éxito',
                         text: `El economico ${data.nombre}-${data.anualidad} ha sido creado correctamente.`
-                    }).then(r => this.router.navigate([`/vereconomico/${response.id}`]).then());
+                    }).then(() => this.router.navigate(['/economico/ver', response.id]).then());
                 },
                 error: (error) => {
                     let mensajeError = 'Error desconocido';

@@ -5,7 +5,7 @@ import {Router} from '@angular/router';
   selector: 'app-navbar',
   imports: [],
   templateUrl: './navbar.html',
-  styles: `:host { display: block; position: relative; z-index: 50; }`
+  styles: `:host { display: block; position: relative; z-index: 60; }`
 })
 export class Navbar {
 
@@ -17,9 +17,19 @@ export class Navbar {
         this.router.navigate(['']).then();
     }
 
-    irATiposCotizacion() {
+    irAConfiguracionAnualSS() {
         this.mantOpen.set(false);
-        this.router.navigate(['/mantenimientos/tipos-cotizacion']).then();
+        this.router.navigate(['/mantenimientos/configuracion-anual-ss']).then();
+    }
+
+    irATarifaPrimasCnae() {
+        this.mantOpen.set(false);
+        this.router.navigate(['/mantenimientos/tarifa-primas-cnae']).then();
+    }
+
+    irAClavesOcupacion() {
+        this.mantOpen.set(false);
+        this.router.navigate(['/mantenimientos/claves-ocupacion']).then();
     }
 
     toggleMant() {

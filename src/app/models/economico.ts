@@ -12,6 +12,7 @@ export interface EconomicoDto {
     CNAE: string;
     anualidad: number;
     esPyme: boolean;
+    selloPymeInnovadora: boolean;
     descripcionIDI: string;
     presentacionEmpresa: string;
 }
@@ -38,6 +39,7 @@ export interface nuevoEconomicoDto {
     cnae: number;
     anualidad: number;
     esPyme: boolean;
+    selloPymeInnovadora: boolean;
 }
 export interface EconomicoCreadoDTO {
     id: number;
@@ -55,6 +57,7 @@ export interface ActualizarDatosEconomicoDTO {
     urlWeb: string;
     cnae: number;
     esPyme: boolean;
+    selloPymeInnovadora: boolean;
     descripcionIDI: string;
     presentacionEmpresa: string;
 }

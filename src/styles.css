@@ -1,1 +1,222 @@
 @import "tailwindcss";
+
+:root {
+    color-scheme: light;
+}
+
+@layer base {
+    body {
+        @apply bg-slate-100 text-slate-900 antialiased;
+    }
+}
+
+@layer components {
+    .app-shell {
+        @apply min-h-screen bg-gray-50 flex flex-col;
+        isolation: isolate;
+    }
+
+    .app-main {
+        @apply relative flex-1;
+    }
+
+    .economico-shell {
+        @apply flex min-h-full w-full items-stretch bg-gray-50;
+    }
+
+    .economico-main {
+        @apply flex min-w-0 flex-1 flex-col p-4;
+    }
+
+    .economico-main-scroll {
+        @apply flex-1 min-h-0 overflow-auto;
+    }
+
+    .app-navbar-shell {
+        @apply sticky top-0 border-b border-slate-700 bg-slate-800/95 shadow-sm backdrop-blur;
+        overflow: visible;
+        z-index: 60;
+    }
+
+    .app-navbar-dropdown {
+        @apply absolute top-full mt-1 w-56 rounded-2xl border border-slate-700 bg-slate-800 shadow-2xl;
+        z-index: 70;
+    }
+
+    .ui-page {
+        @apply min-h-screen bg-slate-100/80 p-6;
+    }
+
+    .ui-page-header {
+        @apply mb-6 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white px-6 py-5 shadow-sm lg:flex-row lg:items-center lg:justify-between;
+    }
+
+    .ui-title-block {
+        @apply flex items-start gap-4;
+    }
+
+    .ui-title-icon {
+        @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100;
+    }
+
+    .ui-page-title {
+        @apply text-3xl font-semibold tracking-tight text-slate-900;
+    }
+
+    .ui-page-subtitle {
+        @apply mt-1 text-sm text-slate-600;
+    }
+
+    .ui-toolbar {
+        @apply flex flex-wrap items-center gap-3;
+    }
+
+    .ui-note {
+        @apply mb-4 rounded-2xl border border-indigo-100 bg-indigo-50/80 px-4 py-3 text-sm text-indigo-950;
+    }
+
+    .ui-panel {
+        @apply rounded-3xl border border-slate-200 bg-white p-6 shadow-sm;
+    }
+
+    .ui-form {
+        @apply space-y-5;
+    }
+
+    .ui-form-grid {
+        @apply grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3;
+    }
+
+    .ui-form-grid-compact {
+        @apply grid grid-cols-1 gap-4 md:grid-cols-3;
+    }
+
+    .ui-field {
+        @apply space-y-1.5;
+    }
+
+    .ui-label {
+        @apply block text-sm font-medium text-slate-700;
+    }
+
+    .ui-help {
+        @apply text-xs text-slate-500;
+    }
+
+    .ui-form-error {
+        @apply text-sm text-rose-600;
+    }
+
+    .ui-input,
+    .ui-select,
+    .ui-textarea {
+        @apply block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-800 shadow-sm transition focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500;
+    }
+
+    .ui-select-sm {
+        @apply rounded-xl px-3 py-2;
+    }
+
+    .ui-textarea {
+        @apply min-h-28 resize-y;
+    }
+
+    .ui-checkbox {
+        @apply mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-4 focus:ring-indigo-100;
+    }
+
+    .ui-checkbox-card {
+        @apply flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700;
+    }
+
+    .ui-form-actions {
+        @apply flex flex-wrap justify-end gap-3 pt-2;
+    }
+
+    .ui-btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium transition duration-150 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .ui-btn-secondary {
+        @apply border border-slate-300 bg-white text-slate-700 shadow-sm hover:border-slate-400 hover:bg-slate-50;
+    }
+
+    .ui-btn-primary {
+        @apply bg-indigo-600 text-white shadow-sm hover:bg-indigo-700;
+    }
+
+    .ui-btn-success {
+        @apply bg-emerald-600 text-white shadow-sm hover:bg-emerald-700;
+    }
+
+    .ui-btn-danger {
+        @apply bg-rose-600 text-white shadow-sm hover:bg-rose-700;
+    }
+
+    .ui-btn-icon {
+        @apply inline-flex items-center justify-center rounded-xl p-2 transition hover:bg-slate-100;
+    }
+
+    .ui-table-shell {
+        @apply overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm;
+    }
+
+    .ui-table-wrap {
+        @apply overflow-x-auto;
+    }
+
+    .ui-table {
+        @apply w-full border-collapse text-sm;
+    }
+
+    .ui-table thead {
+        @apply bg-slate-50;
+    }
+
+    .ui-table th {
+        @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500;
+    }
+
+    .ui-table td {
+        @apply px-4 py-3 align-middle text-slate-700;
+    }
+
+    .ui-table tbody tr {
+        @apply border-t border-slate-200 transition hover:bg-slate-50/80;
+    }
+
+    .ui-pill {
+        @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold;
+    }
+
+    .ui-pill-neutral {
+        @apply bg-slate-100 text-slate-700;
+    }
+
+    .ui-pill-success {
+        @apply bg-emerald-100 text-emerald-800;
+    }
+
+    .ui-pill-danger {
+        @apply bg-rose-100 text-rose-800;
+    }
+
+    .ui-modal-backdrop {
+        @apply fixed inset-0 overflow-y-auto bg-slate-950/45 backdrop-blur-sm;
+        z-index: 100;
+    }
+
+    .ui-modal-layout {
+        @apply flex min-h-screen items-start justify-center px-4 py-10;
+    }
+
+    .ui-modal-panel {
+        @apply w-full rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl;
+        max-height: calc(100vh - 5rem);
+        overflow-y: auto;
+    }
+
+    .ui-banner-error {
+        @apply mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700;
+    }
+}

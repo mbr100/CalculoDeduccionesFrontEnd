@@ -1,9 +1,9 @@
-<div class="w-full h-screen flex">
+<div class="economico-shell">
     <!-- Sidebar -->
     <app-sidebar [idEconomico]="this.economicoId" ></app-sidebar>
 
     <!-- Contenido principal -->
-    <div class="flex-1 flex flex-col p-4">
+    <div class="economico-main">
         <!-- Navegación de pestañas -->
         <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-6 w-full">
             @for (tab of tabs; track tab.id) {
@@ -15,7 +15,7 @@
         </div>
 
         <!-- Contenido de las pestañas -->
-        <div class="bg-gray-50 rounded-lg p-6 flex-1 w-full overflow-auto">
+        <div class="bg-gray-50 rounded-lg p-6 flex-1 min-h-0 w-full overflow-auto">
 
             <!-- PESTAÑA PERSONAL -->
             @if (activeTab() === 'personal') {

@@ -48,17 +48,18 @@ export class ListadoPersonal implements OnInit {
 
     constructor(private fb: FormBuilder) {
         this.personalForm = this.fb.group({
-            nombre: ['Mario', Validators.required],
-            apellidos: ['Borrego Rodríguez', Validators.required],
-            dni: ['12345678A', Validators.required],
-            puesto: ['Desarrollador Backend', Validators.required],
-            departamento: ['I+D+i', Validators.required],
-            titulacion1: ['Grado en Ingeniería Informática'],
-            titulacion2: ['Máster en Ciencia de Datos'],
+            nombre: ['', Validators.required],
+            apellidos: ['', Validators.required],
+            dni: ['', Validators.required],
+            puesto: ['', Validators.required],
+            departamento: ['', Validators.required],
+            titulacion1: [''],
+            titulacion2: [''],
             titulacion3: [''],
             titulacion4: [''],
             esPersonalInvestigador: [true],
-            esContratoIndefinido: [true]
+            esContratoIndefinido: [true],
+            claveOcupacion: ['']
         });
     }
 
@@ -161,9 +162,7 @@ export class ListadoPersonal implements OnInit {
     // CRUD Operations
     public nuevoPersonal(): void {
         this.personalSeleccionado.set(null);
-        // this.personalForm.reset({
-        //     esPersonalInvestigador: false
-        // });
+        this.resetPersonalForm();
         this.mostrarModal.set(true);
     }
 
@@ -180,7 +179,8 @@ export class ListadoPersonal implements OnInit {
             titulacion3: personal.titulacion3 || '',
             titulacion4: personal.titulacion4 || '',
             esPersonalInvestigador: personal.esPersonalInvestigador,
-            esContratoIndefinido: personal.esContratoIndefinido
+            esContratoIndefinido: personal.esContratoIndefinido,
+            claveOcupacion: personal.claveOcupacion || ''
         });
         this.mostrarModal.set(true);
     }
@@ -241,7 +241,8 @@ export class ListadoPersonal implements OnInit {
                     titulacion3: this.personalForm.value.titulacion3 || '',
                     titulacion4: this.personalForm.value.titulacion4 || '',
                     esPersonalInvestigador: this.personalForm.value.esPersonalInvestigador || false,
-                    esContratoIndefinido: this.personalForm.value.esContratoIndefinido ?? true
+                    esContratoIndefinido: this.personalForm.value.esContratoIndefinido ?? true,
+                    claveOcupacion: this.personalForm.value.claveOcupacion || undefined
                 }
                 this.economicoPersonalService.actualizarPersonalEconomico(actualizarPersonal).subscribe({
                     next: () => {
@@ -275,7 +276,8 @@ export class ListadoPersonal implements OnInit {
                     titulacion3: this.personalForm.value.titulacion3 || '',
                     titulacion4: this.personalForm.value.titulacion4 || '',
                     esPersonalInvestigador: this.personalForm.value.esPersonalInvestigador || false,
-                    esContratoIndefinido: this.personalForm.value.esContratoIndefinido ?? true
+                    esContratoIndefinido: this.personalForm.value.esContratoIndefinido ?? true,
+                    claveOcupacion: this.personalForm.value.claveOcupacion || undefined
                 }
                 // Crear nuevo
                 this.economicoPersonalService.crearPersonal(crearPersonalEconomico).subscribe({
@@ -303,7 +305,24 @@ export class ListadoPersonal implements OnInit {
     cerrarModal(): void {
         this.mostrarModal.set(false);
         this.personalSeleccionado.set(null);
-        this.personalForm.reset();
+        this.resetPersonalForm();
+    }
+
+    private resetPersonalForm(): void {
+        this.personalForm.reset({
+            nombre: '',
+            apellidos: '',
+            dni: '',
+            puesto: '',
+            departamento: '',
+            titulacion1: '',
+            titulacion2: '',
+            titulacion3: '',
+            titulacion4: '',
+            esPersonalInvestigador: true,
+            esContratoIndefinido: true,
+            claveOcupacion: ''
+        });
     }
 
     // Manejo de archivos

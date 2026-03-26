@@ -1,0 +1,143 @@
+<div class="ui-page">
+    <div class="ui-page-header">
+        <div class="ui-title-block">
+            <div class="ui-title-icon">
+                <i class="fa fa-sliders"></i>
+            </div>
+            <div>
+                <h1 class="ui-page-title">Configuración Anual SS</h1>
+                <p class="ui-page-subtitle">Tipos de Seguridad Social reutilizables por ejercicio para todos los cálculos laborales.</p>
+            </div>
+        </div>
+        <div class="ui-toolbar">
+            <button (click)="volver()" type="button" class="ui-btn ui-btn-secondary">
+                <i class="fa fa-arrow-left"></i>
+                Volver
+            </button>
+            <button (click)="abrirFormularioNuevo()" type="button" class="ui-btn ui-btn-primary">
+                <i class="fa fa-plus"></i>
+                Nuevo año
+            </button>
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="ui-note">
+        Tipos de cotización comunes a todas las empresas, por año fiscal. Incluye CC, desempleo, FOGASA, FP y MEI.
+    </div>
+
+    <!-- Formulario crear/editar -->
+    @if (mostrarFormulario()) {
+        <div class="ui-panel mb-6">
+            <h2 class="mb-4 text-xl font-semibold text-slate-900">
+                {{ editandoId() !== null ? 'Editar' : 'Nueva' }} Configuración Anual
+            </h2>
+            <form [formGroup]="form" (ngSubmit)="guardar()" class="ui-form">
+                <div class="ui-form-grid-compact">
+                    <div class="ui-field">
+                        <label class="ui-label">Año</label>
+                        <input type="number" formControlName="anio" class="ui-input">
+                    </div>
+                    <div class="ui-field">
+                        <label class="ui-label">CC Empresa (%)</label>
+                        <input type="number" step="0.01" formControlName="ccEmpresa" class="ui-input">
+                    </div>
+                    <div class="ui-field">
+                        <label class="ui-label">CC Trabajador (%)</label>
+                        <input type="number" step="0.01" formControlName="ccTrabajador" class="ui-input">
+                    </div>
+                </div>
+                <div class="ui-form-grid-compact">
+                    <div class="ui-field">
+                        <label class="ui-label">Desempleo Indef. (%)</label>
+                        <input type="number" step="0.01" formControlName="desempleoEmpresaIndefinido" class="ui-input">
+                    </div>
+                    <div class="ui-field">
+                        <label class="ui-label">Desempleo Temp. (%)</label>
+                        <input type="number" step="0.01" formControlName="desempleoEmpresaTemporal" class="ui-input">
+                    </div>
+                    <div class="ui-field">
+                        <label class="ui-label">FOGASA (%)</label>
+                        <input type="number" step="0.01" formControlName="fogasa" class="ui-input">
+                    </div>
+                </div>
+                <div class="ui-form-grid-compact">
+                    <div class="ui-field">
+                        <label class="ui-label">FP Empresa (%)</label>
+                        <input type="number" step="0.01" formControlName="fpEmpresa" class="ui-input">
+                    </div>
+                    <div class="ui-field">
+                        <label class="ui-label">MEI Empresa (%)</label>
+                        <input type="number" step="0.01" formControlName="meiEmpresa" class="ui-input">
+                    </div>
+                    <div class="ui-field">
+                        <label class="ui-label">MEI Trabajador (%)</label>
+                        <input type="number" step="0.01" formControlName="meiTrabajador" class="ui-input">
+                    </div>
+                </div>
+                <div class="ui-form-actions">
+                    <button type="button" (click)="cancelarFormulario()" class="ui-btn ui-btn-secondary">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="ui-btn ui-btn-success">
+                        <i class="fa fa-save"></i>
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    }
+
+    <!-- Tabla -->
+    <div class="ui-table-shell">
+        @if (loading()) {
+            <div class="p-8 text-center text-slate-500">Cargando...</div>
+        } @else if (configs().length === 0) {
+            <div class="p-8 text-center text-slate-500">No hay configuraciones registradas.</div>
+        } @else {
+            <div class="ui-table-wrap">
+                <table class="ui-table">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-3">Año</th>
+                        <th class="px-4 py-3 text-right">CC Emp. %</th>
+                        <th class="px-4 py-3 text-right">CC Trab. %</th>
+                        <th class="px-4 py-3 text-right">Desemp. Indef. %</th>
+                        <th class="px-4 py-3 text-right">Desemp. Temp. %</th>
+                        <th class="px-4 py-3 text-right">FOGASA %</th>
+                        <th class="px-4 py-3 text-right">FP %</th>
+                        <th class="px-4 py-3 text-right">MEI Emp. %</th>
+                        <th class="px-4 py-3 text-right">MEI Trab. %</th>
+                        <th class="px-4 py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (config of configs(); track config.id) {
+                        <tr>
+                            <td class="px-4 py-3 font-medium">{{ config.anio }}</td>
+                            <td class="px-4 py-3 text-right">{{ config.ccEmpresa }}</td>
+                            <td class="px-4 py-3 text-right">{{ config.ccTrabajador }}</td>
+                            <td class="px-4 py-3 text-right">{{ config.desempleoEmpresaIndefinido }}</td>
+                            <td class="px-4 py-3 text-right">{{ config.desempleoEmpresaTemporal }}</td>
+                            <td class="px-4 py-3 text-right">{{ config.fogasa }}</td>
+                            <td class="px-4 py-3 text-right">{{ config.fpEmpresa }}</td>
+                            <td class="px-4 py-3 text-right">{{ config.meiEmpresa }}</td>
+                            <td class="px-4 py-3 text-right">{{ config.meiTrabajador }}</td>
+                            <td class="px-4 py-3 text-center">
+                                <div class="flex justify-center gap-2">
+                                    <button (click)="editarConfig(config)" class="ui-btn-icon text-indigo-600 hover:text-indigo-700" title="Editar">
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
+                                    <button (click)="eliminarConfig(config)" class="ui-btn-icon text-rose-600 hover:text-rose-700" title="Eliminar">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            </div>
+        }
+    </div>
+</div>

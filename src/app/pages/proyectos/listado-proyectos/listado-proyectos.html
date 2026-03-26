@@ -1,9 +1,10 @@
-<div class="w-full h-screen flex">
+<div class="economico-shell">
     <!-- Sidebar -->
     <app-sidebar [idEconomico]="economicoId"></app-sidebar>
 
     <!-- Contenido Principal -->
-    <div class="flex-1 min-h-screen bg-gray-50 p-6 overflow-auto">
+    <div class="economico-main">
+        <div class="economico-main-scroll rounded-lg bg-gray-50 p-6">
         <div class="max-w-full mx-auto">
 
             <!-- Header -->
@@ -341,15 +342,13 @@
 
             <!-- Modal para crear/editar proyecto -->
             @if (modalOpen()) {
-                <div class="fixed inset-0 z-50 overflow-y-auto modal-backdrop" (click)="onBackdropClick($event)">
-                    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div class="ui-modal-backdrop" (click)="onBackdropClick($event)">
+                    <div class="ui-modal-layout">
 
                         <!-- Modal content -->
-                        <div
-                            class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6 modal-content"
-                            (click)="$event.stopPropagation()">
+                        <div class="ui-modal-panel max-w-lg" (click)="$event.stopPropagation()">
                             <!-- Header -->
-                            <div class="flex items-center justify-between mb-4">
+                            <div class="mb-4 flex items-center justify-between border-b border-slate-200 pb-4">
                                 <h3 class="text-lg font-medium text-gray-900">
                                     <i class="fas fa-project-diagram mr-2 text-blue-600"></i>
                                     @if (modalMode() === 'create') {
@@ -444,16 +443,16 @@
                             </div>
 
                             <!-- Botones -->
-                            <div class="flex justify-end space-x-3 mt-6">
+                            <div class="ui-form-actions">
                                 <button
                                     (click)="closeModal()"
-                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                                    class="ui-btn ui-btn-secondary">
                                     Cancelar
                                 </button>
                                 <button
                                     (click)="saveModal()"
                                     [disabled]="modalLoading()"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                                    class="ui-btn ui-btn-primary">
                                     @if (modalLoading()) {
                                         <i class="fas fa-spinner fa-spin"></i>
                                         <span>Guardando...</span>
@@ -483,6 +482,7 @@
                 </span>
                 </div>
             }
+        </div>
         </div>
     </div>
 </div>

@@ -99,6 +99,24 @@ export class ResumenCosteHoraPersonal implements OnInit {
         }).format(value || 0) + ' h';
     }
 
+    public formatPercent(value: number): string {
+        return new Intl.NumberFormat('es-ES', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value || 0) + ' %';
+    }
+
+    public formatOrigenATEP(origen: string | null): string {
+        if (!origen) return '-';
+        if (origen.startsWith('CUADRO_II_CLAVE_')) {
+            return 'Cuadro II (' + origen.replace('CUADRO_II_CLAVE_', '') + ')';
+        }
+        if (origen.startsWith('CUADRO_I_CNAE_')) {
+            return 'CNAE ' + origen.replace('CUADRO_I_CNAE_', '');
+        }
+        return origen;
+    }
+
     // Métodos de paginación
     public previousPage(): void {
         if (this.currentPage() > 0) {

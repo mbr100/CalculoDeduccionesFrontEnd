@@ -46,6 +46,7 @@ export class VerEconomico implements OnInit, OnDestroy {
             cnae: [0, Validators.required],
             anualidad: [0, [Validators.required, Validators.min(2020)]],
             esPyme: [false],
+            selloPymeInnovadora: [false],
             descripcionIDI: ['', Validators.required],
             presentacionEmpresa: ['', Validators.required]
         }) as FormGroup;
@@ -103,6 +104,7 @@ export class VerEconomico implements OnInit, OnDestroy {
                 urlWeb: this.economicoForm.get('urlWeb')?.value,
                 cnae: this.economicoForm.get('cnae')?.value,
                 esPyme: this.economicoForm.get('esPyme')?.value,
+                selloPymeInnovadora: this.economicoForm.get('selloPymeInnovadora')?.value,
                 descripcionIDI: toHTML(this.economicoForm.get('descripcionIDI')?.value) ,
                 presentacionEmpresa: toHTML(this.economicoForm.get('presentacionEmpresa')?.value),
             };

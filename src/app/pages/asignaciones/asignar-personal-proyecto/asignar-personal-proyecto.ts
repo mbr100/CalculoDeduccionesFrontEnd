@@ -1,5 +1,7 @@
 import {Component, computed, inject, Input, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {ProyectoService} from '../../../services/proyecto-service';
+import {EconomicoPersonalService} from '../../../services/economico-personal-service';
+import {EconomicoService} from '../../../services/economico-service';
 import {ActualizarAsignacionDTO, FilaAsignacionDTO, MatrizAsignacionesDTO} from '../../../models/asignaciones.proyecto';
 import {SavingState} from '../../../models/savingState';
 import Swal from 'sweetalert2';
@@ -15,6 +17,10 @@ export class AsignarPersonalProyecto implements OnInit {
     public idEconomico!: number;
 
     private proyectoService: ProyectoService = inject(ProyectoService);
+    private economicoPersonalService: EconomicoPersonalService = inject(EconomicoPersonalService);
+    private economicoService: EconomicoService = inject(EconomicoService);
+
+    public anualidad: WritableSignal<number> = signal(0);
 
     // Signals principales
     public matrizData: WritableSignal<MatrizAsignacionesDTO> = signal<MatrizAsignacionesDTO>({
@@ -33,6 +39,10 @@ export class AsignarPersonalProyecto implements OnInit {
 
     public ngOnInit(): void {
         this.loadData();
+        this.economicoService.getEconomicoById(this.idEconomico).subscribe({
+            next: (eco) => this.anualidad.set(eco.anualidad),
+            error: (err) => console.error('Error cargando anualidad:', err)
+        });
     }
 
     // Métodos de carga de datos
@@ -82,11 +92,32 @@ export class AsignarPersonalProyecto implements OnInit {
 
         const key = `${idPersonal}-${proyectoIndex}`;
 
+        // Si se asignan horas > 0, validar compatibilidad bonificación/PYME
+        if (horas > 0 && this.anualidad() > 0) {
+            this.savingStates.update(states => ({ ...states, [key]: 'saving' }));
+            this.economicoPersonalService.validarImputacion(idPersonal, this.anualidad(), this.idEconomico).subscribe({
+                next: (result) => {
+                    if (result.bloqueado) {
+                        this.savingStates.update(states => ({ ...states, [key]: 'idle' }));
+                        this.showValidationError(result.mensaje || 'No se puede asignar horas a este trabajador.');
+                        return;
+                    }
+                    this.enviarAsignacion(idPersonal, idProyecto, horas, key, proyectoIndex);
+                },
+                error: () => this.enviarAsignacion(idPersonal, idProyecto, horas, key, proyectoIndex)
+            });
+            return;
+        }
+
         this.savingStates.update(states => ({
             ...states,
             [key]: 'saving'
         }));
 
+        this.enviarAsignacion(idPersonal, idProyecto, horas, key, proyectoIndex);
+    }
+
+    private enviarAsignacion(idPersonal: number, idProyecto: number, horas: number, key: string, proyectoIndex: number): void {
         try {
             const actualizacion: ActualizarAsignacionDTO = {
                 idPersonal,

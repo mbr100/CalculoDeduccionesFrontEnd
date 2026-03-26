@@ -26,6 +26,8 @@ import Swal from 'sweetalert2';
 export class BonificacionesPersonal implements OnInit {
     @Input()
     public idEconomico!: number;
+    @Input()
+    public anualidad!: number;
     private economicoPersonalService: EconomicoPersonalService = inject(EconomicoPersonalService);
 
     // Signals principales
@@ -51,29 +53,37 @@ export class BonificacionesPersonal implements OnInit {
         idPersona: 0,
         tipoBonificacion: TiposBonificacion.BONIFICACION_PERSONAL_INVESTIGADOR,
         porcentajeBonificacion: 40,
-        nombre: ''
+        nombre: '',
+        fechaInicio: '',
+        fechaFin: '',
+        anioFiscal: 0,
+        descripcion: ''
     });
+
+    // Porcentajes válidos para investigador
+    public porcentajesInvestigador: {value: number, label: string}[] = [
+        { value: 40, label: '40% (base)' },
+        { value: 45, label: '45% (menor de 30 años)' },
+        { value: 50, label: '50% (mujer menor de 30)' }
+    ];
 
     // Tipos de bonificación disponibles
     public tiposBonificacion: tiposBonificacion[] = [
-        { value: TiposBonificacion.BONIFICACION_PERSONAL_INVESTIGADOR, label: 'Bonificación Personal Investigador', porcentajeDefault: 40 },
+        { value: TiposBonificacion.BONIFICACION_PERSONAL_INVESTIGADOR, label: 'Personal Investigador (RD 475/2014)', porcentajeDefault: 40 },
+        { value: TiposBonificacion.OTRA_BONIFICACION, label: 'Otra bonificación', porcentajeDefault: 0 },
     ];
 
     // Computed signals
     public visiblePages: Signal<number[]> = computed((): number[] => getVisiblePages(this.currentPage(), this.totalPages()));
 
-
-    // Computed para opciones del selector
-    public personalDisponible: Signal<ListadoPersonalSelectorEconomicoDTO[]> = computed((): ListadoPersonalSelectorEconomicoDTO[] => {
-        const bonificacionesExistentes: number[] = this.bonificaciones().map((b: BonificacionesEmpleadoEconomicoDTO):number => b.idPersona);
-        return this.listadoPersonal().filter((p: ListadoPersonalSelectorEconomicoDTO):boolean => !bonificacionesExistentes.includes(p.idPersona));
-    });
+    public isInvestigador: Signal<boolean> = computed((): boolean =>
+        this.formData().tipoBonificacion === TiposBonificacion.BONIFICACION_PERSONAL_INVESTIGADOR
+    );
 
     // Para acceder a Math en el template
     public Math: Math = Math;
 
     public constructor() {
-        // Effect para recargar datos cuando cambie la página
         effect((): void => {
             const page: number = this.currentPage();
             if (page >= 0) {
@@ -87,7 +97,6 @@ export class BonificacionesPersonal implements OnInit {
         this.loadPersonalSelector();
     }
 
-    // Métodos de carga de datos
     public loadData(): void {
         this.currentPage.set(0);
     }
@@ -125,7 +134,7 @@ export class BonificacionesPersonal implements OnInit {
     }
 
     public updateField(idBonificacionTrabajador: number, field: keyof BonificacionesEmpleadoEconomicoDTO, value: string | number): void {
-        const editableFields = ['tipoBonificacion', 'porcentajeBonificacion'];
+        const editableFields = ['tipoBonificacion', 'porcentajeBonificacion', 'fechaInicio', 'fechaFin', 'descripcion'];
 
         if (!editableFields.includes(field as string)) {
             console.warn(`Campo ${field} no es editable`);
@@ -138,11 +147,13 @@ export class BonificacionesPersonal implements OnInit {
         }));
 
         try {
-            let valorFinal: TiposBonificacion | number;
+            let valorFinal: TiposBonificacion | number | string;
             if (field === 'tipoBonificacion') {
                 valorFinal = value as TiposBonificacion;
-            } else {
+            } else if (field === 'porcentajeBonificacion') {
                 valorFinal = this.parseNumberValue(value);
+            } else {
+                valorFinal = value as string;
             }
 
             const actualizacion: ActualizarBonificacionDTO = {
@@ -158,7 +169,6 @@ export class BonificacionesPersonal implements OnInit {
                         [idBonificacionTrabajador]: 'success'
                     }));
 
-                    // Actualizar el valor en la lista local
                     this.bonificaciones.update(items =>
                         items.map(item =>
                             item.idBonificacionTrabajador === idBonificacionTrabajador
@@ -179,7 +189,6 @@ export class BonificacionesPersonal implements OnInit {
                     this.handleSavingError(idBonificacionTrabajador);
                 }
             });
-            console.log(`Actualizando campo ${field} para bonificación ID ${idBonificacionTrabajador} con valor ${value}`);
         } catch (error) {
             console.error('Error actualizando campo:', error);
             this.handleSavingError(idBonificacionTrabajador);
@@ -262,7 +271,11 @@ export class BonificacionesPersonal implements OnInit {
         const nuevaBonificacion: CrearBonificacionDTO = {
             idPersona: form.idPersona,
             tipoBonificacion: form.tipoBonificacion,
-            porcentajeBonificacion: form.porcentajeBonificacion
+            porcentajeBonificacion: form.porcentajeBonificacion,
+            fechaInicio: form.fechaInicio,
+            fechaFin: form.fechaFin,
+            anioFiscal: form.anioFiscal || this.anualidad,
+            descripcion: form.tipoBonificacion === TiposBonificacion.OTRA_BONIFICACION ? form.descripcion : null
         };
 
         this.economicoPersonalService.crearBonificacion(nuevaBonificacion).subscribe({
@@ -270,27 +283,33 @@ export class BonificacionesPersonal implements OnInit {
                 this.modalLoading.set(false);
                 this.closeModal();
                 this.loadData();
+                Swal.fire('Creada', 'La bonificación ha sido creada correctamente.', 'success').then();
             },
             error: (error) => {
                 console.error('Error creando bonificación:', error);
                 this.modalLoading.set(false);
+                const mensaje = error?.error?.mensaje || 'Error al crear la bonificación';
+                Swal.fire('Error', mensaje, 'error').then();
             }
         });
     }
 
     private updateBonificacionFromModal(): void {
-        // Implementar si necesitas edición completa desde modal
         this.modalLoading.set(false);
         this.closeModal();
     }
 
-    // Métodos auxiliares
     private resetForm(): void {
+        const anio = this.anualidad || new Date().getFullYear();
         this.formData.set({
             idPersona: 0,
             tipoBonificacion: TiposBonificacion.BONIFICACION_PERSONAL_INVESTIGADOR,
             porcentajeBonificacion: 40,
-            nombre: ''
+            nombre: '',
+            fechaInicio: `${anio}-01-01`,
+            fechaFin: `${anio}-12-31`,
+            anioFiscal: anio,
+            descripcion: ''
         });
     }
 
@@ -298,18 +317,39 @@ export class BonificacionesPersonal implements OnInit {
         const form = this.formData();
 
         if (form.idPersona === 0) {
-            alert('Debe seleccionar un empleado');
+            Swal.fire('Error', 'Debe seleccionar un empleado', 'warning').then();
             return false;
         }
 
         if (!form.tipoBonificacion) {
-            alert('Debe seleccionar un tipo de bonificación');
+            Swal.fire('Error', 'Debe seleccionar un tipo de bonificación', 'warning').then();
             return false;
         }
 
-        if (form.porcentajeBonificacion <= 0 || form.porcentajeBonificacion > 100) {
-            alert('El porcentaje debe estar entre 1 y 100');
+        if (!form.fechaInicio || !form.fechaFin) {
+            Swal.fire('Error', 'Debe indicar las fechas de inicio y fin', 'warning').then();
             return false;
+        }
+
+        if (form.fechaFin < form.fechaInicio) {
+            Swal.fire('Error', 'La fecha fin no puede ser anterior a la fecha inicio', 'warning').then();
+            return false;
+        }
+
+        if (form.tipoBonificacion === TiposBonificacion.BONIFICACION_PERSONAL_INVESTIGADOR) {
+            if (![40, 45, 50].includes(form.porcentajeBonificacion)) {
+                Swal.fire('Error', 'Personal investigador solo admite 40%, 45% o 50%', 'warning').then();
+                return false;
+            }
+        } else {
+            if (form.porcentajeBonificacion <= 0 || form.porcentajeBonificacion > 100) {
+                Swal.fire('Error', 'El porcentaje debe estar entre 0.01% y 100%', 'warning').then();
+                return false;
+            }
+            if (!form.descripcion || form.descripcion.trim() === '') {
+                Swal.fire('Error', 'La descripción es obligatoria para otras bonificaciones', 'warning').then();
+                return false;
+            }
         }
 
         return true;
@@ -357,12 +397,22 @@ export class BonificacionesPersonal implements OnInit {
         return `w-full px-3 py-2 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors ${borderColor}`;
     }
 
-    // Métodos específicos de bonificaciones
     public getTipoLabel(tipo: TiposBonificacion): string {
         const tipoConfig = this.tiposBonificacion.find(t => t.value === tipo);
         return tipoConfig ? tipoConfig.label : tipo;
     }
 
+    public getTipoLabelShort(tipo: TiposBonificacion): string {
+        if (tipo === TiposBonificacion.BONIFICACION_PERSONAL_INVESTIGADOR) return 'Investigador';
+        if (tipo === TiposBonificacion.OTRA_BONIFICACION) return 'Otra';
+        return tipo;
+    }
+
+    public formatDate(dateStr: string): string {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
 
     public parseNumberValue(value: string | number): number {
         if (value === null || value === undefined || value === '') {
@@ -375,7 +425,43 @@ export class BonificacionesPersonal implements OnInit {
         return isNaN(parsed) ? 0 : Math.min(100, Math.max(0, parsed));
     }
 
-    // Métodos de paginación
+    // Métodos del formulario modal
+    public onPersonalChange(): void {
+        const form = this.formData();
+        const personalSeleccionado = this.listadoPersonal().find(p => p.idPersona === form.idPersona);
+
+        if (personalSeleccionado) {
+            this.formData.update(current => ({
+                ...current,
+                nombre: personalSeleccionado.nombre
+            }));
+        }
+    }
+
+    public onTipoBonificacionChange(): void {
+        const form = this.formData();
+        if (form.tipoBonificacion === TiposBonificacion.BONIFICACION_PERSONAL_INVESTIGADOR) {
+            this.formData.update(current => ({
+                ...current,
+                porcentajeBonificacion: 40,
+                descripcion: ''
+            }));
+        } else {
+            this.formData.update(current => ({
+                ...current,
+                porcentajeBonificacion: 0
+            }));
+        }
+    }
+
+    public onPorcentajeInvestigadorChange(pct: number): void {
+        this.formData.update(current => ({
+            ...current,
+            porcentajeBonificacion: pct
+        }));
+    }
+
+    // Paginación
     public previousPage(): void {
         if (this.currentPage() > 0) {
             this.currentPage.update(page => page - 1);
@@ -400,7 +486,6 @@ export class BonificacionesPersonal implements OnInit {
         return `${baseClass} bg-white border-gray-300 text-gray-500 hover:bg-gray-50`;
     }
 
-    // Métodos de conveniencia para el template
     public isLoading(): boolean {
         return this.loading();
     }
@@ -415,30 +500,5 @@ export class BonificacionesPersonal implements OnInit {
 
     public canGoNext(): boolean {
         return this.currentPage() < this.totalPages() - 1;
-    }
-
-    // Metodo para actualizar el formulario cuando cambia la selección
-    public onPersonalChange(): void {
-        const form = this.formData();
-        const personalSeleccionado = this.listadoPersonal().find(p => p.idPersona === form.idPersona);
-
-        if (personalSeleccionado) {
-            this.formData.update(current => ({
-                ...current,
-                nombre: personalSeleccionado.nombre
-            }));
-        }
-    }
-
-    public onTipoBonificacionChange(): void {
-        const form = this.formData();
-        const tipoConfig = this.tiposBonificacion.find(t => t.value === form.tipoBonificacion);
-
-        if (tipoConfig) {
-            this.formData.update(current => ({
-                ...current,
-                porcentajeBonificacion: tipoConfig.porcentajeDefault
-            }));
-        }
     }
 }

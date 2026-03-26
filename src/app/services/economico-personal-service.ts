@@ -150,6 +150,10 @@ export class EconomicoPersonalService {
         });
     }
 
+    public validarImputacion(idPersonal: number, anioFiscal: number, idEconomico: number): Observable<{bloqueado: boolean, mensaje?: string}> {
+        return this.http.get<{bloqueado: boolean, mensaje?: string}>(`${this.baseUrl}/${this.apiPersonal}/validar-imputacion/${idPersonal}/${anioFiscal}/${idEconomico}`);
+    }
+
     public obtenerCosteHoraPorIdEconomico(idEconomico: number, paginaActual: number, tamano: number): Observable<PaginacionResponse<CosteHoraPersonalDTO>> {
         return this.http.get<PaginacionResponse<CosteHoraPersonalDTO>>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/resumen-coste-personal`, {
             headers: {'Content-Type': 'application/json'},

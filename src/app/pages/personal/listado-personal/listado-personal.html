@@ -9,14 +9,14 @@
             <div class="flex gap-3">
                 <!-- Botón subir fichero -->
                 <button (click)="abrirModalSubirFichero()"
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                        class="ui-btn ui-btn-primary">
                     <i class="fa fa-upload" aria-hidden="true"></i>
                     Subir Fichero
                 </button>
                 <!-- Botón actualizar -->
                 <button (click)="refreshData()"
                         [disabled]="loading()"
-                        class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                        class="ui-btn ui-btn-primary">
                     <i class="fa fa-refresh" aria-hidden="true"></i>
                     {{ loading() ? 'Cargando...' : 'Actualizar' }}
                 </button>
@@ -26,7 +26,7 @@
 
     <!-- Mensaje de error -->
     @if (error()) {
-        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+        <div class="ui-banner-error">
             {{ error() }}
         </div>
     }
@@ -40,7 +40,7 @@
 
     <!-- Tabla de datos -->
     @if (!loading()) {
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="ui-table-shell">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                 <div class="flex items-center gap-4">
                     <p class="text-sm text-gray-600">
@@ -53,7 +53,7 @@
                         <select id="pageSize"
                                 [value]="pagesize()"
                                 (change)="changePageSize($event)"
-                                class="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="ui-select ui-select-sm">
                             <option value="5">5</option>
                             <option value="10">10</option>
                             <option value="25">25</option>
@@ -100,6 +100,9 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Contrato
                         </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Clave Ocupación
+                        </th>
                         <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Acciones
                         </th>
@@ -143,6 +146,15 @@
                                           [class.text-orange-800]="!personal.esContratoIndefinido">
                                         {{ personal.esContratoIndefinido ? 'Indefinido' : 'Temporal' }}
                                     </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if (personal.claveOcupacion) {
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                                            {{ personal.claveOcupacion }}
+                                        </span>
+                                    } @else {
+                                        <span class="text-sm text-gray-400">CNAE</span>
+                                    }
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <div class="flex justify-center space-x-2">
@@ -253,7 +265,7 @@
         <!-- Botón Añadir Personal -->
         <div class="mt-6 flex justify-end">
             <button (click)="nuevoPersonal()"
-                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors shadow-lg hover:shadow-xl">
+                    class="ui-btn ui-btn-success">
                 <i class="fa fa-plus" aria-hidden="true"></i>
                 Añadir Personal
             </button>
@@ -263,14 +275,18 @@
 
 <!-- Modal Crear/Editar Personal -->
 @if (mostrarModal()) {
-    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" (click)="cerrarModal()">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white" (click)="$event.stopPropagation()">
+    <div class="ui-modal-backdrop" (click)="cerrarModal()">
+        <div class="ui-modal-layout">
+        <div class="ui-modal-panel max-w-3xl" (click)="$event.stopPropagation()">
 
             <!-- Header del modal -->
-            <div class="flex justify-between items-center pb-3 border-b">
-                <h3 class="text-xl font-bold text-gray-900">
+            <div class="mb-5 flex items-center justify-between border-b border-slate-200 pb-4">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900">
                     {{ personalSeleccionado()?.idPersona ? 'Editar Personal' : 'Nuevo Personal' }}
-                </h3>
+                    </h3>
+                    <p class="ui-page-subtitle">Formulario unificado para altas y edición de personal.</p>
+                </div>
                 <button (click)="cerrarModal()"
                         class="text-gray-400 hover:text-gray-600">
                     <i class="fa fa-times text-xl"></i>
@@ -278,153 +294,176 @@
             </div>
 
             <!-- Formulario -->
-            <form [formGroup]="personalForm" (ngSubmit)="guardarPersonal()" class="mt-4">
+            <form [formGroup]="personalForm" (ngSubmit)="guardarPersonal()" class="ui-form">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     <!-- Nombre -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <div class="ui-field">
+                        <label class="ui-label">
                             Nombre <span class="text-red-500">*</span>
                         </label>
                         <input type="text"
                                formControlName="nombre"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               class="ui-input"
                                placeholder="Nombre">
                         @if (personalForm.get('nombre')?.invalid && personalForm.get('nombre')?.touched) {
-                            <p class="mt-1 text-sm text-red-600">El nombre es requerido</p>
+                            <p class="ui-form-error">El nombre es requerido</p>
                         }
                     </div>
 
                     <!-- Apellidos -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <div class="ui-field">
+                        <label class="ui-label">
                             Apellidos <span class="text-red-500">*</span>
                         </label>
                         <input type="text"
                                formControlName="apellidos"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               class="ui-input"
                                placeholder="Apellidos">
                         @if (personalForm.get('apellidos')?.invalid && personalForm.get('apellidos')?.touched) {
-                            <p class="mt-1 text-sm text-red-600">Los apellidos son requeridos</p>
+                            <p class="ui-form-error">Los apellidos son requeridos</p>
                         }
                     </div>
 
                     <!-- DNI -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <div class="ui-field">
+                        <label class="ui-label">
                             DNI <span class="text-red-500">*</span>
                         </label>
                         <input type="text"
                                formControlName="dni"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               class="ui-input"
                                placeholder="12345678A">
                         @if (personalForm.get('dni')?.invalid && personalForm.get('dni')?.touched) {
-                            <p class="mt-1 text-sm text-red-600">El DNI es requerido</p>
+                            <p class="ui-form-error">El DNI es requerido</p>
                         }
                     </div>
 
                     <!-- Puesto -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <div class="ui-field">
+                        <label class="ui-label">
                             Puesto <span class="text-red-500">*</span>
                         </label>
                         <input type="text"
                                formControlName="puesto"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               class="ui-input"
                                placeholder="Puesto de trabajo">
                         @if (personalForm.get('puesto')?.invalid && personalForm.get('puesto')?.touched) {
-                            <p class="mt-1 text-sm text-red-600">El puesto es requerido</p>
+                            <p class="ui-form-error">El puesto es requerido</p>
                         }
                     </div>
 
                     <!-- Departamento -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <div class="ui-field md:col-span-2">
+                        <label class="ui-label">
                             Departamento <span class="text-red-500">*</span>
                         </label>
                         <input type="text"
                                formControlName="departamento"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               class="ui-input"
                                placeholder="Departamento">
                         @if (personalForm.get('departamento')?.invalid && personalForm.get('departamento')?.touched) {
-                            <p class="mt-1 text-sm text-red-600">El departamento es requerido</p>
+                            <p class="ui-form-error">El departamento es requerido</p>
                         }
                     </div>
 
                     <!-- Titulaciones -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <div class="ui-field md:col-span-2">
+                        <label class="ui-label">
                             Titulaciones
                         </label>
                         <div class="space-y-2">
                             <input type="text"
                                    formControlName="titulacion1"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   class="ui-input"
                                    placeholder="Titulación 1">
                             <input type="text"
                                    formControlName="titulacion2"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   class="ui-input"
                                    placeholder="Titulación 2">
                             <input type="text"
                                    formControlName="titulacion3"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   class="ui-input"
                                    placeholder="Titulación 3">
                             <input type="text"
                                    formControlName="titulacion4"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   class="ui-input"
                                    placeholder="Titulación 4">
                         </div>
                     </div>
 
                     <!-- Es Personal Investigador -->
                     <div>
-                        <label class="flex items-center">
+                        <label class="ui-checkbox-card cursor-pointer">
                             <input type="checkbox"
                                    formControlName="esPersonalInvestigador"
-                                   class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                            <span class="ml-2 text-sm font-medium text-gray-700">
-                                Es Personal Investigador
+                                   class="ui-checkbox">
+                            <span>
+                                <span class="block font-medium text-slate-700">Es Personal Investigador</span>
+                                <span class="ui-help">Marca esta opción si el empleado participa en actividades de I+D+i.</span>
                             </span>
                         </label>
                     </div>
 
                     <!-- Es Contrato Indefinido -->
                     <div>
-                        <label class="flex items-center">
+                        <label class="ui-checkbox-card cursor-pointer">
                             <input type="checkbox"
                                    formControlName="esContratoIndefinido"
-                                   class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                            <span class="ml-2 text-sm font-medium text-gray-700">
-                                Contrato Indefinido
+                                   class="ui-checkbox">
+                            <span>
+                                <span class="block font-medium text-slate-700">Contrato indefinido</span>
+                                <span class="ui-help">Define el tipo de cotización y bonificación aplicable.</span>
                             </span>
                         </label>
+                    </div>
+
+                    <!-- Clave de Ocupación (Cuadro II) -->
+                    <div class="ui-field md:col-span-2">
+                        <label class="ui-label">
+                            Clave de Ocupación (Cuadro II - AT/EP)
+                        </label>
+                        <select formControlName="claveOcupacion"
+                                class="ui-select">
+                            <option value="">Sin clave especial (usar tipo del CNAE)</option>
+                            <option value="a">a - Personal en trabajos exclusivos de oficina (1,00%)</option>
+                            <option value="b">b - Representantes de comercio (1,65%)</option>
+                            <option value="d">d - Trabajos habituales de limpieza de calles (3,60%)</option>
+                            <option value="e">e - Conductores vehículos transporte mercancías >3,5 Tm (6,70%)</option>
+                            <option value="f">f - Personal de vuelo (3,30%)</option>
+                            <option value="g">g - Trabajos habituales en interior de minas (8,80%)</option>
+                            <option value="h">h - Vigilantes, guardas jurados y personal de seguridad (3,25%)</option>
+                        </select>
+                        <p class="ui-help">
+                            Si el trabajador tiene una ocupación diferente al riesgo del CNAE de la empresa, selecciona su clave del Cuadro II.
+                        </p>
                     </div>
                 </div>
 
                 <!-- Botones del formulario -->
-                <div class="mt-6 flex justify-end gap-3">
-                    <button type="button"(click)="cerrarModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                <div class="ui-form-actions">
+                    <button type="button" (click)="cerrarModal()" class="ui-btn ui-btn-secondary">
                         Cancelar
                     </button>
-                    <button type="submit" [disabled]="personalForm.invalid || guardando()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300 transition-colors">
+                    <button type="submit" [disabled]="personalForm.invalid || guardando()" class="ui-btn ui-btn-success">
                         {{ guardando() ? 'Guardando...' : 'Guardar' }}
                     </button>
                 </div>
             </form>
+        </div>
         </div>
     </div>
 }
 
 <!-- Modal Subir Fichero -->
 @if (mostrarModalFichero()) {
-    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
-         (click)="cerrarModalFichero()">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white"
-             (click)="$event.stopPropagation()">
+    <div class="ui-modal-backdrop" (click)="cerrarModalFichero()">
+        <div class="ui-modal-layout">
+        <div class="ui-modal-panel max-w-xl" (click)="$event.stopPropagation()">
 
             <!-- Header del modal -->
-            <div class="flex justify-between items-center pb-3 border-b">
-                <h3 class="text-xl font-bold text-gray-900">
+            <div class="mb-4 flex items-center justify-between border-b border-slate-200 pb-4">
+                <h3 class="text-xl font-bold text-slate-900">
                     Subir Fichero de Personal
                 </h3>
                 <button (click)="cerrarModalFichero()"
@@ -436,12 +475,12 @@
             <!-- Contenido del modal -->
             <div class="mt-4">
                 <!-- Zona de arrastre -->
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors"
+                <div class="rounded-3xl border-2 border-dashed border-slate-300 p-6 text-center transition-colors hover:border-slate-400"
                      (drop)="onDrop($event)"
                      (dragover)="onDragOver($event)"
                      (dragleave)="onDragLeave($event)"
-                     [class.border-blue-500]="isDragging"
-                     [class.bg-blue-50]="isDragging">
+                     [class.border-indigo-500]="isDragging"
+                     [class.bg-indigo-50]="isDragging">
 
                     <i class="fa fa-cloud-upload text-4xl text-gray-400 mb-3"></i>
 
@@ -457,7 +496,7 @@
 
                     <button type="button"
                             (click)="fileInput.click()"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            class="ui-btn ui-btn-primary">
                         Seleccionar archivo
                     </button>
 
@@ -468,7 +507,7 @@
 
                 <!-- Archivo seleccionado -->
                 @if (archivoSeleccionado()) {
-                    <div class="mt-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+                    <div class="mt-4 flex items-center justify-between rounded-2xl bg-slate-50 p-3">
                         <div class="flex items-center">
                             <i class="fa fa-file-text text-gray-600 mr-2"></i>
                             <div>
@@ -485,26 +524,27 @@
 
                 <!-- Mensaje de error -->
                 @if (errorFichero()) {
-                    <div class="mt-4 bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm">
+                    <div class="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
                         {{ errorFichero() }}
                     </div>
                 }
 
                 <!-- Botones -->
-                <div class="mt-6 flex justify-end gap-3">
+                <div class="ui-form-actions">
                     <button type="button"
                             (click)="cerrarModalFichero()"
-                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                            class="ui-btn ui-btn-secondary">
                         Cancelar
                     </button>
                     <button type="button"
                             (click)="subirArchivo()"
                             [disabled]="!archivoSeleccionado() || subiendoArchivo()"
-                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-green-300 transition-colors">
+                            class="ui-btn ui-btn-success">
                         {{ subiendoArchivo() ? 'Subiendo...' : 'Subir archivo' }}
                     </button>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 }

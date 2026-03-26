@@ -1,0 +1,134 @@
+<div class="ui-page">
+    <div class="ui-page-header">
+        <div class="ui-title-block">
+            <div class="ui-title-icon">
+                <i class="fa fa-briefcase"></i>
+            </div>
+            <div>
+                <h1 class="ui-page-title">Claves de Ocupación (Cuadro II)</h1>
+                <p class="ui-page-subtitle">Catalogo de claves especiales para aplicar un tipo AT/EP distinto al CNAE general.</p>
+            </div>
+        </div>
+        <div class="ui-toolbar">
+            <button (click)="volver()" type="button" class="ui-btn ui-btn-secondary">
+                <i class="fa fa-arrow-left"></i>
+                Volver
+            </button>
+            <button (click)="abrirFormularioNuevo()" type="button" class="ui-btn ui-btn-primary">
+                <i class="fa fa-plus"></i>
+                Nueva clave
+            </button>
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="ui-note">
+        Las claves de ocupación del Cuadro II determinan el tipo de AT/EP cuando la ocupación real del trabajador difiere del riesgo del CNAE de la empresa.
+    </div>
+
+    <!-- Formulario crear/editar -->
+    @if (mostrarFormulario()) {
+        <div class="ui-panel mb-6">
+            <h2 class="mb-4 text-xl font-semibold text-slate-900">
+                {{ editandoClave() !== null ? 'Editar' : 'Nueva' }} Clave de Ocupación
+            </h2>
+            <form [formGroup]="form" (ngSubmit)="guardar()" class="ui-form">
+                <div class="ui-form-grid-compact">
+                    <div class="ui-field">
+                        <label class="ui-label">Clave</label>
+                        <input type="text" formControlName="clave" maxlength="2" class="ui-input" placeholder="Ej: a, b, d, h">
+                    </div>
+                    <div class="ui-field md:col-span-2">
+                        <label class="ui-label">Descripción</label>
+                        <input type="text" formControlName="descripcion" class="ui-input" placeholder="Ej: Personal en trabajos exclusivos de oficina">
+                    </div>
+                </div>
+                <div class="ui-form-grid-compact">
+                    <div class="ui-field">
+                        <label class="ui-label">IT (%)</label>
+                        <input type="number" step="0.01" formControlName="tipoIt" class="ui-input">
+                    </div>
+                    <div class="ui-field">
+                        <label class="ui-label">IMS (%)</label>
+                        <input type="number" step="0.01" formControlName="tipoIms" class="ui-input">
+                    </div>
+                    <div class="flex items-end">
+                        <label class="ui-checkbox-card w-full cursor-pointer">
+                            <input type="checkbox" formControlName="activa" class="ui-checkbox">
+                            <span>
+                                <span class="block font-medium text-slate-700">Activa</span>
+                                <span class="ui-help">Mantener disponible la clave para nuevas asignaciones.</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                <div class="ui-form-actions">
+                    <button type="button" (click)="cancelarFormulario()" class="ui-btn ui-btn-secondary">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="ui-btn ui-btn-success">
+                        <i class="fa fa-save"></i>
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    }
+
+    <!-- Tabla -->
+    <div class="ui-table-shell">
+        @if (loading()) {
+            <div class="p-8 text-center text-slate-500">Cargando...</div>
+        } @else if (claves().length === 0) {
+            <div class="p-8 text-center text-slate-500">No hay claves de ocupación registradas.</div>
+        } @else {
+            <div class="ui-table-wrap">
+                <table class="ui-table">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-3">Clave</th>
+                        <th class="px-4 py-3">Descripción</th>
+                        <th class="px-4 py-3 text-right">IT %</th>
+                        <th class="px-4 py-3 text-right">IMS %</th>
+                        <th class="px-4 py-3 text-right">Total AT/EP %</th>
+                        <th class="px-4 py-3 text-center">Activa</th>
+                        <th class="px-4 py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (clave of claves(); track clave.clave) {
+                        <tr>
+                            <td class="px-4 py-3 font-medium">
+                                <span class="ui-pill ui-pill-neutral">
+                                    {{ clave.clave }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">{{ clave.descripcion }}</td>
+                            <td class="px-4 py-3 text-right">{{ clave.tipoIt }}</td>
+                            <td class="px-4 py-3 text-right">{{ clave.tipoIms }}</td>
+                            <td class="px-4 py-3 text-right font-medium">{{ clave.tipoTotal }}</td>
+                            <td class="px-4 py-3 text-center">
+                                @if (clave.activa) {
+                                    <span class="ui-pill ui-pill-success">Sí</span>
+                                } @else {
+                                    <span class="ui-pill ui-pill-danger">No</span>
+                                }
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <div class="flex justify-center gap-2">
+                                    <button (click)="editarClave(clave)" class="ui-btn-icon text-indigo-600 hover:text-indigo-700" title="Editar">
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
+                                    <button (click)="eliminarClave(clave)" class="ui-btn-icon text-rose-600 hover:text-rose-700" title="Eliminar">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            </div>
+        }
+    </div>
+</div>

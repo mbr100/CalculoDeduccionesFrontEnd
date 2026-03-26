@@ -11,6 +11,7 @@ export interface PersonalEconomico {
     titulacion4?: string;
     esPersonalInvestigador: boolean;
     esContratoIndefinido: boolean;
+    claveOcupacion?: string;
 }
 
 export interface CrearPersonalEconomico {
@@ -26,6 +27,7 @@ export interface CrearPersonalEconomico {
     titulacion4?: string;
     esPersonalInvestigador: boolean;
     esContratoIndefinido: boolean;
+    claveOcupacion?: string;
     idEconomico: number;
 }
 
@@ -130,6 +132,10 @@ export interface BonificacionesEmpleadoEconomicoDTO {
     idBonificacionTrabajador: number;
     tipoBonificacion: TiposBonificacion;
     porcentajeBonificacion: number;
+    fechaInicio: string;
+    fechaFin: string;
+    anioFiscal: number;
+    descripcion: string | null;
 }
 
 export interface ListadoPersonalSelectorEconomicoDTO {
@@ -139,14 +145,18 @@ export interface ListadoPersonalSelectorEconomicoDTO {
 
 export interface CrearBonificacionDTO {
     idPersona: number;
-    tipoBonificacion: TiposBonificacion;
+    tipoBonificacion: string;
     porcentajeBonificacion: number;
+    fechaInicio: string;
+    fechaFin: string;
+    anioFiscal: number;
+    descripcion: string | null;
 }
 
 export interface ActualizarBonificacionDTO {
     idBonificacionTrabajador: number;
     campoActualizado: keyof BonificacionesEmpleadoEconomicoDTO;
-    valor: TiposBonificacion | number;
+    valor: TiposBonificacion | number | string;
 }
 
 // Enum para tipos de bonificación
@@ -160,7 +170,10 @@ export interface formBonificacion {
     tipoBonificacion: TiposBonificacion
     porcentajeBonificacion: number
     nombre: string
-
+    fechaInicio: string
+    fechaFin: string
+    anioFiscal: number
+    descripcion: string
 }
 export interface tiposBonificacion {
     value: TiposBonificacion
@@ -177,6 +190,24 @@ export interface CosteHoraPersonalDTO {
     costeSS: number;
     horasMaximas: number;
     costeHora: number;
+
+    // Desglose de cuotas SS empresa
+    cuotaCC: number;
+    cuotaATEP: number;
+    cuotaDesempleo: number;
+    cuotaFogasa: number;
+    cuotaFP: number;
+    cuotaMEI: number;
+
+    // Trazabilidad AT/EP
+    tipoATEPAplicado: number;
+    origenTipoATEP: string | null;
+
+    // Bonificaciones SS
+    ssEmpresaBruta: number;
+    ahorroBonificaciones: number;
+    ahorroInvestigador: number;
+    ahorroOtrasBonificaciones: number;
 }
 
 export interface ActualizarCosteHoraDTO {

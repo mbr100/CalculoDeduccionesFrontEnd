@@ -27,7 +27,7 @@ import {ResumenCosteHoraPersonal} from '../resumen-coste-hora-personal/resumen-c
 })
 export class PersonalEconomico {
     private route: ActivatedRoute = inject(ActivatedRoute);
-    public activeTab: WritableSignal<string> = signal<string>('resumen');
+    public activeTab: WritableSignal<string> = signal<string>('personal');
 
     public economicoId: number;
 

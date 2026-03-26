@@ -1,145 +1,140 @@
-<!-- Contenedor principal -->
-<div class="p-6 bg-gray-50 min-h-screen">
-    <!-- Header -->
-    <div class="mb-6 flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900">Nuevo Económico</h1>
-        <button (click)="volver()" type="button" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
-            <i class="fa fa-arrow-left"></i> Volver
-        </button>
+<div class="ui-page">
+    <div class="ui-page-header">
+        <div class="ui-title-block">
+            <div class="ui-title-icon">
+                <i class="fa fa-building"></i>
+            </div>
+            <div>
+                <h1 class="ui-page-title">Nuevo Económico</h1>
+                <p class="ui-page-subtitle">Alta inicial de la empresa y del ejercicio fiscal para entrar directamente en su contexto de trabajo.</p>
+            </div>
+        </div>
+        <div class="ui-toolbar">
+            <button (click)="volver()" type="button" class="ui-btn ui-btn-secondary">
+                <i class="fa fa-arrow-left"></i>
+                Volver
+            </button>
+        </div>
     </div>
 
-    <!-- Formulario -->
-    <form [formGroup]="form" (submit)="onSubmit()" class="bg-white p-6 rounded-lg shadow-lg space-y-6">
+    <form [formGroup]="form" (submit)="onSubmit()" class="ui-panel ui-form">
+        <div class="ui-form-grid">
+            <div class="ui-field">
+                <label class="ui-label">Nombre</label>
+                <input type="text" formControlName="nombre" class="ui-input" placeholder="Introduce el nombre de la empresa">
+                @if (form.get('nombre')?.errors?.['required'] && form.get('nombre')?.touched) {
+                    <span class="ui-form-error">El nombre es obligatorio.</span>
+                }
+            </div>
 
-        <!-- Campo: Nombre -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-            <input type="text" formControlName="nombre" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Introduce el nombre de la empresa">
-            @if (form.get('nombre')?.errors?.['required'] && form.get('nombre')?.touched) {
-                <span class="text-red-600 text-sm">El nombre es obligatorio.</span>
-            }
+            <div class="ui-field">
+                <label class="ui-label">CIF</label>
+                <input type="text" formControlName="cif" class="ui-input" placeholder="Introduce el CIF">
+                @if (form.get('cif')?.errors?.['required'] && form.get('cif')?.touched) {
+                    <span class="ui-form-error">El formato del CIF no es valido.</span>
+                }
+            </div>
+
+            <div class="ui-field md:col-span-2">
+                <label class="ui-label">Dirección</label>
+                <input type="text" formControlName="direccion" class="ui-input" placeholder="Introduce la dirección">
+                @if (form.get('direccion')?.errors?.['required'] && form.get('direccion')?.touched) {
+                    <span class="ui-form-error">La dirección es obligatoria.</span>
+                }
+            </div>
+
+            <div class="ui-field">
+                <label class="ui-label">Teléfono</label>
+                <input type="tel" formControlName="telefono" class="ui-input" placeholder="Introduce el teléfono">
+                @if (form.get('telefono')?.errors?.['required'] && form.get('telefono')?.touched) {
+                    <span class="ui-form-error">El teléfono es obligatorio.</span>
+                }
+            </div>
+
+            <div class="ui-field">
+                <label class="ui-label">Nombre de contacto</label>
+                <input type="text" formControlName="nombreContacto" class="ui-input" placeholder="Introduce el nombre de contacto">
+                @if (form.get('nombreContacto')?.errors?.['required'] && form.get('nombreContacto')?.touched) {
+                    <span class="ui-form-error">El nombre de contacto es obligatorio.</span>
+                }
+            </div>
+
+            <div class="ui-field">
+                <label class="ui-label">Email de contacto</label>
+                <input type="email" formControlName="emailContacto" class="ui-input" placeholder="Introduce el email">
+                @if (form.get('emailContacto')?.errors?.['required'] && form.get('emailContacto')?.touched) {
+                    <span class="ui-form-error">El email de contacto es obligatorio.</span>
+                }
+            </div>
+
+            <div class="ui-field">
+                <label class="ui-label">Horas de convenio</label>
+                <input type="number" formControlName="horasConvenio" class="ui-input" placeholder="Ej: 40">
+                @if (form.get('horasConvenio')?.errors?.['required'] && form.get('horasConvenio')?.touched) {
+                    <span class="ui-form-error">Las horas de convenio son obligatorias.</span>
+                }
+            </div>
+
+            <div class="ui-field">
+                <label class="ui-label">URL del logo</label>
+                <input type="text" formControlName="urllogo" class="ui-input" placeholder="Introduce la URL del logo">
+                @if (form.get('urllogo')?.errors?.['required'] && form.get('urllogo')?.touched) {
+                    <span class="ui-form-error">La URL del logo es obligatoria.</span>
+                }
+            </div>
+
+            <div class="ui-field">
+                <label class="ui-label">URL de la web</label>
+                <input type="text" formControlName="urlWeb" class="ui-input" placeholder="Introduce la URL de la web">
+                @if (form.get('urlWeb')?.errors?.['required'] && form.get('urlWeb')?.touched) {
+                    <span class="ui-form-error">La URL de la web es obligatoria.</span>
+                }
+            </div>
+
+            <div class="ui-field">
+                <label class="ui-label">CNAE</label>
+                <input type="number" formControlName="cnae" class="ui-input" placeholder="Introduce el CNAE">
+                @if (form.get('cnae')?.errors?.['required'] && form.get('cnae')?.touched) {
+                    <span class="ui-form-error">El CNAE es obligatorio.</span>
+                }
+            </div>
+
+            <div class="ui-field">
+                <label class="ui-label">Anualidad</label>
+                <input type="number" formControlName="anualidad" min="2024" max="2100" class="ui-input">
+                @if (form.get('anualidad')?.errors?.['required'] && form.get('anualidad')?.touched) {
+                    <span class="ui-form-error">La anualidad es obligatoria.</span>
+                }
+            </div>
         </div>
 
-        <!-- Campo: CIF -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">CIF</label>
-            <input type="text" formControlName="cif" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Introduce el CIF">
-            @if (form.get('cif')?.errors?.['required'] && form.get('cif')?.touched) {
-                <span class="text-red-600 text-sm">El formato del CIF no es valido.</span>
-            }
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <label class="ui-checkbox-card cursor-pointer">
+                <input type="checkbox" formControlName="esPyme" class="ui-checkbox">
+                <span>
+                    <span class="block font-medium text-slate-700">¿Es Pyme?</span>
+                    <span class="ui-help">Marca la condición de pyme para habilitar sus reglas específicas.</span>
+                </span>
+            </label>
 
+            <label class="ui-checkbox-card cursor-pointer">
+                <input type="checkbox" formControlName="selloPymeInnovadora" class="ui-checkbox">
+                <span>
+                    <span class="block font-medium text-slate-700">Sello PYME Innovadora</span>
+                    <span class="ui-help">Compatibilidad con bonificación y deducción I+D+i.</span>
+                </span>
+            </label>
         </div>
 
-        <!-- Campo: Dirección -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-            <input type="text" formControlName="direccion" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Introduce la dirección">
-            @if (form.get('direccion')?.errors?.['required'] && form.get('direccion')?.touched) {
-                <span class="text-red-600 text-sm">La dirección es obligatoria.</span>
-            }
-        </div>
-
-        <!-- Campo: Teléfono -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-            <input type="tel" formControlName="telefono" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Introduce el teléfono">
-            @if (form.get('telefono')?.errors?.['required'] && form.get('telefono')?.touched) {
-                <span class="text-red-600 text-sm">El teléfono es obligatorio.</span>
-            }
-        </div>
-
-        <!-- Campo: Nombre contacto -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de contacto</label>
-            <input type="text" formControlName="nombreContacto" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Introduce el nombre de contacto">
-            @if (form.get('nombreContacto')?.errors?.['required'] && form.get('nombreContacto')?.touched) {
-                <span class="text-red-600 text-sm">El nombre de contacto es obligatorio.</span>
-            }
-        </div>
-
-        <!-- Campo: Email -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email de contacto</label>
-            <input type="email" formControlName="emailContacto" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Introduce el email">
-            @if (form.get('emailContacto')?.errors?.['required'] && form.get('emailContacto')?.touched) {
-                <span class="text-red-600 text-sm">El email de contacto es obligatorio.</span>
-            }
-        </div>
-
-        <!-- Campo: Horas convenio -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Horas de convenio</label>
-            <input type="number" formControlName="horasConvenio" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Ej: 40">
-            @if (form.get('horasConvenio')?.errors?.['required'] && form.get('horasConvenio')?.touched) {
-                <span class="text-red-600 text-sm">Las horas de convenio son obligatorias.</span>
-            }
-        </div>
-
-        <!-- Campo: URL logo -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">URL del logo</label>
-            <input type="text" formControlName="urllogo" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Introduce la URL del logo">
-            @if (form.get('urllogo')?.errors?.['required'] && form.get('urllogo')?.touched) {
-                <span class="text-red-600 text-sm">La URL del logo es obligatoria.</span>
-            }
-        </div>
-
-        <!-- Campo: URL web -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">URL de la web</label>
-            <input type="text" formControlName="urlWeb" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Introduce la URL de la web">
-            @if (form.get('urlWeb')?.errors?.['required'] && form.get('urlWeb')?.touched) {
-                <span class="text-red-600 text-sm">La URL de la web es obligatoria.</span>
-            }
-        </div>
-
-        <!-- Campo: CNAE -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">CNAE</label>
-            <input type="number" formControlName="cnae" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Introduce el CNAE">
-            @if (form.get('cnae')?.errors?.['required'] && form.get('cnae')?.touched) {
-                <span class="text-red-600 text-sm">El CNAE es obligatorio.</span>
-            }
-        </div>
-
-        <!-- Campo: Anualidad -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Anualidad</label>
-            <input type="number" formControlName="anualidad" min="2024" max="2100" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            @if (form.get('anualidad')?.errors?.['required'] && form.get('anualidad')?.touched) {
-                <span class="text-red-600 text-sm">La anualidad es obligatoria.</span>
-            }
-        </div>
-
-        <!-- Campo: Es Pyme -->
-        <div class="flex items-center gap-2">
-            <input type="checkbox" formControlName="esPyme"
-                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-            <label class="text-sm font-medium text-gray-700">¿Es Pyme?</label>
-            @if (form.get('esPyme')?.errors?.['required'] && form.get('esPyme')?.touched) {
-                <span class="text-red-600 text-sm">Este campo es obligatorio.</span>
-            }
-        </div>
-
-        <!-- Botones -->
-        <div class="flex justify-end gap-4">
-            <button type="button" (click)="volver()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
-                <i class="fa fa-times"></i> Cancelar
+        <div class="ui-form-actions">
+            <button type="button" (click)="volver()" class="ui-btn ui-btn-secondary">
+                <i class="fa fa-times"></i>
+                Cancelar
             </button>
-            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-lg hover:shadow-xl">
-                <i class="fa fa-save"></i> Guardar
+            <button type="submit" class="ui-btn ui-btn-success">
+                <i class="fa fa-save"></i>
+                Guardar
             </button>
         </div>
-
     </form>
 </div>
-

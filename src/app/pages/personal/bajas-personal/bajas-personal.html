@@ -268,14 +268,14 @@
 
         <!-- Modal para crear/editar baja -->
         @if (modalOpen()) {
-            <div class="fixed inset-0 z-50 overflow-y-auto modal-backdrop" (click)="onBackdropClick($event)">
-                <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="ui-modal-backdrop" (click)="onBackdropClick($event)">
+                <div class="ui-modal-layout">
 
                     <!-- Modal content - IMPORTANTE: stopPropagation para evitar que se cierre -->
-                    <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6 modal-content"
+                    <div class="ui-modal-panel max-w-lg"
                          (click)="$event.stopPropagation()">
                         <!-- Header -->
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="mb-4 flex items-center justify-between border-b border-slate-200 pb-4">
                             <h3 class="text-lg font-medium text-gray-900">
                                 <i class="fas fa-user-times mr-2 text-red-600"></i>
                                 @if (modalMode() === 'create') {
@@ -293,14 +293,14 @@
                         <div class="space-y-4">
                             <!-- Selector de Personal -->
                             @if (modalMode() === 'create') {
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <div class="ui-field">
+                                    <label class="ui-label">
                                         <i class="fas fa-user mr-1"></i>Empleado
                                     </label>
                                     <select
                                         [(ngModel)]="formData().idPersona"
                                         (change)="onPersonalChange()"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500">
+                                        class="ui-select">
                                         <option value="0">Seleccionar empleado...</option>
                                         @for (persona of listadoPersonal(); track persona.idPersona) {
                                             <option [value]="persona.idPersona">{{ persona.nombre }}</option>
@@ -308,53 +308,53 @@
                                     </select>
                                 </div>
                             } @else {
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <div class="ui-field">
+                                    <label class="ui-label">
                                         <i class="fas fa-user mr-1"></i>Empleado
                                     </label>
                                     <input
                                         type="text"
                                         [value]="formData().nombre"
                                         readonly
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600">
+                                        class="ui-input">
                                 </div>
                             }
 
                             <!-- Fecha Inicio -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <div class="ui-field">
+                                <label class="ui-label">
                                     <i class="fas fa-calendar-plus mr-1"></i>Fecha de Inicio <span class="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="date"
                                     [(ngModel)]="formData().fechaInicio"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500">
+                                    class="ui-input">
                             </div>
 
                             <!-- Fecha Fin -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <div class="ui-field">
+                                <label class="ui-label">
                                     <i class="fas fa-calendar-minus mr-1"></i>Fecha de Fin <span class="text-gray-400">(opcional)</span>
                                 </label>
                                 <input
                                     type="date"
                                     [(ngModel)]="formData().fechaFin"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500">
-                                <p class="text-xs text-gray-500 mt-1">Si no se especifica, la baja se considera activa</p>
+                                    class="ui-input">
+                                <p class="ui-help">Si no se especifica, la baja se considera activa</p>
                             </div>
                         </div>
 
                         <!-- Botones -->
-                        <div class="flex justify-end space-x-3 mt-6">
+                        <div class="ui-form-actions">
                             <button
                                 (click)="closeModal()"
-                                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                                class="ui-btn ui-btn-secondary">
                                 Cancelar
                             </button>
                             <button
                                 (click)="saveModal()"
                                 [disabled]="modalLoading()"
-                                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                                class="ui-btn ui-btn-danger">
                                 @if (modalLoading()) {
                                     <i class="fas fa-spinner fa-spin"></i>
                                     <span>Guardando...</span>

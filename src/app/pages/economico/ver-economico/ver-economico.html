@@ -1,12 +1,12 @@
 <!-- economico-detail.component.html con sidebar -->
-<div class="min-h-screen bg-gray-50 flex">
+<div class="economico-shell">
 
     <!-- Sidebar -->
     <app-sidebar [idEconomico]="economicoId"></app-sidebar>
 
     <!-- Contenido principal -->
-    <div class="flex-1 min-w-0 py-6">
-        <div class="h-full px-4 sm:px-6 lg:px-8">
+    <div class="flex min-w-0 flex-1 flex-col py-6">
+        <div class="economico-main-scroll px-4 sm:px-6 lg:px-8">
 
             <!-- Header -->
             <div class="mb-8">
@@ -150,6 +150,13 @@
                                         <div class="flex items-center">
                                             <input type="checkbox" formControlName="esPyme" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                             <label class="ml-2 block text-sm text-gray-900">Es PYME</label>
+                                        </div>
+
+                                        <!-- Sello PYME Innovadora -->
+                                        <div class="flex items-center mt-2">
+                                            <input type="checkbox" formControlName="selloPymeInnovadora" class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                            <label class="ml-2 block text-sm text-gray-900">Sello PYME Innovadora</label>
+                                            <span class="ml-2 text-xs text-gray-500">(compatibilidad bonificacion + deduccion I+D+i)</span>
                                         </div>
 
                                     </div>
