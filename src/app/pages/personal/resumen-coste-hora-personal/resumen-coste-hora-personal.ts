@@ -3,6 +3,15 @@ import {EconomicoPersonalService} from '../../../services/economico-personal-ser
 import {CosteHoraPersonalDTO} from '../../../models/personal-economico';
 import {getVisiblePages, SavingState} from '../../../models/savingState';
 import {PaginacionResponse} from '../../../models/paginacion-response';
+
+interface ResumenCostePagina {
+    personal: number;
+    retribucionTotal: number;
+    costeSS: number;
+    horasMaximas: number;
+    costeHoraMedio: number;
+}
+
 @Component({
     selector: 'app-resumen-coste-hora-personal',
     imports: [],
@@ -15,6 +24,7 @@ export class ResumenCosteHoraPersonal implements OnInit {
 
     // Signals principales
     public costesHora: WritableSignal<CosteHoraPersonalDTO[]> = signal<CosteHoraPersonalDTO[]>([]);
+    public searchTerm: WritableSignal<string> = signal('');
     public loading: WritableSignal<boolean> = signal(false);
     public savingStates: WritableSignal<{ [key: number]: SavingState }> = signal<{ [key: number]: SavingState }>({});
 
@@ -26,6 +36,42 @@ export class ResumenCosteHoraPersonal implements OnInit {
 
     // Computed signals
     public visiblePages: Signal<number[]> = computed((): number[] => getVisiblePages(this.currentPage(), this.totalPages()));
+    public filteredCostesHora: Signal<CosteHoraPersonalDTO[]> = computed((): CosteHoraPersonalDTO[] => {
+        const query = this.normalizeText(this.searchTerm());
+        if (!query) {
+            return this.costesHora();
+        }
+
+        return this.costesHora().filter(item =>
+            this.normalizeText(item.nombre).includes(query)
+            || this.normalizeText(item.dni).includes(query)
+            || this.normalizeText(item.puesto).includes(query)
+            || this.normalizeText(item.titulacion).includes(query)
+            || this.normalizeText(item.departamento).includes(query)
+        );
+    });
+    public resumenPagina: Signal<ResumenCostePagina> = computed((): ResumenCostePagina => {
+        const resumen = this.filteredCostesHora().reduce((acumulado, item) => {
+            acumulado.personal += 1;
+            acumulado.retribucionTotal += this.normalizeValue(item.retribucionTotal);
+            acumulado.costeSS += this.normalizeValue(item.costeSS);
+            acumulado.horasMaximas += this.normalizeValue(item.horasMaximas);
+
+            return acumulado;
+        }, {
+            personal: 0,
+            retribucionTotal: 0,
+            costeSS: 0,
+            horasMaximas: 0
+        });
+
+        return {
+            ...resumen,
+            costeHoraMedio: resumen.horasMaximas > 0
+                ? (resumen.retribucionTotal + resumen.costeSS) / resumen.horasMaximas
+                : 0
+        };
+    });
 
     // Para acceder a Math en el template
     public Math: Math = Math;
@@ -46,10 +92,23 @@ export class ResumenCosteHoraPersonal implements OnInit {
 
     // Métodos de carga de datos
     public loadData(): void {
+        if (this.currentPage() === 0) {
+            this.loadDataInternal();
+            return;
+        }
+
         this.currentPage.set(0);
     }
 
     private loadDataInternal(): void {
+        if (!Number.isFinite(this.idEconomico)) {
+            this.costesHora.set([]);
+            this.totalElements.set(0);
+            this.totalPages.set(0);
+            this.loading.set(false);
+            return;
+        }
+
         this.loading.set(true);
         try {
             this.economicoPersonalService.obtenerCosteHoraPorIdEconomico(this.idEconomico, this.currentPage(), this.pageSize()).subscribe({
@@ -85,36 +144,72 @@ export class ResumenCosteHoraPersonal implements OnInit {
         });
     }
 
-    public formatCurrency(value: number): string {
-        return new Intl.NumberFormat('es-ES', {
-            style: 'currency',
-            currency: 'EUR'
-        }).format(value || 0);
+    private normalizeValue(value: number | null | undefined): number {
+        return Number.isFinite(value) ? Number(value) : 0;
     }
 
-    public formatHours(value: number): string {
-        return new Intl.NumberFormat('es-ES', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2
-        }).format(value || 0) + ' h';
+    private normalizeText(value: string | null | undefined): string {
+        return (value ?? '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim();
     }
 
-    public formatPercent(value: number): string {
-        return new Intl.NumberFormat('es-ES', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(value || 0) + ' %';
-    }
+    private formatNumber(value: number | null | undefined, minimumFractionDigits: number, maximumFractionDigits: number): string {
+        const normalizedValue = this.normalizeValue(value);
+        const sign = normalizedValue < 0 ? '-' : '';
+        const absoluteValue = Math.abs(normalizedValue);
+        const fractionDigits = absoluteValue % 1 === 0 ? minimumFractionDigits : maximumFractionDigits;
+        const fixedValue = absoluteValue.toFixed(fractionDigits);
+        const [integerPart, decimalPart] = fixedValue.split('.');
+        const integerWithGrouping = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-    public formatOrigenATEP(origen: string | null): string {
-        if (!origen) return '-';
-        if (origen.startsWith('CUADRO_II_CLAVE_')) {
-            return 'Cuadro II (' + origen.replace('CUADRO_II_CLAVE_', '') + ')';
+        if (!decimalPart) {
+            return `${sign}${integerWithGrouping}`;
         }
-        if (origen.startsWith('CUADRO_I_CNAE_')) {
-            return 'CNAE ' + origen.replace('CUADRO_I_CNAE_', '');
-        }
-        return origen;
+
+        return `${sign}${integerWithGrouping},${decimalPart}`;
+    }
+
+    public formatMoney(value: number | null | undefined): string {
+        return `${this.formatNumber(value, 2, 2)} €`;
+    }
+
+    public formatHours(value: number | null | undefined): string {
+        return `${this.formatNumber(value, 0, 2)} h`;
+    }
+
+    public formatCosteHora(value: number | null | undefined): string {
+        return `${this.formatNumber(value, 2, 2)} €/h`;
+    }
+
+    public formatPercent(value: number | null | undefined): string {
+        return `${this.formatNumber(value, 2, 2)} %`;
+    }
+
+    public getTitulacion(item: CosteHoraPersonalDTO): string {
+        return item.titulacion?.trim() || 'Sin titulación';
+    }
+
+    public getTextValue(value: string | null | undefined, fallback: string): string {
+        return value?.trim() || fallback;
+    }
+
+    public onSearch(value: string): void {
+        this.searchTerm.set(value);
+    }
+
+    public clearSearch(): void {
+        this.searchTerm.set('');
+    }
+
+    public hasSearchActive(): boolean {
+        return this.searchTerm().trim().length > 0;
+    }
+
+    public hasResultadosBusqueda(): boolean {
+        return this.filteredCostesHora().length > 0;
     }
 
     // Métodos de paginación
@@ -135,11 +230,11 @@ export class ResumenCosteHoraPersonal implements OnInit {
     }
 
     public getPageButtonClass(page: number): string {
-        const baseClass = 'relative inline-flex items-center px-4 py-2 border text-sm font-medium';
+        const baseClass = 'relative inline-flex min-w-10 items-center justify-center rounded-xl border px-3 py-2 text-sm font-medium transition';
         if (this.currentPage() === page) {
-            return `${baseClass} z-10 bg-blue-50 border-blue-500 text-blue-600`;
+            return `${baseClass} z-10 border-indigo-500 bg-indigo-50 text-indigo-700`;
         }
-        return `${baseClass} bg-white border-gray-300 text-gray-500 hover:bg-gray-50`;
+        return `${baseClass} border-slate-300 bg-white text-slate-600 hover:border-slate-400 hover:bg-slate-50`;
     }
 
     // Métodos de conveniencia para el template
@@ -157,5 +252,17 @@ export class ResumenCosteHoraPersonal implements OnInit {
 
     public canGoNext(): boolean {
         return this.currentPage() < this.totalPages() - 1;
+    }
+
+    public getCurrentPageStart(): number {
+        if (this.totalElements() === 0) {
+            return 0;
+        }
+
+        return this.currentPage() * this.pageSize() + 1;
+    }
+
+    public getCurrentPageEnd(): number {
+        return Math.min((this.currentPage() + 1) * this.pageSize(), this.totalElements());
     }
 }
