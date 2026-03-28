@@ -77,7 +77,7 @@
                         <!-- Loading State -->
                             @if (isLoading()) {
                                 <tr>
-                                    <td colspan="8" class="px-4 py-12 text-center">
+                                    <td colspan="7" class="px-4 py-12 text-center">
                                         <div class="flex items-center justify-center space-x-2">
                                             <i class="fas fa-spinner fa-spin text-blue-500 text-lg"></i>
                                             <span class="text-gray-500">Cargando datos...</span>
@@ -89,7 +89,7 @@
                         <!-- Empty State -->
                             @if (!isLoading() && !hasProyectos()) {
                                 <tr>
-                                    <td colspan="8" class="px-4 py-12 text-center">
+                                    <td colspan="7" class="px-4 py-12 text-center">
                                         <div class="flex flex-col items-center justify-center space-y-4">
                                             <i class="fas fa-project-diagram text-gray-400 text-4xl"></i>
                                             <div class="text-center">
@@ -106,177 +106,179 @@
 
                         <!-- Data Rows -->
                             @for (item of proyectos(); track item.idProyecto) {
-                                <!-- Acrónimo (Sticky) -->
-                                <td class="px-4 py-3 sticky left-0 bg-white border-r border-gray-200 z-10">
-                                    <div class="relative">
-                                        <input type="text"
-                                               [value]="item.acronimo"
-                                               (change)="updateField(item.idProyecto!, 'acronimo', $any($event.target).value)"
-                                               (keyup)="onKeyPress($event, item.idProyecto!, 'acronimo', $any($event.target).value)"
-                                               [class]="getInputClass(item.idProyecto!, 'acronimo') + ' font-medium text-sm'"
-                                               placeholder="Acrónimo">
-                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                            @switch (getFieldSavingState(item.idProyecto!, 'acronimo')) {
-                                                @case ('saving') {
-                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                <tr>
+                                    <!-- Acrónimo (Sticky) -->
+                                    <td class="px-4 py-3 sticky left-0 bg-white border-r border-gray-200 z-10">
+                                        <div class="relative">
+                                            <input type="text"
+                                                   [value]="item.acronimo"
+                                                   (change)="updateField(item.idProyecto!, 'acronimo', $any($event.target).value)"
+                                                   (keyup)="onKeyPress($event, item.idProyecto!, 'acronimo', $any($event.target).value)"
+                                                   [class]="getInputClass(item.idProyecto!, 'acronimo') + ' font-medium text-sm'"
+                                                   placeholder="Acrónimo">
+                                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                                @switch (getFieldSavingState(item.idProyecto!, 'acronimo')) {
+                                                    @case ('saving') {
+                                                        <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                    }
+                                                    @case ('success') {
+                                                        <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                    }
+                                                    @case ('error') {
+                                                        <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                    }
                                                 }
-                                                @case ('success') {
-                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
-                                                }
-                                                @case ('error') {
-                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
-                                                }
-                                            }
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
+                                    </td>
 
-                                <!-- Título (Sticky) -->
-                                <td class="px-4 py-3 sticky left-[120px] bg-white border-r border-gray-200 z-10">
-                                    <div class="relative">
-                                        <input type="text"
-                                               [value]="item.titulo"
-                                               (change)="updateField(item.idProyecto!, 'titulo', $any($event.target).value)"
-                                               (keyup)="onKeyPress($event, item.idProyecto!, 'titulo', $any($event.target).value)"
-                                               [class]="getInputClass(item.idProyecto!, 'titulo') + ' text-sm'"
-                                               placeholder="Título del proyecto">
-                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                            @switch (getFieldSavingState(item.idProyecto!, 'titulo')) {
-                                                @case ('saving') {
-                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                    <!-- Título (Sticky) -->
+                                    <td class="px-4 py-3 sticky left-[120px] bg-white border-r border-gray-200 z-10">
+                                        <div class="relative">
+                                            <input type="text"
+                                                   [value]="item.titulo"
+                                                   (change)="updateField(item.idProyecto!, 'titulo', $any($event.target).value)"
+                                                   (keyup)="onKeyPress($event, item.idProyecto!, 'titulo', $any($event.target).value)"
+                                                   [class]="getInputClass(item.idProyecto!, 'titulo') + ' text-sm'"
+                                                   placeholder="Título del proyecto">
+                                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                                @switch (getFieldSavingState(item.idProyecto!, 'titulo')) {
+                                                    @case ('saving') {
+                                                        <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                    }
+                                                    @case ('success') {
+                                                        <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                    }
+                                                    @case ('error') {
+                                                        <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                    }
                                                 }
-                                                @case ('success') {
-                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
-                                                }
-                                                @case ('error') {
-                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
-                                                }
-                                            }
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
+                                    </td>
 
-                                <!-- Fecha Inicio -->
-                                <td class="px-4 py-3">
-                                    <div class="relative campo-fecha">
-                                        <input type="date"
-                                               [value]="formatDateForInput(item.fechaInicio)"
-                                               (change)="updateField(item.idProyecto!, 'fechaInicio', $any($event.target).value)"
-                                               (keyup)="onKeyPress($event, item.idProyecto!, 'fechaInicio', $any($event.target).value)"
-                                               [class]="getInputClass(item.idProyecto!, 'fechaInicio') + ' text-center'"
-                                               placeholder="Fecha de inicio">
-                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                            @switch (getFieldSavingState(item.idProyecto!, 'fechaInicio')) {
-                                                @case ('saving') {
-                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                    <!-- Fecha Inicio -->
+                                    <td class="px-4 py-3">
+                                        <div class="relative campo-fecha">
+                                            <input type="date"
+                                                   [value]="formatDateForInput(item.fechaInicio)"
+                                                   (change)="updateField(item.idProyecto!, 'fechaInicio', $any($event.target).value)"
+                                                   (keyup)="onKeyPress($event, item.idProyecto!, 'fechaInicio', $any($event.target).value)"
+                                                   [class]="getInputClass(item.idProyecto!, 'fechaInicio') + ' text-center'"
+                                                   placeholder="Fecha de inicio">
+                                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                                @switch (getFieldSavingState(item.idProyecto!, 'fechaInicio')) {
+                                                    @case ('saving') {
+                                                        <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                    }
+                                                    @case ('success') {
+                                                        <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                    }
+                                                    @case ('error') {
+                                                        <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                    }
                                                 }
-                                                @case ('success') {
-                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
-                                                }
-                                                @case ('error') {
-                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
-                                                }
-                                            }
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
+                                    </td>
 
-                                <!-- Fecha Fin -->
-                                <td class="px-4 py-3">
-                                    <div class="relative campo-fecha">
-                                        <input type="date"
-                                               [value]="formatDateForInput(item.fechaFin)"
-                                               (change)="updateField(item.idProyecto!, 'fechaFin', $any($event.target).value)"
-                                               (keyup)="onKeyPress($event, item.idProyecto!, 'fechaFin', $any($event.target).value)"
-                                               [class]="getInputClass(item.idProyecto!, 'fechaFin') + ' text-center'"
-                                               placeholder="Fecha de fin">
-                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                            @switch (getFieldSavingState(item.idProyecto!, 'fechaFin')) {
-                                                @case ('saving') {
-                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                    <!-- Fecha Fin -->
+                                    <td class="px-4 py-3">
+                                        <div class="relative campo-fecha">
+                                            <input type="date"
+                                                   [value]="formatDateForInput(item.fechaFin)"
+                                                   (change)="updateField(item.idProyecto!, 'fechaFin', $any($event.target).value)"
+                                                   (keyup)="onKeyPress($event, item.idProyecto!, 'fechaFin', $any($event.target).value)"
+                                                   [class]="getInputClass(item.idProyecto!, 'fechaFin') + ' text-center'"
+                                                   placeholder="Fecha de fin">
+                                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                                @switch (getFieldSavingState(item.idProyecto!, 'fechaFin')) {
+                                                    @case ('saving') {
+                                                        <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                    }
+                                                    @case ('success') {
+                                                        <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                    }
+                                                    @case ('error') {
+                                                        <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                    }
                                                 }
-                                                @case ('success') {
-                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
-                                                }
-                                                @case ('error') {
-                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
-                                                }
-                                            }
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
+                                    </td>
 
-                                <!-- Estrategia -->
-                                <td class="px-4 py-3">
-                                    <div class="relative">
-                                        <select
-                                            [value]="item.estrategia"
-                                            (change)="updateField(item.idProyecto!, 'estrategia', $any($event.target).value)"
-                                            [class]="getSelectClass(item.idProyecto!, 'estrategia')">
-                                            <option value="AUTOLIQUIDATIVO">Autoliquidativo</option>
-                                            <option value="CERTIFICACION">Certificación</option>
-                                            <option value="IMV">IMV</option>
-                                        </select>
-                                        <div class="absolute right-8 top-1/2 transform -translate-y-1/2">
-                                            @switch (getFieldSavingState(item.idProyecto!, 'estrategia')) {
-                                                @case ('saving') {
-                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                    <!-- Estrategia -->
+                                    <td class="px-4 py-3">
+                                        <div class="relative">
+                                            <select
+                                                [value]="item.estrategia"
+                                                (change)="updateField(item.idProyecto!, 'estrategia', $any($event.target).value)"
+                                                [class]="getSelectClass(item.idProyecto!, 'estrategia')">
+                                                <option value="AUTOLIQUIDATIVO">Autoliquidativo</option>
+                                                <option value="CERTIFICACION">Certificación</option>
+                                                <option value="IMV">IMV</option>
+                                            </select>
+                                            <div class="absolute right-8 top-1/2 transform -translate-y-1/2">
+                                                @switch (getFieldSavingState(item.idProyecto!, 'estrategia')) {
+                                                    @case ('saving') {
+                                                        <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                    }
+                                                    @case ('success') {
+                                                        <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                    }
+                                                    @case ('error') {
+                                                        <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                    }
                                                 }
-                                                @case ('success') {
-                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
-                                                }
-                                                @case ('error') {
-                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
-                                                }
-                                            }
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
+                                    </td>
 
-                                <!-- Calificación -->
-                                <td class="px-4 py-3">
-                                    <div class="relative">
-                                        <select
-                                            [value]="item.calificacion"
-                                            (change)="updateField(item.idProyecto!, 'calificacion', $any($event.target).value)"
-                                            [class]="getSelectClass(item.idProyecto!, 'calificacion')">
-                                            <option value="IT">IT</option>
-                                            <option value="I_MAS_D">I+D</option>
-                                            <option value="I_MAS_D_MAS_I">I+D+i</option>
-                                            <option value="NADA">Ninguna</option>
-                                        </select>
-                                        <div class="absolute right-8 top-1/2 transform -translate-y-1/2">
-                                            @switch (getFieldSavingState(item.idProyecto!, 'calificacion')) {
-                                                @case ('saving') {
-                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                    <!-- Calificación -->
+                                    <td class="px-4 py-3">
+                                        <div class="relative">
+                                            <select
+                                                [value]="item.calificacion"
+                                                (change)="updateField(item.idProyecto!, 'calificacion', $any($event.target).value)"
+                                                [class]="getSelectClass(item.idProyecto!, 'calificacion')">
+                                                <option value="IT">IT</option>
+                                                <option value="I_MAS_D">I+D</option>
+                                                <option value="I_MAS_D_MAS_I">I+D+i</option>
+                                                <option value="NADA">Ninguna</option>
+                                            </select>
+                                            <div class="absolute right-8 top-1/2 transform -translate-y-1/2">
+                                                @switch (getFieldSavingState(item.idProyecto!, 'calificacion')) {
+                                                    @case ('saving') {
+                                                        <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                    }
+                                                    @case ('success') {
+                                                        <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                    }
+                                                    @case ('error') {
+                                                        <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                    }
                                                 }
-                                                @case ('success') {
-                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
-                                                }
-                                                @case ('error') {
-                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
-                                                }
-                                            }
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <!-- Acciones -->
-                                <td class="px-4 py-3 text-center">
-                                    <div class="flex items-center justify-center space-x-2">
-                                        <button
-                                            (click)="openEditModal(item)"
-                                            class="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded transition-colors"
-                                            title="Editar proyecto">
-                                            <i class="fas fa-edit text-sm"></i>
-                                        </button>
-                                        <button
-                                            (click)="deleteProyecto(item.idProyecto!)"
-                                            class="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded transition-colors"
-                                            title="Eliminar proyecto">
-                                            <i class="fas fa-trash text-sm"></i>
-                                        </button>
-                                    </div>
-                                </td>
+                                    </td>
+                                    <!-- Acciones -->
+                                    <td class="px-4 py-3 text-center">
+                                        <div class="flex items-center justify-center space-x-2">
+                                            <button
+                                                (click)="openEditModal(item)"
+                                                class="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded transition-colors"
+                                                title="Editar proyecto">
+                                                <i class="fas fa-edit text-sm"></i>
+                                            </button>
+                                            <button
+                                                (click)="deleteProyecto(item.idProyecto!)"
+                                                class="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded transition-colors"
+                                                title="Eliminar proyecto">
+                                                <i class="fas fa-trash text-sm"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
                             }
                         </tbody>
                     </table>

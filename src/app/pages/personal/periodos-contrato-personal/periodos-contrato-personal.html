@@ -1,0 +1,486 @@
+<div class="min-h-screen bg-gray-50 p-6">
+    <div class="max-w-full mx-auto">
+
+        <!-- ── Header ──────────────────────────────────────────────────── -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-indigo-100 p-2 rounded-lg">
+                        <i class="fas fa-file-contract text-indigo-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Períodos de Contrato</h1>
+                        <p class="text-gray-600">Gestiona los períodos contractuales del personal</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+
+                    <!-- Nueva período -->
+                    <button
+                        (click)="openCreateModal()"
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center space-x-2">
+                        <i class="fas fa-plus"></i>
+                        <span>Nuevo período</span>
+                    </button>
+
+                    <!-- Badge con total -->
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <i class="fas fa-file-contract"></i>
+                        <span>
+                            <span class="font-semibold text-gray-800">{{ totalElements() }}</span>
+                            período{{ totalElements() !== 1 ? 's' : '' }}
+                        </span>
+                    </div>
+
+                    <!-- Actualizar -->
+                    <button
+                        (click)="loadData()"
+                        [disabled]="isLoading()"
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                        <i [class]="isLoading() ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
+                        <span>Actualizar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Tabla ────────────────────────────────────────────────────── -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden tabla-container">
+            <div class="overflow-x-auto">
+                <table class="w-full tabla-responsiva">
+                    <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200">
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 min-w-[200px] z-20">
+                            <i class="fas fa-user mr-2"></i>Empleado
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-[200px] bg-gray-50 min-w-[110px] z-20">
+                            <i class="fas fa-id-card mr-2"></i>DNI
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[110px] bg-indigo-50">
+                            <i class="fas fa-file-signature mr-2"></i>Clave
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px] bg-slate-50">
+                            Descripción
+                        </th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] bg-blue-50">
+                            <i class="fas fa-calendar-plus mr-2"></i>Alta
+                        </th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] bg-red-50">
+                            <i class="fas fa-calendar-minus mr-2"></i>Baja
+                        </th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] bg-emerald-50">
+                            <i class="fas fa-percent mr-2"></i>Jornada
+                        </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[130px] bg-amber-50">
+                            Base CC
+                        </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[130px] bg-orange-50">
+                            Base CP
+                        </th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px] bg-yellow-50">
+                            <i class="fas fa-cogs mr-2"></i>Acciones
+                        </th>
+                    </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-gray-200">
+
+                        <!-- Estado de carga -->
+                        @if (isLoading()) {
+                            <tr>
+                                <td colspan="10" class="px-4 py-12 text-center">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <i class="fas fa-spinner fa-spin text-indigo-500 text-lg"></i>
+                                        <span class="text-gray-500">Cargando períodos de contrato...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                        <!-- Estado vacío -->
+                        @if (!isLoading() && !hasPeriodos()) {
+                            <tr>
+                                <td colspan="10" class="px-4 py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center space-y-4">
+                                        <i class="fas fa-file-contract text-gray-300 text-5xl"></i>
+                                        <div class="text-center">
+                                            <span class="text-gray-500 text-lg block mb-1">
+                                                No hay períodos de contrato registrados
+                                            </span>
+                                            <p class="text-gray-400 text-sm mb-4">
+                                                Registra el primer período para comenzar el cálculo de costes
+                                            </p>
+                                            <button
+                                                (click)="openCreateModal()"
+                                                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                                                <i class="fas fa-plus mr-2"></i>Nuevo período
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                        <!-- Filas de datos -->
+                        @for (item of periodos(); track item.id) {
+                            <tr class="hover:bg-gray-50 transition-colors">
+
+                                <!-- Nombre (sticky) -->
+                                <td class="px-4 py-3 sticky left-0 bg-white border-r border-gray-200 z-10">
+                                    <div class="font-medium text-gray-900 text-sm">{{ item.nombre }}</div>
+                                </td>
+
+                                <!-- DNI (sticky) -->
+                                <td class="px-4 py-3 sticky left-[200px] bg-white border-r border-gray-200 z-10">
+                                    <div class="text-sm text-gray-700 font-mono">{{ item.dni }}</div>
+                                </td>
+
+                                <!-- Clave + naturaleza -->
+                                <td class="px-4 py-3">
+                                    <div class="flex flex-col gap-1">
+                                        <span class="font-semibold text-indigo-700 text-sm">{{ item.claveContrato }}</span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium w-fit"
+                                              [class]="getNaturalezaBadgeClass(item.naturaleza)">
+                                            {{ getNaturalezaLabel(item.naturaleza) }}
+                                            <span class="ml-1 opacity-70">· {{ getJornadaLabel(item.jornada) }}</span>
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <!-- Descripción -->
+                                <td class="px-4 py-3">
+                                    <div class="text-sm text-gray-600 max-w-xs truncate" [title]="item.descripcionContrato">
+                                        {{ item.descripcionContrato }}
+                                    </div>
+                                </td>
+
+                                <!-- Fecha Alta -->
+                                <td class="px-4 py-3 text-center">
+                                    <span class="text-sm text-gray-700">{{ formatDate(item.fechaAlta) }}</span>
+                                </td>
+
+                                <!-- Fecha Baja -->
+                                <td class="px-4 py-3 text-center">
+                                    @if (item.fechaBaja) {
+                                        <span class="text-sm text-gray-700">{{ formatDate(item.fechaBaja) }}</span>
+                                    } @else {
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                            Activo
+                                        </span>
+                                    }
+                                </td>
+
+                                <!-- Jornada % -->
+                                <td class="px-4 py-3 text-center">
+                                    <span class="font-semibold text-emerald-700 text-sm numeric">
+                                        {{ item.porcentajeJornada }}%
+                                    </span>
+                                </td>
+
+                                <!-- Base CC -->
+                                <td class="px-4 py-3 text-right">
+                                    <span class="text-sm text-gray-800 numeric">
+                                        {{ formatEuros(item.baseCcMensual) }}
+                                    </span>
+                                </td>
+
+                                <!-- Base CP -->
+                                <td class="px-4 py-3 text-right">
+                                    <span class="text-sm text-gray-800 numeric">
+                                        {{ formatEuros(item.baseCpMensual) }}
+                                    </span>
+                                </td>
+
+                                <!-- Acciones -->
+                                <td class="px-4 py-3 text-center">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <button
+                                            (click)="openEditModal(item)"
+                                            class="p-1.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-100 rounded transition-colors"
+                                            title="Editar período">
+                                            <i class="fas fa-edit text-sm"></i>
+                                        </button>
+                                        <button
+                                            (click)="deletePeriodo(item.id)"
+                                            class="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-100 rounded transition-colors"
+                                            title="Eliminar período">
+                                            <i class="fas fa-trash text-sm"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── Paginación ────────────────────────────────────────────────── -->
+        @if (totalPages() > 1) {
+            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow-sm">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <button
+                        (click)="previousPage()"
+                        [disabled]="!canGoPrevious()"
+                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                        <i class="fas fa-chevron-left mr-2"></i>Anterior
+                    </button>
+                    <button
+                        (click)="nextPage()"
+                        [disabled]="!canGoNext()"
+                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                        Siguiente<i class="fas fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Mostrando
+                            <span class="font-medium"> {{ currentPage() * pageSize() + 1 }} </span>
+                            a
+                            <span class="font-medium"> {{ Math.min((currentPage() + 1) * pageSize(), totalElements()) }} </span>
+                            de
+                            <span class="font-medium"> {{ totalElements() }} </span>
+                            resultados
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                            <button
+                                (click)="previousPage()"
+                                [disabled]="!canGoPrevious()"
+                                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            @for (page of visiblePages(); track page) {
+                                <button
+                                    (click)="goToPage(page)"
+                                    [class]="getPageButtonClass(page)">
+                                    {{ page + 1 }}
+                                </button>
+                            }
+                            <button
+                                (click)="nextPage()"
+                                [disabled]="!canGoNext()"
+                                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicador de página -->
+            <div class="text-center mt-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                    <i class="fas fa-file-contract mr-1"></i>
+                    Página {{ currentPage() + 1 }} de {{ totalPages() }}
+                </span>
+            </div>
+        }
+
+        <!-- ── Modal crear / editar ──────────────────────────────────────── -->
+        @if (modalOpen()) {
+            <div class="ui-modal-backdrop" (click)="onBackdropClick($event)">
+                <div class="ui-modal-layout">
+                    <div class="ui-modal-panel max-w-2xl" (click)="$event.stopPropagation()">
+
+                        <!-- Cabecera del modal -->
+                        <div class="mb-5 flex items-center justify-between border-b border-slate-200 pb-4">
+                            <h3 class="text-lg font-medium text-gray-900 flex items-center gap-2">
+                                <i class="fas fa-file-contract text-indigo-600"></i>
+                                @if (modalMode() === 'create') {
+                                    Nuevo período de contrato
+                                } @else {
+                                    Editar período de contrato
+                                }
+                            </h3>
+                            <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <!-- Formulario -->
+                        <div class="space-y-5">
+
+                            <!-- ── Sección: Trabajador ── -->
+                            @if (modalMode() === 'create') {
+                                <div class="ui-field">
+                                    <label class="ui-label">
+                                        <i class="fas fa-user mr-1 text-indigo-500"></i>Empleado <span class="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        [(ngModel)]="formData().idPersona"
+                                        (change)="onPersonalChange()"
+                                        class="ui-select">
+                                        <option [value]="0">Seleccionar empleado...</option>
+                                        @for (persona of listadoPersonal(); track persona.idPersona) {
+                                            <option [value]="persona.idPersona">
+                                                {{ persona.nombre }}
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                            } @else {
+                                <div class="ui-field">
+                                    <label class="ui-label">
+                                        <i class="fas fa-user mr-1 text-indigo-500"></i>Empleado
+                                    </label>
+                                    <input
+                                        type="text"
+                                        [value]="formData().nombrePersona"
+                                        readonly
+                                        class="ui-input bg-slate-50 cursor-default">
+                                </div>
+                            }
+
+                            <!-- ── Sección: Clave de contrato ── -->
+                            <div class="ui-field">
+                                <label class="ui-label">
+                                    <i class="fas fa-file-signature mr-1 text-indigo-500"></i>Clave de contrato <span class="text-red-500">*</span>
+                                </label>
+                                <select
+                                    [(ngModel)]="formData().claveContrato"
+                                    (change)="onClaveChange()"
+                                    class="ui-select">
+                                    <option value="">Seleccionar clave...</option>
+                                    @for (grupo of gruposClaves(); track grupo.label) {
+                                        <optgroup [label]="grupo.label">
+                                            @for (clave of grupo.claves; track clave.clave) {
+                                                <option [value]="clave.clave">
+                                                    {{ clave.clave }} — {{ clave.descripcion }}
+                                                </option>
+                                            }
+                                        </optgroup>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Aviso para contratos de formación/becarios -->
+                            @if (esFormacionOBecario()) {
+                                <div class="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 flex items-start gap-3">
+                                    <i class="fas fa-info-circle text-sky-500 mt-0.5 flex-shrink-0"></i>
+                                    <div class="text-sm text-sky-800">
+                                        <strong class="font-semibold">Contrato de formación / becario:</strong>
+                                        las bases de cotización CC y CP no se aplican en este tipo de contrato.
+                                        La cotización se realiza mediante cuotas fijas reducidas establecidas por la Seguridad Social.
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- ── Sección: Fechas ── -->
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div class="ui-field">
+                                    <label class="ui-label">
+                                        <i class="fas fa-calendar-plus mr-1 text-blue-500"></i>Fecha de alta <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="date"
+                                        [(ngModel)]="formData().fechaAlta"
+                                        class="ui-input">
+                                </div>
+                                <div class="ui-field">
+                                    <label class="ui-label">
+                                        <i class="fas fa-calendar-minus mr-1 text-red-400"></i>Fecha de baja
+                                        <span class="text-gray-400 font-normal ml-1">(opcional)</span>
+                                    </label>
+                                    <input
+                                        type="date"
+                                        [(ngModel)]="formData().fechaBaja"
+                                        class="ui-input">
+                                    <p class="ui-help">Si está en blanco, el período se considera activo</p>
+                                </div>
+                            </div>
+
+                            <!-- ── Sección: Jornada y bases ── -->
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+
+                                <!-- % Jornada -->
+                                <div class="ui-field">
+                                    <label class="ui-label">
+                                        <i class="fas fa-percent mr-1 text-emerald-500"></i>% Jornada <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        [(ngModel)]="formData().porcentajeJornada"
+                                        min="1"
+                                        max="100"
+                                        step="1"
+                                        class="ui-input">
+                                    <p class="ui-help">100 para jornada completa</p>
+                                </div>
+
+                                <!-- Base CC -->
+                                <div class="ui-field">
+                                    <label class="ui-label">
+                                        <i class="fas fa-euro-sign mr-1 text-amber-500"></i>Base CC mensual <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        [(ngModel)]="formData().baseCcMensual"
+                                        min="0"
+                                        step="0.01"
+                                        [disabled]="esFormacionOBecario()"
+                                        [class]="esFormacionOBecario()
+                                            ? 'ui-input bg-slate-100 cursor-not-allowed opacity-60'
+                                            : 'ui-input'">
+                                    <p class="ui-help">Contingencias comunes</p>
+                                </div>
+
+                                <!-- Base CP -->
+                                <div class="ui-field">
+                                    <label class="ui-label">
+                                        <i class="fas fa-euro-sign mr-1 text-orange-500"></i>Base CP mensual <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        [(ngModel)]="formData().baseCpMensual"
+                                        min="0"
+                                        step="0.01"
+                                        [disabled]="esFormacionOBecario()"
+                                        [class]="esFormacionOBecario()
+                                            ? 'ui-input bg-slate-100 cursor-not-allowed opacity-60'
+                                            : 'ui-input'">
+                                    <p class="ui-help">Contingencias profesionales</p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="ui-form-actions mt-6">
+                            <button
+                                (click)="closeModal()"
+                                class="ui-btn ui-btn-secondary">
+                                <i class="fas fa-times"></i>
+                                Cancelar
+                            </button>
+                            <button
+                                (click)="saveModal()"
+                                [disabled]="modalLoading()"
+                                class="ui-btn ui-btn-primary">
+                                @if (modalLoading()) {
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <span>Guardando...</span>
+                                } @else {
+                                    <i class="fas fa-save"></i>
+                                    <span>
+                                        @if (modalMode() === 'create') {
+                                            Crear período
+                                        } @else {
+                                            Guardar cambios
+                                        }
+                                    </span>
+                                }
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

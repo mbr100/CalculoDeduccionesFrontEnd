@@ -1,0 +1,28 @@
+/* Zoom solo para la tabla */
+.tabla-container {
+    zoom: 0.75;
+}
+
+/* Ancho mínimo de la tabla para scroll horizontal */
+.tabla-responsiva {
+    min-width: 1200px;
+}
+
+/* Scrollbar personalizado */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

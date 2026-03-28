@@ -8,6 +8,7 @@ import {BajasPersonal} from '../bajas-personal/bajas-personal';
 import {ActivatedRoute} from '@angular/router';
 import {BonificacionesPersonal} from '../bonificaciones-personal/bonificaciones-personal';
 import {ResumenCosteHoraPersonal} from '../resumen-coste-hora-personal/resumen-coste-hora-personal';
+import {PeriodosContratoPersonal} from '../periodos-contrato-personal/periodos-contrato-personal';
 
 
 @Component({
@@ -21,6 +22,7 @@ import {ResumenCosteHoraPersonal} from '../resumen-coste-hora-personal/resumen-c
         BonificacionesPersonal,
         BajasPersonal,
         ResumenCosteHoraPersonal,
+        PeriodosContratoPersonal,
     ],
   templateUrl: './personal-economico.html',
   styleUrl: './personal-economico.css'
@@ -37,6 +39,7 @@ export class PersonalEconomico {
         { id: 'rnts', label: 'RNTs', icon: 'fas fa-file-invoice' },
         { id: 'altas', label: 'Alta en ejercicio', icon: 'fas fa-calendar' },
         { id: 'bajas', label: 'Bajas', icon: 'fas fa-user-injured' },
+        { id: 'periodos', label: 'Períodos contrato', icon: 'fas fa-file-contract' },
         { id: 'bonificaciones', label: 'Bonificaciones', icon: 'fas fa-percent' },
         { id: 'resumen', label: 'Resumen', icon: 'fas fa-chart-pie' },
     ] as const;

@@ -7,11 +7,16 @@ import {
     actualizarAltaEjercicioDTO, ActualizarBajaLaboralDTO,
     actualizarBbccDTO,
     ActualizarBonificacionDTO,
+    ActualizarPeriodoContratoDTO,
     actualizarRetribucionDTO,
     AltaEjercicioDTO, BajasLaboralesDTO,
-    BbccPersonalDTO, BonificacionesEmpleadoEconomicoDTO, CosteHoraPersonalDTO, CrearBajaLaboralDTO,
+    BbccPersonalDTO, BonificacionesEmpleadoEconomicoDTO,
+    ClaveContratoDTO,
+    CosteHoraPersonalDTO, CrearBajaLaboralDTO,
     CrearBonificacionDTO,
+    CrearPeriodoContratoDTO,
     CrearPersonalEconomico, ListadoPersonalSelectorEconomicoDTO,
+    PeriodoContratoDTO,
     PersonalEconomico,
     RetribucionesPersonalDTO
 } from '../models/personal-economico';
@@ -153,6 +158,36 @@ export class EconomicoPersonalService {
     public validarImputacion(idPersonal: number, anioFiscal: number, idEconomico: number): Observable<{bloqueado: boolean, mensaje?: string}> {
         return this.http.get<{bloqueado: boolean, mensaje?: string}>(`${this.baseUrl}/${this.apiPersonal}/validar-imputacion/${idPersonal}/${anioFiscal}/${idEconomico}`);
     }
+
+    // === PERÍODOS DE CONTRATO ===
+
+    public obtenerPeriodosContratoPorIdEconomico(idEconomico: number, page: number, size: number): Observable<PaginacionResponse<PeriodoContratoDTO>> {
+        return this.http.get<PaginacionResponse<PeriodoContratoDTO>>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/periodos-contrato`, {
+            params: { page: page.toString(), size: size.toString() }
+        });
+    }
+
+    public crearPeriodoContrato(dto: CrearPeriodoContratoDTO): Observable<PeriodoContratoDTO> {
+        return this.http.post<PeriodoContratoDTO>(`${this.baseUrl}/${this.apiPersonal}/periodo-contrato`, dto, {
+            headers: {'Content-Type': 'application/json'}
+        });
+    }
+
+    public actualizarPeriodoContrato(dto: ActualizarPeriodoContratoDTO): Observable<PeriodoContratoDTO> {
+        return this.http.put<PeriodoContratoDTO>(`${this.baseUrl}/${this.apiPersonal}/periodo-contrato`, dto, {
+            headers: {'Content-Type': 'application/json'}
+        });
+    }
+
+    public eliminarPeriodoContrato(idPeriodo: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/${this.apiPersonal}/periodo-contrato/${idPeriodo}`);
+    }
+
+    public obtenerClavesContrato(): Observable<ClaveContratoDTO[]> {
+        return this.http.get<ClaveContratoDTO[]>(`${this.baseUrl}/${this.apiPersonal}/claves-contrato`);
+    }
+
+    // === COSTE HORA ===
 
     public obtenerCosteHoraPorIdEconomico(idEconomico: number, paginaActual: number, tamano: number): Observable<PaginacionResponse<CosteHoraPersonalDTO>> {
         return this.http.get<PaginacionResponse<CosteHoraPersonalDTO>>(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/resumen-coste-personal`, {

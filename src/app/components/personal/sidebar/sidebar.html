@@ -1,30 +1,28 @@
-<div class="h-full min-h-full w-20 flex-shrink-0 self-stretch border-r border-slate-200 bg-white shadow-sm">
-    <div class="flex h-full flex-col p-3">
-        <!-- Navegación del sidebar -->
-        <nav class="flex flex-1 flex-col gap-2">
-            <!-- Botón Economico -->
-            <button (click)="goToEconomico()" title="Economico" [class]="getButtonClass('economico')">
-                <i class="fas fa-coins text-blue-500"></i>
-            </button>
+<div class="flex h-full flex-col p-3">
+    <!-- Navegación del sidebar -->
+    <nav class="flex flex-1 flex-col gap-2">
+        <!-- Botón Economico -->
+        <button (click)="goToEconomico()" title="Economico" [class]="getButtonClass('economico')">
+            <i class="fas fa-coins text-blue-500"></i>
+        </button>
 
-            <!-- Botón Personal -->
-            <button (click)="goToPersonal()" title="Personal" [class]="getButtonClass('personal')">
-                <i class="fas fa-users text-lg text-blue-500"></i>
-            </button>
+        <!-- Botón Personal -->
+        <button (click)="goToPersonal()" title="Personal" [class]="getButtonClass('personal')">
+            <i class="fas fa-users text-lg text-blue-500"></i>
+        </button>
 
-            <!-- Botón Proyectos -->
-            <button (click)="goToProyectos()" title="Proyectos" [class]="getButtonClass('proyectos')">
-                <i class="fas fa-project-diagram text-blue-500"></i>
-            </button>
+        <!-- Botón Proyectos -->
+        <button (click)="goToProyectos()" title="Proyectos" [class]="getButtonClass('proyectos')">
+            <i class="fas fa-project-diagram text-blue-500"></i>
+        </button>
 
-            <!-- Botón Asignaciones -->
-            <button (click)="goToAsignaciones()" title="Asignaciones" [class]="getButtonClass('asignaciones')">
-                <i class="fas fa-tasks text-blue-500"></i>
-            </button>
-            <!-- Botón Resumen -->
-            <button (click)="goToResumen()" title="Resumen" [class]="getButtonClass('resumen')">
-                <i class="fas fa-chart-bar text-blue-500"></i>
-            </button>
-        </nav>
-    </div>
+        <!-- Botón Asignaciones -->
+        <button (click)="goToAsignaciones()" title="Asignaciones" [class]="getButtonClass('asignaciones')">
+            <i class="fas fa-tasks text-blue-500"></i>
+        </button>
+        <!-- Botón Resumen -->
+        <button (click)="goToResumen()" title="Resumen" [class]="getButtonClass('resumen')">
+            <i class="fas fa-chart-bar text-blue-500"></i>
+        </button>
+    </nav>
 </div>

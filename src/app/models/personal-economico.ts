@@ -181,6 +181,62 @@ export interface tiposBonificacion {
     porcentajeDefault: number
 }
 
+// === PERÍODOS DE CONTRATO ===
+
+export interface ClaveContratoDTO {
+    clave: string;
+    descripcion: string;
+    naturaleza: NaturalezaContrato;
+    jornada: TipoJornada;
+    cotizaDesempleo: boolean;
+    cotizaFogasa: boolean;
+    cotizaFp: boolean;
+    cotizaMei: boolean;
+    cotizaCcEstandar: boolean;
+    vigente: boolean;
+}
+
+export type NaturalezaContrato = 'INDEFINIDO' | 'TEMPORAL' | 'FORMACION' | 'BECARIO_REMUNERADO' | 'BECARIO_NO_REMUNERADO';
+export type TipoJornada = 'TIEMPO_COMPLETO' | 'TIEMPO_PARCIAL' | 'FIJO_DISCONTINUO';
+
+export interface PeriodoContratoDTO {
+    id: number;
+    idPersona: number;
+    nombre: string;
+    dni: string;
+    claveContrato: string;
+    descripcionContrato: string;
+    naturaleza: NaturalezaContrato;
+    jornada: TipoJornada;
+    fechaAlta: string;
+    fechaBaja: string | null;
+    anioFiscal: number;
+    porcentajeJornada: number;
+    baseCcMensual: number;
+    baseCpMensual: number;
+}
+
+export interface CrearPeriodoContratoDTO {
+    idPersona: number;
+    claveContrato: string;
+    fechaAlta: string;
+    fechaBaja: string | null;
+    anioFiscal: number;
+    porcentajeJornada: number;
+    baseCcMensual: number;
+    baseCpMensual: number;
+}
+
+export interface ActualizarPeriodoContratoDTO {
+    id: number;
+    claveContrato?: string;
+    fechaAlta?: string;
+    fechaBaja?: string | null;
+    porcentajeJornada?: number;
+    baseCcMensual?: number;
+    baseCpMensual?: number;
+}
+
 export interface CosteHoraPersonalDTO {
     idPersona: number;
     nombre: string;

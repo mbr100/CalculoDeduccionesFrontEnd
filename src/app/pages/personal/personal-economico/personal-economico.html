@@ -42,7 +42,12 @@
                 <app-bajas-personal [idEconomico]="this.economicoId"></app-bajas-personal>
             }
 
-            <!-- PESTAÑA REPORTES -->
+            <!-- PESTAÑA PERÍODOS CONTRATO -->
+            @if (activeTab() === 'periodos') {
+                <app-periodos-contrato-personal [idEconomico]="this.economicoId"></app-periodos-contrato-personal>
+            }
+
+            <!-- PESTAÑA BONIFICACIONES -->
             @if (activeTab() === 'bonificaciones') {
                 <app-bonificaciones-personal [idEconomico]="this.economicoId"></app-bonificaciones-personal>
             }
