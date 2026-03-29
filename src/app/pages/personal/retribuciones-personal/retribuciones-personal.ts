@@ -3,8 +3,7 @@ import {EconomicoPersonalService} from '../../../services/economico-personal-ser
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import {actualizarRetribucionDTO, RetribucionesPersonalDTO} from '../../../models/personal-economico';
 import {getVisiblePages} from '../../../models/savingState';
-
-type SavingState = 'idle' | 'saving' | 'success' | 'error';
+import {RetribucionEditableField, SavingState} from './retribuciones-personal.interfaces';
 
 @Component({
     selector: 'app-retribuciones-personal',
@@ -19,7 +18,7 @@ export class RetribucionesPersonal implements OnInit {
     // Signals para el estado del componente
     public retribuciones: WritableSignal<RetribucionesPersonalDTO[]> = signal<RetribucionesPersonalDTO[]>([]);
     public loading: WritableSignal<boolean> = signal(false);
-    public savingStates:WritableSignal<{[ key: number]: SavingState }> = signal<{ [key: number]: SavingState }>({});
+    public savingStates: WritableSignal<{ [key: string]: SavingState }> = signal<{ [key: string]: SavingState }>({});
 
     // Signals para paginación
     public currentPage: WritableSignal<number> = signal(0);
@@ -76,11 +75,21 @@ export class RetribucionesPersonal implements OnInit {
         }
     }
 
-    public updateField(idRetribucion: number, field: keyof RetribucionesPersonalDTO, value: number): void {
+    private buildCellKey(idRetribucion: number, field: RetribucionEditableField): string {
+        return `${idRetribucion}::${field}`;
+    }
+
+    public getSavingState(idRetribucion: number, field: RetribucionEditableField): SavingState {
+        return this.savingStates()[this.buildCellKey(idRetribucion, field)] || 'idle';
+    }
+
+    public updateField(idRetribucion: number, field: RetribucionEditableField, value: number): void {
+        const cellKey = this.buildCellKey(idRetribucion, field);
+
         // Actualizar el estado de guardado de forma inmutable
         this.savingStates.update(states => ({
             ...states,
-            [idRetribucion]: 'saving'
+            [cellKey]: 'saving'
         }));
 
         try {
@@ -94,7 +103,7 @@ export class RetribucionesPersonal implements OnInit {
                 next: () => {
                     this.savingStates.update(states => ({
                         ...states,
-                        [idRetribucion]: 'success'
+                        [cellKey]: 'success'
                     }));
 
                     // Actualizar el valor en la lista local
@@ -109,32 +118,34 @@ export class RetribucionesPersonal implements OnInit {
                     setTimeout(() => {
                         this.savingStates.update(states => ({
                             ...states,
-                            [idRetribucion]: 'idle'
+                            [cellKey]: 'idle'
                         }));
                     }, 2000);
                 },
                 error: () => {
-                    this.handleSavingError(idRetribucion);
+                    this.handleSavingError(idRetribucion, field);
                 }
             });
 
             console.log(`Actualizando campo ${field} para retribución ID ${idRetribucion} con valor ${value}`);
         } catch (error) {
             console.error('Error actualizando campo:', error);
-            this.handleSavingError(idRetribucion);
+            this.handleSavingError(idRetribucion, field);
         }
     }
 
-    private handleSavingError(idRetribucion: number): void {
+    private handleSavingError(idRetribucion: number, field: RetribucionEditableField): void {
+        const cellKey = this.buildCellKey(idRetribucion, field);
+
         this.savingStates.update(states => ({
             ...states,
-            [idRetribucion]: 'error'
+            [cellKey]: 'error'
         }));
 
         setTimeout(() => {
             this.savingStates.update(states => ({
                 ...states,
-                [idRetribucion]: 'idle'
+                [cellKey]: 'idle'
             }));
         }, 3000);
     }
@@ -152,7 +163,7 @@ export class RetribucionesPersonal implements OnInit {
         input.value = raw === 0 ? '' : raw.toString().replace('.', ',');
     }
 
-    public onBlurField(event: FocusEvent, idRetribucion: number, field: keyof RetribucionesPersonalDTO): void {
+    public onBlurField(event: FocusEvent, idRetribucion: number, field: RetribucionEditableField): void {
         const input = event.target as HTMLInputElement;
         const value = this.parseInputValue(input.value);
         input.value = this.formatEuro(value);
@@ -169,7 +180,7 @@ export class RetribucionesPersonal implements OnInit {
         this.updateField(idRetribucion, field, value);
     }
 
-    public onKeyPressField(event: KeyboardEvent, idRetribucion: number, field: keyof RetribucionesPersonalDTO): void {
+    public onKeyPressField(event: KeyboardEvent): void {
         if (event.key === 'Enter') {
             (event.target as HTMLInputElement).blur();
         }
@@ -183,8 +194,8 @@ export class RetribucionesPersonal implements OnInit {
         return isNaN(parsed) ? 0 : parsed;
     }
 
-    public getInputClass(idRetribucion: number): string {
-        const savingState = this.savingStates()[idRetribucion] || 'idle';
+    public getInputClass(idRetribucion: number, field: RetribucionEditableField): string {
+        const savingState = this.getSavingState(idRetribucion, field);
         let borderColor: string;
 
         switch (savingState) {

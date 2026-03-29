@@ -106,10 +106,10 @@
                                             [value]="formatEuro(item.importeRetribucionNoIT)"
                                             (focus)="onFocus($event)"
                                             (blur)="onBlurField($event, item.idRetribucion, 'importeRetribucionNoIT')"
-                                            (keyup)="onKeyPressField($event, item.idRetribucion, 'importeRetribucionNoIT')"
-                                            [class]="getInputClass(item.idRetribucion) + ' text-right'">
+                                            (keyup)="onKeyPressField($event)"
+                                            [class]="getInputClass(item.idRetribucion, 'importeRetribucionNoIT') + ' text-right'">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                            @switch (savingStates()[item.idRetribucion]) {
+                                            @switch (getSavingState(item.idRetribucion, 'importeRetribucionNoIT')) {
                                                 @case ('saving') {
                                                     <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
                                                 }
@@ -131,10 +131,10 @@
                                             [value]="formatEuro(item.importeRetribucionExpecie)"
                                             (focus)="onFocus($event)"
                                             (blur)="onBlurField($event, item.idRetribucion, 'importeRetribucionExpecie')"
-                                            (keyup)="onKeyPressField($event, item.idRetribucion, 'importeRetribucionExpecie')"
-                                            [class]="getInputClass(item.idRetribucion) + ' text-right'">
+                                            (keyup)="onKeyPressField($event)"
+                                            [class]="getInputClass(item.idRetribucion, 'importeRetribucionExpecie') + ' text-right'">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                            @switch (savingStates()[item.idRetribucion]) {
+                                            @switch (getSavingState(item.idRetribucion, 'importeRetribucionExpecie')) {
                                                 @case ('saving') {
                                                     <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
                                                 }
@@ -156,10 +156,10 @@
                                             [value]="formatEuro(item.aportacionesPrevencionSocial)"
                                             (focus)="onFocus($event)"
                                             (blur)="onBlurField($event, item.idRetribucion, 'aportacionesPrevencionSocial')"
-                                            (keyup)="onKeyPressField($event, item.idRetribucion, 'aportacionesPrevencionSocial')"
-                                            [class]="getInputClass(item.idRetribucion) + ' text-right'">
+                                            (keyup)="onKeyPressField($event)"
+                                            [class]="getInputClass(item.idRetribucion, 'aportacionesPrevencionSocial') + ' text-right'">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                            @switch (savingStates()[item.idRetribucion]) {
+                                            @switch (getSavingState(item.idRetribucion, 'aportacionesPrevencionSocial')) {
                                                 @case ('saving') {
                                                     <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
                                                 }
@@ -181,10 +181,10 @@
                                             [value]="formatEuro(item.dietasViajeExentas)"
                                             (focus)="onFocus($event)"
                                             (blur)="onBlurField($event, item.idRetribucion, 'dietasViajeExentas')"
-                                            (keyup)="onKeyPressField($event, item.idRetribucion, 'dietasViajeExentas')"
-                                            [class]="getInputClass(item.idRetribucion) + ' text-right'">
+                                            (keyup)="onKeyPressField($event)"
+                                            [class]="getInputClass(item.idRetribucion, 'dietasViajeExentas') + ' text-right'">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                            @switch (savingStates()[item.idRetribucion]) {
+                                            @switch (getSavingState(item.idRetribucion, 'dietasViajeExentas')) {
                                                 @case ('saving') {
                                                     <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
                                                 }
@@ -206,10 +206,10 @@
                                             [value]="formatEuro(item.rentasExentas190)"
                                             (focus)="onFocus($event)"
                                             (blur)="onBlurField($event, item.idRetribucion, 'rentasExentas190')"
-                                            (keyup)="onKeyPressField($event, item.idRetribucion, 'rentasExentas190')"
-                                            [class]="getInputClass(item.idRetribucion) + ' text-right'">
+                                            (keyup)="onKeyPressField($event)"
+                                            [class]="getInputClass(item.idRetribucion, 'rentasExentas190') + ' text-right'">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                            @switch (savingStates()[item.idRetribucion]) {
+                                            @switch (getSavingState(item.idRetribucion, 'rentasExentas190')) {
                                                 @case ('saving') {
                                                     <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
                                                 }

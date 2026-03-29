@@ -3,17 +3,7 @@ import {EconomicoPersonalService} from '../../../services/economico-personal-ser
 import {CosteHoraPersonalDTO} from '../../../models/personal-economico';
 import {getVisiblePages, SavingState} from '../../../models/savingState';
 import {PaginacionResponse} from '../../../models/paginacion-response';
-
-interface ResumenCostePagina {
-    personal: number;
-    retribucionTotal: number;
-    costeSSBruto: number;
-    ahorroBonificaciones: number;
-    horasMaximas: number;
-    horasEfectivas: number;
-    horasBaja: number;
-    costeHoraMedio: number;
-}
+import {ResumenCostePagina} from './resumen-coste-hora-personal.interfaces';
 
 @Component({
     selector: 'app-resumen-coste-hora-personal',
@@ -273,5 +263,26 @@ export class ResumenCosteHoraPersonal implements OnInit {
 
     public getCurrentPageEnd(): number {
         return Math.min((this.currentPage() + 1) * this.pageSize(), this.totalElements());
+    }
+
+    public exportingExcel: WritableSignal<boolean> = signal(false);
+
+    public exportarExcel(): void {
+        this.exportingExcel.set(true);
+        this.economicoPersonalService.exportarCosteHoraExcel(this.idEconomico).subscribe({
+            next: (blob: Blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `coste_hora_${this.idEconomico}.xlsx`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                this.exportingExcel.set(false);
+            },
+            error: (error) => {
+                console.error('Error exportando Excel:', error);
+                this.exportingExcel.set(false);
+            }
+        });
     }
 }

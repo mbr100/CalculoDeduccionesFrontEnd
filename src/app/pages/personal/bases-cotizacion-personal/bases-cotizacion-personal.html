@@ -130,10 +130,10 @@
                                                     (focus)="onFocus($event)"
                                                     (blur)="onBlurField($event, item.id_baseCotizacion, item.idPersonal, mes.key)"
                                                     (keyup)="onKeyPressField($event)"
-                                                    [class]="getInputClass(item.id_baseCotizacion) + ' text-right'"
+                                                    [class]="getInputClass(item.id_baseCotizacion, mes.key) + ' text-right'"
                                                     [placeholder]="'Base ' + mes.shortLabel">
                                                 <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                                                    @switch (savingStates()[item.id_baseCotizacion]) {
+                                                    @switch (savingStates()[item.id_baseCotizacion + '-' + mes.key]) {
                                                         @case ('saving') {
                                                             <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
                                                         }

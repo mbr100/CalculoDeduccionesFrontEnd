@@ -7,7 +7,7 @@ export interface FilaAsignacionDTO {
     idPersonal: number;
     nombreCompleto: string;
     horas: number[];
-    horasMaximas: number;
+    horasEfectivas: number;
 }
 
 export interface MatrizAsignacionesDTO {

@@ -3,6 +3,7 @@ import {EconomicoPersonalService} from '../../../services/economico-personal-ser
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import {actualizarBbccDTO, BbccPersonalDTO} from '../../../models/personal-economico';
 import {MonthConfig, SavingState} from '../../../models/savingState';
+import {concatMap, from, Observable} from 'rxjs';
 
 
 @Component({
@@ -18,7 +19,7 @@ export class BasesCotizacionPersonal implements OnInit {
     // Signals para el estado del componente
     bbccPersonal = signal<BbccPersonalDTO[]>([]);
     loading = signal(false);
-    savingStates = signal<{ [key: number]: SavingState }>({});
+    savingStates = signal<{ [key: string]: SavingState }>({});
 
     // Signals para paginación
     currentPage = signal(0);
@@ -90,6 +91,7 @@ export class BasesCotizacionPersonal implements OnInit {
                     this.bbccPersonal.set(response.content);
                     this.totalElements.set(response.totalElements);
                     this.totalPages.set(response.totalPages);
+                    this.zeroDisabledMonths(response.content);
                     this.loading.set(false);
                 },
                 error: (error) => {
@@ -100,6 +102,45 @@ export class BasesCotizacionPersonal implements OnInit {
         } catch (error) {
             console.error('Error cargando datos:', error);
             this.loading.set(false);
+        }
+    }
+
+    /**
+     * Para cada fila, pone a 0 los meses bloqueados (fuera del periodo) que tengan valor,
+     * actualizando tanto el signal local como el backend de forma secuencial.
+     */
+    private zeroDisabledMonths(items: BbccPersonalDTO[]): void {
+        const updates: actualizarBbccDTO[] = [];
+
+        for (const item of items) {
+            if (!item.idPeriodoContrato) continue;
+
+            for (let i = 0; i < this.meses.length; i++) {
+                if (!this.isMonthEnabled(item, i)) {
+                    const field = this.meses[i].key as keyof BbccPersonalDTO;
+                    const currentValue = item[field] as number | null;
+                    if (currentValue && currentValue !== 0) {
+                        (item as any)[field] = 0;
+                        updates.push({
+                            idBbccPersonal: item.id_baseCotizacion,
+                            campoActualizado: field,
+                            valor: 0
+                        });
+                    }
+                }
+            }
+        }
+
+        this.bbccPersonal.set([...items]);
+
+        if (updates.length > 0) {
+            from(updates).pipe(
+                concatMap((actualizacion: actualizarBbccDTO): Observable<any> =>
+                    this.economicoPersonalService.actualizarBBCC(actualizacion as any)
+                )
+            ).subscribe({
+                error: (err) => console.error('Error reseteando meses deshabilitados:', err)
+            });
         }
     }
 
@@ -170,10 +211,11 @@ export class BasesCotizacionPersonal implements OnInit {
             return;
         }
 
-        // Usar id_baseCotizacion como clave única de saving state
+        const cellKey = `${idBaseCotizacion}-${field}`;
+
         this.savingStates.update(states => ({
             ...states,
-            [idBaseCotizacion]: 'saving'
+            [cellKey]: 'saving'
         }));
 
         try {
@@ -187,7 +229,7 @@ export class BasesCotizacionPersonal implements OnInit {
                 next: () => {
                     this.savingStates.update(states => ({
                         ...states,
-                        [idBaseCotizacion]: 'success'
+                        [cellKey]: 'success'
                     }));
 
                     this.bbccPersonal.update(items =>
@@ -201,31 +243,31 @@ export class BasesCotizacionPersonal implements OnInit {
                     setTimeout(() => {
                         this.savingStates.update(states => ({
                             ...states,
-                            [idBaseCotizacion]: 'idle'
+                            [cellKey]: 'idle'
                         }));
                     }, 2000);
                 },
                 error: (error) => {
                     console.error('Error actualizando base de cotización:', error);
-                    this.handleSavingError(idBaseCotizacion);
+                    this.handleSavingError(cellKey);
                 }
             });
         } catch (error) {
             console.error('Error actualizando campo:', error);
-            this.handleSavingError(idBaseCotizacion);
+            this.handleSavingError(cellKey);
         }
     }
 
-    private handleSavingError(idBaseCotizacion: number): void {
+    private handleSavingError(cellKey: string): void {
         this.savingStates.update(states => ({
             ...states,
-            [idBaseCotizacion]: 'error'
+            [cellKey]: 'error'
         }));
 
         setTimeout(() => {
             this.savingStates.update(states => ({
                 ...states,
-                [idBaseCotizacion]: 'idle'
+                [cellKey]: 'idle'
             }));
         }, 3000);
     }
@@ -283,8 +325,9 @@ export class BasesCotizacionPersonal implements OnInit {
         return isNaN(parsed) ? null : parsed;
     }
 
-    getInputClass(idBaseCotizacion: number): string {
-        const savingState = this.savingStates()[idBaseCotizacion] || 'idle';
+    getInputClass(idBaseCotizacion: number, field: string): string {
+        const cellKey = `${idBaseCotizacion}-${field}`;
+        const savingState = this.savingStates()[cellKey] || 'idle';
         let borderColor: string;
 
         switch (savingState) {

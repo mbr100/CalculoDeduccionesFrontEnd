@@ -296,7 +296,7 @@ export class BonificacionesPersonal implements OnInit {
             next: (_) => {
                 this.modalLoading.set(false);
                 this.closeModal();
-                this.loadData();
+                this.loadDataInternal();
                 Swal.fire('Creada', 'La bonificación ha sido creada correctamente.', 'success').then();
             },
             error: (error) => {

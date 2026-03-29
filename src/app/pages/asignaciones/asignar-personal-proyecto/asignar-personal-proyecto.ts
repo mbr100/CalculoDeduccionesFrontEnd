@@ -78,7 +78,7 @@ export class AsignarPersonalProyecto implements OnInit {
             i !== proyectoIndex ? sum + (h || 0) : sum, 0
         );
 
-        const horasRestantesDisponibles = fila.horasMaximas - horasOtrosProyectos;
+        const horasRestantesDisponibles = fila.horasEfectivas - horasOtrosProyectos;
 
         if (horas > horasRestantesDisponibles) {
             this.showValidationError(
@@ -176,7 +176,7 @@ export class AsignarPersonalProyecto implements OnInit {
             i !== proyectoIndex ? sum + (h || 0) : sum, 0
         );
 
-        const horasRestantesDisponibles = fila.horasMaximas - horasOtrosProyectos;
+        const horasRestantesDisponibles = fila.horasEfectivas - horasOtrosProyectos;
 
         // Aplicar estilos visuales según la validación
         if (value > horasRestantesDisponibles) {
@@ -263,9 +263,9 @@ export class AsignarPersonalProyecto implements OnInit {
         );
     }
 
-    public getTotalHorasMaximas(): number {
+    public getTotalHorasEfectivas(): number {
         return this.matrizData().filas.reduce((sum, fila) =>
-            sum + (fila.horasMaximas || 0), 0
+            sum + (fila.horasEfectivas || 0), 0
         );
     }
 
@@ -278,14 +278,14 @@ export class AsignarPersonalProyecto implements OnInit {
     // Métodos específicos para horas restantes
     public getHorasRestantes(fila: FilaAsignacionDTO): number {
         const totalAsignadas = this.getTotalPorPersona(fila.horas);
-        return Math.max(0, fila.horasMaximas - totalAsignadas);
+        return Math.max(0, fila.horasEfectivas - totalAsignadas);
     }
 
     public getMaxHorasDisponibles(fila: FilaAsignacionDTO, proyectoIndex: number): number {
         const horasOtrosProyectos = fila.horas.reduce((sum, h, i) =>
             i !== proyectoIndex ? sum + (h || 0) : sum, 0
         );
-        return Math.max(0, fila.horasMaximas - horasOtrosProyectos);
+        return Math.max(0, fila.horasEfectivas - horasOtrosProyectos);
     }
 
     public getHorasRestantesClass(fila: FilaAsignacionDTO): string {

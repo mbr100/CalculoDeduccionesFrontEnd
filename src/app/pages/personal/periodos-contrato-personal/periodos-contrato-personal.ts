@@ -10,27 +10,11 @@ import {
     PeriodoContratoDTO,
     TipoJornada
 } from '../../../models/personal-economico';
+import {FormPeriodoContrato, GrupoClave} from './periodos-contrato-personal.interfaces';
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import {getVisiblePages, ModalMode, SavingState} from '../../../models/savingState';
 import Swal from 'sweetalert2';
 
-/** Shape of the create/edit form held in formData signal */
-interface FormPeriodoContrato {
-    idPersona: number;
-    claveContrato: string;
-    fechaAlta: string;
-    fechaBaja: string;
-    porcentajeJornada: number;
-    horasConvenio: number;
-    // Derived from selected clave — read-only display
-    nombrePersona: string;
-}
-
-/** Group label → claves for the grouped select */
-interface GrupoClave {
-    label: string;
-    claves: ClaveContratoDTO[];
-}
 
 @Component({
     selector: 'app-periodos-contrato-personal',
@@ -86,27 +70,27 @@ export class PeriodosContratoPersonal implements OnInit {
         const claves = this.clavesContrato().filter(c => c.vigente);
 
         const grupos: { [key: string]: ClaveContratoDTO[] } = {
-            'Indefinidos — Tiempo Completo': [],
-            'Indefinidos — Tiempo Parcial': [],
+            'Indefinidos - Tiempo Completo': [],
+            'Indefinidos - Tiempo Parcial': [],
             'Fijo Discontinuo': [],
-            'Temporales — Tiempo Completo': [],
-            'Temporales — Tiempo Parcial': [],
-            'Formación / Becarios': []
+            'Temporales - Tiempo Completo': [],
+            'Temporales - Tiempo Parcial': [],
+            'Formacion / Becarios': []
         };
 
         for (const clave of claves) {
             if (clave.naturaleza === 'INDEFINIDO' && clave.jornada === 'TIEMPO_COMPLETO') {
-                grupos['Indefinidos — Tiempo Completo'].push(clave);
+                grupos['Indefinidos - Tiempo Completo'].push(clave);
             } else if (clave.naturaleza === 'INDEFINIDO' && clave.jornada === 'TIEMPO_PARCIAL') {
-                grupos['Indefinidos — Tiempo Parcial'].push(clave);
+                grupos['Indefinidos - Tiempo Parcial'].push(clave);
             } else if (clave.jornada === 'FIJO_DISCONTINUO') {
                 grupos['Fijo Discontinuo'].push(clave);
             } else if (clave.naturaleza === 'TEMPORAL' && clave.jornada === 'TIEMPO_COMPLETO') {
-                grupos['Temporales — Tiempo Completo'].push(clave);
+                grupos['Temporales - Tiempo Completo'].push(clave);
             } else if (clave.naturaleza === 'TEMPORAL' && clave.jornada === 'TIEMPO_PARCIAL') {
-                grupos['Temporales — Tiempo Parcial'].push(clave);
+                grupos['Temporales - Tiempo Parcial'].push(clave);
             } else {
-                grupos['Formación / Becarios'].push(clave);
+                grupos['Formacion / Becarios'].push(clave);
             }
         }
 
@@ -437,11 +421,6 @@ export class PeriodosContratoPersonal implements OnInit {
         }
     }
 
-    public formatEuros(value: number): string {
-        if (value === null || value === undefined) return '—';
-        return value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
-    }
-
     public getNaturalezaLabel(naturaleza: NaturalezaContrato): string {
         const labels: Record<NaturalezaContrato, string> = {
             INDEFINIDO: 'Indefinido',
@@ -475,13 +454,6 @@ export class PeriodosContratoPersonal implements OnInit {
             FIJO_DISCONTINUO: 'FD'
         };
         return labels[jornada] ?? jornada;
-    }
-
-    public parseNumberValue(value: string | number): number {
-        if (value === null || value === undefined || value === '') return 0;
-        if (typeof value === 'number') return value;
-        const parsed = parseFloat(value);
-        return isNaN(parsed) ? 0 : parsed;
     }
 
     // ── Paginación ────────────────────────────────────────────────────────────

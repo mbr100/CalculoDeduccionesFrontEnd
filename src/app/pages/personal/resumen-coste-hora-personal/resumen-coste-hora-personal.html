@@ -41,6 +41,14 @@
                     <i [class]="isLoading() ? 'fas fa-spinner fa-spin' : 'fas fa-calculator'"></i>
                     <span>Recalcular coste/hora</span>
                 </button>
+
+                <button
+                    (click)="exportarExcel()"
+                    [disabled]="exportingExcel() || isLoading()"
+                    class="ui-btn ui-btn-secondary min-w-[10.5rem]">
+                    <i [class]="exportingExcel() ? 'fas fa-spinner fa-spin' : 'fas fa-file-excel'"></i>
+                    <span>{{ exportingExcel() ? 'Exportando...' : 'Exportar Excel' }}</span>
+                </button>
             </div>
         </div>
     </section>

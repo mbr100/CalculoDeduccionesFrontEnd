@@ -36,10 +36,10 @@ export class PersonalEconomico implements OnInit {
 
     public tabs = [
         { id: 'personal', label: 'Personal', icon: 'fas fa-user' },
+        { id: 'periodos', label: 'Períodos contrato', icon: 'fas fa-file-contract' },
         { id: 'retribuciones', label: 'Retribuciones', icon: 'fas fa-sack-dollar' },
         { id: 'rnts', label: 'RNTs', icon: 'fas fa-file-invoice' },
         { id: 'bajas', label: 'Bajas', icon: 'fas fa-user-injured' },
-        { id: 'periodos', label: 'Períodos contrato', icon: 'fas fa-file-contract' },
         { id: 'bonificaciones', label: 'Bonificaciones', icon: 'fas fa-percent' },
         { id: 'resumen', label: 'Resumen', icon: 'fas fa-chart-pie' },
     ] as const;

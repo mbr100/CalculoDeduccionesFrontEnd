@@ -198,4 +198,10 @@ export class EconomicoPersonalService {
         });
 
     }
+
+    public exportarCosteHoraExcel(idEconomico: number): Observable<Blob> {
+        return this.http.get(`${this.baseUrl}/${this.apiPersonal}/${idEconomico}/exportar-coste-hora`, {
+            responseType: 'blob'
+        });
+    }
 }
