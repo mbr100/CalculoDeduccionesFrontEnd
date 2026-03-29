@@ -32,24 +32,19 @@
                 <app-bases-cotizacion-personal [idEconomico]="this.economicoId"></app-bases-cotizacion-personal>
             }
 
-            <!-- PESTAÑA REPORTES -->
-            @if (activeTab() === 'altas') {
-                <app-alta-ejercicio-personal [idEconomico]="this.economicoId"></app-alta-ejercicio-personal>
-            }
-
-            <!-- PESTAÑA REPORTES -->
+            <!-- PESTAÑA BAJAS -->
             @if (activeTab() === 'bajas') {
-                <app-bajas-personal [idEconomico]="this.economicoId"></app-bajas-personal>
+                <app-bajas-personal [idEconomico]="this.economicoId" [anualidad]="this.anualidad()"></app-bajas-personal>
             }
 
             <!-- PESTAÑA PERÍODOS CONTRATO -->
             @if (activeTab() === 'periodos') {
-                <app-periodos-contrato-personal [idEconomico]="this.economicoId"></app-periodos-contrato-personal>
+                <app-periodos-contrato-personal [idEconomico]="this.economicoId" [anualidad]="this.anualidad()"></app-periodos-contrato-personal>
             }
 
             <!-- PESTAÑA BONIFICACIONES -->
             @if (activeTab() === 'bonificaciones') {
-                <app-bonificaciones-personal [idEconomico]="this.economicoId"></app-bonificaciones-personal>
+                <app-bonificaciones-personal [idEconomico]="this.economicoId" [anualidad]="this.anualidad()"></app-bonificaciones-personal>
             }
 
             <!-- PESTAÑA RESUMEN -->

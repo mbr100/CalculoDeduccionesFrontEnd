@@ -111,7 +111,7 @@
 
             <div class="coste-formula-strip">
                 <span class="coste-formula-label">Fórmula</span>
-                <span class="coste-formula-text">Coste/hora = (salario bruto + SS) / horas totales trabajadas</span>
+                <span class="coste-formula-text">Coste/hora = (Salario Bruto + SS Bruta - Bonificaciones) / (Horas Trabajadas - Horas de Baja)</span>
             </div>
 
             <div class="ui-table-wrap">
@@ -122,17 +122,19 @@
                         <th>DNI</th>
                         <th>Cargo</th>
                         <th>Titulación</th>
-                        <th>Departamento</th>
                         <th class="text-right">Salario bruto</th>
-                        <th class="text-right">SS</th>
-                        <th class="text-right">Horas totales trabajadas</th>
+                        <th class="text-right">SS Bruta</th>
+                        <th class="text-right">Bonif.</th>
+                        <th class="text-right">H. Trab.</th>
+                        <th class="text-right">H. Baja</th>
+                        <th class="text-right">H. Efec.</th>
                         <th class="text-right">Coste/hora</th>
                     </tr>
                     </thead>
                     <tbody>
                         @if (!hasResultadosBusqueda()) {
                             <tr>
-                                <td colspan="9" class="coste-empty-row">
+                                <td colspan="11" class="coste-empty-row">
                                     <div class="coste-search-empty">
                                         <p class="coste-search-empty-title">No hay perfiles que coincidan con esta búsqueda</p>
                                         <p class="coste-search-empty-copy">Prueba con otro nombre, DNI, cargo, titulación o departamento.</p>
@@ -148,10 +150,12 @@
                                     <td class="coste-muted">{{ item.dni }}</td>
                                     <td>{{ getTextValue(item.puesto, 'Sin cargo') }}</td>
                                     <td>{{ getTitulacion(item) }}</td>
-                                    <td>{{ getTextValue(item.departamento, 'Sin departamento') }}</td>
                                     <td class="text-right coste-strong">{{ formatMoney(item.retribucionTotal) }}</td>
-                                    <td class="text-right">{{ formatMoney(item.costeSS) }}</td>
+                                    <td class="text-right">{{ formatMoney(item.ssEmpresaBruta) }}</td>
+                                    <td class="text-right text-emerald-600">{{ formatMoney(item.ahorroBonificaciones) }}</td>
                                     <td class="text-right">{{ formatHours(item.horasMaximas) }}</td>
+                                    <td class="text-right text-red-600">{{ formatHours(item.horasBaja) }}</td>
+                                    <td class="text-right font-semibold text-indigo-700">{{ formatHours(item.horasEfectivas) }}</td>
                                     <td class="text-right">
                                         <span class="coste-hour-chip">{{ formatCosteHora(item.costeHora) }}</span>
                                     </td>
@@ -182,8 +186,12 @@
                         <strong class="coste-kpi-value">{{ formatMoney(resumenPagina().retribucionTotal) }}</strong>
                     </div>
                     <div class="coste-kpi">
-                        <span class="coste-kpi-label">SS visible</span>
-                        <strong class="coste-kpi-value">{{ formatMoney(resumenPagina().costeSS) }}</strong>
+                        <span class="coste-kpi-label">SS Bruta visible</span>
+                        <strong class="coste-kpi-value">{{ formatMoney(resumenPagina().costeSSBruto) }}</strong>
+                    </div>
+                    <div class="coste-kpi">
+                        <span class="coste-kpi-label">Bonif. visible</span>
+                        <strong class="coste-kpi-value text-emerald-600">{{ formatMoney(resumenPagina().ahorroBonificaciones) }}</strong>
                     </div>
                     <div class="coste-kpi">
                         <span class="coste-kpi-label">Horas trabajadas</span>

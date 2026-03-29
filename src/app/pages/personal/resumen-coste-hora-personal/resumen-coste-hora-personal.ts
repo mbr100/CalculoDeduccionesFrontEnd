@@ -7,8 +7,11 @@ import {PaginacionResponse} from '../../../models/paginacion-response';
 interface ResumenCostePagina {
     personal: number;
     retribucionTotal: number;
-    costeSS: number;
+    costeSSBruto: number;
+    ahorroBonificaciones: number;
     horasMaximas: number;
+    horasEfectivas: number;
+    horasBaja: number;
     costeHoraMedio: number;
 }
 
@@ -54,21 +57,27 @@ export class ResumenCosteHoraPersonal implements OnInit {
         const resumen = this.filteredCostesHora().reduce((acumulado, item) => {
             acumulado.personal += 1;
             acumulado.retribucionTotal += this.normalizeValue(item.retribucionTotal);
-            acumulado.costeSS += this.normalizeValue(item.costeSS);
+            acumulado.costeSSBruto += this.normalizeValue(item.ssEmpresaBruta);
+            acumulado.ahorroBonificaciones += this.normalizeValue(item.ahorroBonificaciones);
             acumulado.horasMaximas += this.normalizeValue(item.horasMaximas);
+            acumulado.horasEfectivas += this.normalizeValue(item.horasEfectivas);
+            acumulado.horasBaja += this.normalizeValue(item.horasBaja);
 
             return acumulado;
         }, {
             personal: 0,
             retribucionTotal: 0,
-            costeSS: 0,
-            horasMaximas: 0
+            costeSSBruto: 0,
+            ahorroBonificaciones: 0,
+            horasMaximas: 0,
+            horasEfectivas: 0,
+            horasBaja: 0
         });
 
         return {
             ...resumen,
-            costeHoraMedio: resumen.horasMaximas > 0
-                ? (resumen.retribucionTotal + resumen.costeSS) / resumen.horasMaximas
+            costeHoraMedio: resumen.horasEfectivas > 0
+                ? (resumen.retribucionTotal + resumen.costeSSBruto - resumen.ahorroBonificaciones) / resumen.horasEfectivas
                 : 0
         };
     });

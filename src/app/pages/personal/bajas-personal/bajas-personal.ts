@@ -16,6 +16,8 @@ import {getVisiblePages, ModalMode, SavingState} from '../../../models/savingSta
 export class BajasPersonal implements OnInit {
     @Input()
     public idEconomico!: number;
+    @Input()
+    public anualidad!: number;
     private economicoPersonalService: EconomicoPersonalService = inject(EconomicoPersonalService);
     private personalService: EconomicoPersonalService = inject(EconomicoPersonalService);
 

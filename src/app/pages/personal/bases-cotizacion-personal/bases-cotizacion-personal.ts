@@ -22,11 +22,11 @@ export class BasesCotizacionPersonal implements OnInit {
 
     // Signals para paginación
     currentPage = signal(0);
-    pageSize = signal(10);
+    pageSize = signal(50);
     totalElements = signal(0);
     totalPages = signal(0);
 
-    // Configuración de meses
+    // Configuración de meses (índice 1-12)
     meses: MonthConfig[] = [
         {key: 'basesCotizacionContingenciasComunesEnero', label: 'Enero', shortLabel: 'Ene', icon: 'fas fa-calendar-alt'},
         {key: 'basesCotizacionContingenciasComunesFebrero', label: 'Febrero', shortLabel: 'Feb', icon: 'fas fa-heart'},
@@ -63,44 +63,9 @@ export class BasesCotizacionPersonal implements OnInit {
         return pages;
     });
 
-    // Computed signals para estadísticas
-    // totalCotizacionesPage = computed(() => {
-    //     return this.bbccPersonal().reduce((sum: number, item: BbccPersonalDTO) =>
-    //         sum + this.getTotalCotizacionesAnuales(item), 0
-    //     );
-    // });
-
-    // promedioCotizaciones = computed(() => {
-    //     const items = this.bbccPersonal();
-    //     if (items.length === 0) return 0;
-    //     return this.totalCotizacionesPage() / items.length;
-    // });
-    //
-    // // Estadísticas por mes
-    // estadisticasPorMes = computed(() => {
-    //     const items = this.bbccPersonal();
-    //     return this.meses.map(mes => ({
-    //         mes: mes.label,
-    //         shortLabel: mes.shortLabel,
-    //         icon: mes.icon,
-    //         total: items.reduce((sum: number, item: BbccPersonalDTO) => {
-    //             const valor = item[mes.key] as number | null;
-    //             return sum + (valor || 0);
-    //         }, 0),
-    //         promedio: items.length > 0 ?
-    //             items.reduce((sum: number, item: BbccPersonalDTO) => {
-    //                 const valor = item[mes.key] as number | null;
-    //                 return sum + (valor || 0);
-    //             }, 0) / items.length : 0,
-    //         empleadosConDatos: items.filter(item => (item[mes.key] as number | null) !== null).length
-    //     }));
-    // });
-
-    // Para acceder a Math en el template
     Math = Math;
 
     constructor() {
-        // Effect para recargar datos cuando cambie la página
         effect(() => {
             const page = this.currentPage();
             if (page >= 0) {
@@ -138,8 +103,53 @@ export class BasesCotizacionPersonal implements OnInit {
         }
     }
 
-    public updateField(idPersonal: number, field: keyof BbccPersonalDTO, value: number | null): void {
-        // Validar que el campo sea uno de los campos editables de bases de cotización
+    /**
+     * Determina si un mes (índice 0-11) está habilitado para una fila.
+     * Si la fila tiene periodo de contrato, solo se habilitan los meses dentro del rango fechaAlta-fechaBaja.
+     * Si no tiene periodo (fila legacy), todos los meses están habilitados.
+     */
+    public isMonthEnabled(item: BbccPersonalDTO, monthIndex: number): boolean {
+        if (!item.idPeriodoContrato) {
+            return true; // Fila legacy: todos los meses habilitados
+        }
+
+        const anio = item.anioFiscal!;
+        const mes = monthIndex + 1; // 1-12
+
+        // Inicio y fin del mes
+        const inicioMes = new Date(anio, monthIndex, 1);
+        const finMes = new Date(anio, monthIndex + 1, 0); // último día del mes
+
+        // Fechas del periodo
+        const fechaAlta = new Date(item.fechaAlta!);
+        const fechaBaja = item.fechaBaja ? new Date(item.fechaBaja) : new Date(anio, 11, 31);
+
+        // El mes se habilita si hay solapamiento con el rango del periodo
+        return inicioMes <= fechaBaja && finMes >= fechaAlta;
+    }
+
+    /**
+     * Genera la etiqueta del periodo para mostrar en la fila.
+     */
+    public getPeriodoLabel(item: BbccPersonalDTO): string {
+        if (!item.idPeriodoContrato) return '';
+        const alta = this.formatDateShort(item.fechaAlta);
+        const baja = item.fechaBaja ? this.formatDateShort(item.fechaBaja) : 'Activo';
+        return `${item.claveContrato} · ${alta} → ${baja}`;
+    }
+
+    private formatDateShort(dateStr: string | null): string {
+        if (!dateStr) return '—';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '—';
+            return d.toLocaleDateString('es-ES', {day: '2-digit', month: '2-digit', year: '2-digit'});
+        } catch {
+            return '—';
+        }
+    }
+
+    public updateField(idBaseCotizacion: number, idPersonal: number, field: keyof BbccPersonalDTO, value: number | null): void {
         const editableFields = [
             'basesCotizacionContingenciasComunesEnero',
             'basesCotizacionContingenciasComunesFebrero',
@@ -160,30 +170,29 @@ export class BasesCotizacionPersonal implements OnInit {
             return;
         }
 
+        // Usar id_baseCotizacion como clave única de saving state
         this.savingStates.update(states => ({
             ...states,
-            [idPersonal]: 'saving'
+            [idBaseCotizacion]: 'saving'
         }));
 
         try {
             const actualizacion: actualizarBbccDTO = {
-                idBbccPersonal: idPersonal,
+                idBbccPersonal: idBaseCotizacion,
                 campoActualizado: field,
                 valor: value
             };
 
-            // Nota: Asumiendo que usas el mismo endpoint, si no, necesitarías un metodo específico
             this.economicoPersonalService.actualizarBBCC(actualizacion as any).subscribe({
                 next: () => {
                     this.savingStates.update(states => ({
                         ...states,
-                        [idPersonal]: 'success'
+                        [idBaseCotizacion]: 'success'
                     }));
 
-                    // Actualizar el valor en la lista local
                     this.bbccPersonal.update(items =>
                         items.map(item =>
-                            item.idPersonal === idPersonal
+                            item.id_baseCotizacion === idBaseCotizacion
                                 ? {...item, [field]: value}
                                 : item
                         )
@@ -192,33 +201,31 @@ export class BasesCotizacionPersonal implements OnInit {
                     setTimeout(() => {
                         this.savingStates.update(states => ({
                             ...states,
-                            [idPersonal]: 'idle'
+                            [idBaseCotizacion]: 'idle'
                         }));
                     }, 2000);
                 },
                 error: (error) => {
                     console.error('Error actualizando base de cotización:', error);
-                    this.handleSavingError(idPersonal);
+                    this.handleSavingError(idBaseCotizacion);
                 }
             });
-
-            console.log(`Actualizando campo ${field} para personal ID ${idPersonal} con valor ${value}`);
         } catch (error) {
             console.error('Error actualizando campo:', error);
-            this.handleSavingError(idPersonal);
+            this.handleSavingError(idBaseCotizacion);
         }
     }
 
-    private handleSavingError(idPersonal: number): void {
+    private handleSavingError(idBaseCotizacion: number): void {
         this.savingStates.update(states => ({
             ...states,
-            [idPersonal]: 'error'
+            [idBaseCotizacion]: 'error'
         }));
 
         setTimeout(() => {
             this.savingStates.update(states => ({
                 ...states,
-                [idPersonal]: 'idle'
+                [idBaseCotizacion]: 'idle'
             }));
         }, 3000);
     }
@@ -236,20 +243,20 @@ export class BasesCotizacionPersonal implements OnInit {
         input.value = raw === 0 ? '' : raw.toString().replace('.', ',');
     }
 
-    public onBlurField(event: FocusEvent, idPersonal: number, field: keyof BbccPersonalDTO): void {
+    public onBlurField(event: FocusEvent, idBaseCotizacion: number, idPersonal: number, field: keyof BbccPersonalDTO): void {
         const input = event.target as HTMLInputElement;
         const value = this.parseInputValue(input.value);
         input.value = this.formatEuro(value);
 
         this.bbccPersonal.update(items =>
             items.map(item =>
-                item.idPersonal === idPersonal
+                item.id_baseCotizacion === idBaseCotizacion
                     ? { ...item, [field]: value }
                     : item
             )
         );
 
-        this.updateField(idPersonal, field, value);
+        this.updateField(idBaseCotizacion, idPersonal, field, value);
     }
 
     public onKeyPressField(event: KeyboardEvent): void {
@@ -265,14 +272,6 @@ export class BasesCotizacionPersonal implements OnInit {
         return isNaN(parsed) ? 0 : parsed;
     }
 
-    onKeyPress(event: KeyboardEvent, idPersonal: number, field: keyof BbccPersonalDTO, value: string | number | null): void {
-        if (event.key === 'Enter') {
-            (event.target as HTMLInputElement).blur();
-            this.updateField(idPersonal, field, this.parseNumberValue(value));
-        }
-    }
-
-    // Metodo auxiliar para convertir valores (público para usar en templarte)
     parseNumberValue(value: string | number | null): number | null {
         if (value === null || value === undefined || value === '') {
             return null;
@@ -284,8 +283,8 @@ export class BasesCotizacionPersonal implements OnInit {
         return isNaN(parsed) ? null : parsed;
     }
 
-    getInputClass(idPersonal: number): string {
-        const savingState = this.savingStates()[idPersonal] || 'idle';
+    getInputClass(idBaseCotizacion: number): string {
+        const savingState = this.savingStates()[idBaseCotizacion] || 'idle';
         let borderColor: string;
 
         switch (savingState) {
@@ -320,22 +319,6 @@ export class BasesCotizacionPersonal implements OnInit {
             (item.basesCotizacionContingenciasComunesDiciembre || 0);
     }
 
-    // getMesesConDatos(item: BbccPersonalDTO): number {
-    //     let count = 0;
-    //     this.meses.forEach(mes => {
-    //         if ((item[mes.key] as number | null) !== null) {
-    //             count++;
-    //         }
-    //     });
-    //     return count;
-    // }
-
-    // getPromedioMensual(item: BbccPersonalDTO): number {
-    //     const mesesConDatos = this.getMesesConDatos(item);
-    //     if (mesesConDatos === 0) return 0;
-    //     return this.getTotalCotizacionesAnuales(item) / mesesConDatos;
-    // }
-
     formatCurrency(value: number): string {
         return new Intl.NumberFormat('es-ES', {
             style: 'currency',
@@ -368,7 +351,6 @@ export class BasesCotizacionPersonal implements OnInit {
         return `${baseClass} bg-white border-gray-300 text-gray-500 hover:bg-gray-50`;
     }
 
-    // Metodos de conveniencia para el tempate
     isLoading(): boolean {
         return this.loading();
     }
@@ -385,48 +367,21 @@ export class BasesCotizacionPersonal implements OnInit {
         return this.currentPage() < this.totalPages() - 1;
     }
 
-    // Metodo para obtener el color del mes (útil para visualización)
     getMonthColor(index: number): string {
         const colors = [
-            'bg-blue-50 text-blue-900',      // Enero
-            'bg-pink-50 text-pink-900',      // Febrero
-            'bg-green-50 text-green-900',    // Marzo
-            'bg-yellow-50 text-yellow-900',  // Abril
-            'bg-purple-50 text-purple-900',  // Mayo
-            'bg-orange-50 text-orange-900',  // Junio
-            'bg-red-50 text-red-900',        // Julio
-            'bg-indigo-50 text-indigo-900',  // Agosto
-            'bg-teal-50 text-teal-900',      // Septiembre
-            'bg-amber-50 text-amber-900',    // Octubre
-            'bg-gray-50 text-gray-900',      // Noviembre
-            'bg-cyan-50 text-cyan-900'       // Diciembre
+            'bg-blue-50 text-blue-900',
+            'bg-pink-50 text-pink-900',
+            'bg-green-50 text-green-900',
+            'bg-yellow-50 text-yellow-900',
+            'bg-purple-50 text-purple-900',
+            'bg-orange-50 text-orange-900',
+            'bg-red-50 text-red-900',
+            'bg-indigo-50 text-indigo-900',
+            'bg-teal-50 text-teal-900',
+            'bg-amber-50 text-amber-900',
+            'bg-gray-50 text-gray-900',
+            'bg-cyan-50 text-cyan-900'
         ];
         return colors[index % colors.length];
     }
-
-    // Metodo para validar si un valor es válido
-    // isValidValue(value: any): boolean {
-    //     if (value === null || value === undefined) return true; // null es válido
-    //     if (typeof value === 'number') return !isNaN(value) && isFinite(value);
-    //     if (typeof value === 'string') {
-    //         const parsed = parseFloat(value);
-    //         return !isNaN(parsed) && isFinite(parsed);
-    //     }
-    //     return false;
-    // }
-
-    // // Metodo para obtener el valor formateado o placeholder
-    // getDisplayValue(value: number | null): string {
-    //     if (value === null || value === undefined) return '';
-    //     return value.toString();
-    // }
-    //
-    // // Metodo para obtener estadísticas rápidas de un empleado
-    // getEmployeeStats(item: BbccPersonalDTO): { total: number, mesesConDatos: number, promedio: number } {
-    //     const total = this.getTotalCotizacionesAnuales(item);
-    //     const mesesConDatos = this.getMesesConDatos(item);
-    //     const promedio = this.getPromedioMensual(item);
-    //
-    //     return {total, mesesConDatos, promedio};
-    // }
 }

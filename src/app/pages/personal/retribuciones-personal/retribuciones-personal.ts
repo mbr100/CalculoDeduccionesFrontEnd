@@ -85,7 +85,7 @@ export class RetribucionesPersonal implements OnInit {
 
         try {
             const actualizacion: actualizarRetribucionDTO = {
-                idRetribucion: idRetribucion,
+                id: idRetribucion,
                 campoActualizado: field,
                 valor: value
             };

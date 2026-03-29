@@ -95,12 +95,6 @@
                             </div>
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Investigador
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Contrato
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Clave Ocupación
                         </th>
                         <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -128,24 +122,6 @@
                                     <div class="text-sm text-gray-900">{{ personal.departamento }}</div>
                                 </td><td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">{{ personal.titulacion1 }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                                          [class.bg-green-100]="personal.esPersonalInvestigador"
-                                          [class.text-green-800]="personal.esPersonalInvestigador"
-                                          [class.bg-gray-100]="!personal.esPersonalInvestigador"
-                                          [class.text-gray-800]="!personal.esPersonalInvestigador">
-                                        {{ personal.esPersonalInvestigador ? 'Sí' : 'No' }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                                          [class.bg-blue-100]="personal.esContratoIndefinido"
-                                          [class.text-blue-800]="personal.esContratoIndefinido"
-                                          [class.bg-orange-100]="!personal.esContratoIndefinido"
-                                          [class.text-orange-800]="!personal.esContratoIndefinido">
-                                        {{ personal.esContratoIndefinido ? 'Indefinido' : 'Temporal' }}
-                                    </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if (personal.claveOcupacion) {
@@ -392,32 +368,6 @@
                         </div>
                     </div>
 
-                    <!-- Es Personal Investigador -->
-                    <div>
-                        <label class="ui-checkbox-card cursor-pointer">
-                            <input type="checkbox"
-                                   formControlName="esPersonalInvestigador"
-                                   class="ui-checkbox">
-                            <span>
-                                <span class="block font-medium text-slate-700">Es Personal Investigador</span>
-                                <span class="ui-help">Marca esta opción si el empleado participa en actividades de I+D+i.</span>
-                            </span>
-                        </label>
-                    </div>
-
-                    <!-- Es Contrato Indefinido -->
-                    <div>
-                        <label class="ui-checkbox-card cursor-pointer">
-                            <input type="checkbox"
-                                   formControlName="esContratoIndefinido"
-                                   class="ui-checkbox">
-                            <span>
-                                <span class="block font-medium text-slate-700">Contrato indefinido</span>
-                                <span class="ui-help">Define el tipo de cotización y bonificación aplicable.</span>
-                            </span>
-                        </label>
-                    </div>
-
                     <!-- Clave de Ocupación (Cuadro II) -->
                     <div class="ui-field md:col-span-2">
                         <label class="ui-label">
@@ -438,6 +388,89 @@
                             Si el trabajador tiene una ocupación diferente al riesgo del CNAE de la empresa, selecciona su clave del Cuadro II.
                         </p>
                     </div>
+
+                    <!-- Período de contrato inicial (solo en creación) -->
+                    @if (!esEdicion()) {
+                        <div class="md:col-span-2 mt-2">
+                            <div class="border border-slate-200 rounded-lg p-4 bg-slate-50/50">
+                                <h4 class="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                                    <i class="fa fa-file-contract text-indigo-500"></i>
+                                    Período de contrato inicial
+                                    <span class="text-xs font-normal text-slate-400">(opcional)</span>
+                                </h4>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Clave de contrato -->
+                                    <div class="ui-field md:col-span-2">
+                                        <label class="ui-label">Tipo de contrato</label>
+                                        <select formControlName="claveContrato"
+                                                (change)="onClaveContratoChange()"
+                                                class="ui-select">
+                                            <option value="">— Sin período de contrato —</option>
+                                            @for (grupo of gruposClaves(); track grupo.label) {
+                                                <optgroup [label]="grupo.label">
+                                                    @for (clave of grupo.claves; track clave.clave) {
+                                                        <option [value]="clave.clave">
+                                                            {{ clave.clave }} — {{ clave.descripcion }}
+                                                        </option>
+                                                    }
+                                                </optgroup>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    @if (personalForm.get('claveContrato')?.value) {
+                                        <!-- Fecha alta -->
+                                        <div class="ui-field">
+                                            <label class="ui-label">
+                                                Fecha de alta <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="date"
+                                                   formControlName="fechaAlta"
+                                                   class="ui-input">
+                                        </div>
+
+                                        <!-- Fecha baja -->
+                                        <div class="ui-field">
+                                            <label class="ui-label">
+                                                Fecha de baja
+                                                <span class="text-xs font-normal text-slate-400">(vacío = activo)</span>
+                                            </label>
+                                            <input type="date"
+                                                   formControlName="fechaBaja"
+                                                   class="ui-input">
+                                        </div>
+
+                                        <!-- Porcentaje jornada -->
+                                        <div class="ui-field">
+                                            <label class="ui-label">% Jornada</label>
+                                            <input type="number"
+                                                   formControlName="porcentajeJornada"
+                                                   class="ui-input"
+                                                   min="1" max="100" step="1"
+                                                   [attr.readonly]="claveSeleccionada()?.jornada === 'TIEMPO_COMPLETO' ? '' : null">
+                                        </div>
+
+                                        <!-- Horas convenio -->
+                                        <div class="ui-field">
+                                            <label class="ui-label">Horas convenio/año</label>
+                                            <input type="number"
+                                                   formControlName="horasConvenio"
+                                                   class="ui-input"
+                                                   min="1" max="2000" step="1">
+                                            <p class="ui-help">Por defecto 1720 h/año</p>
+                                        </div>
+                                    }
+                                </div>
+
+                                @if (!personalForm.get('claveContrato')?.value) {
+                                    <p class="ui-help mt-2">
+                                        Puedes añadir períodos de contrato más tarde desde la pestaña "Períodos de Contrato".
+                                    </p>
+                                }
+                            </div>
+                        </div>
+                    }
                 </div>
 
                 <!-- Botones del formulario -->

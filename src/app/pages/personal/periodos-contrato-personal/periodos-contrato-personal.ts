@@ -21,8 +21,7 @@ interface FormPeriodoContrato {
     fechaAlta: string;
     fechaBaja: string;
     porcentajeJornada: number;
-    baseCcMensual: number;
-    baseCpMensual: number;
+    horasConvenio: number;
     // Derived from selected clave — read-only display
     nombrePersona: string;
 }
@@ -43,6 +42,8 @@ export class PeriodosContratoPersonal implements OnInit {
 
     @Input()
     public idEconomico!: number;
+    @Input()
+    public anualidad!: number;
 
     private readonly economicoPersonalService: EconomicoPersonalService = inject(EconomicoPersonalService);
 
@@ -71,8 +72,7 @@ export class PeriodosContratoPersonal implements OnInit {
         fechaAlta: '',
         fechaBaja: '',
         porcentajeJornada: 100,
-        baseCcMensual: 0,
-        baseCpMensual: 0,
+        horasConvenio: 1720,
         nombrePersona: ''
     });
 
@@ -250,8 +250,7 @@ export class PeriodosContratoPersonal implements OnInit {
             fechaAlta: periodo.fechaAlta ? periodo.fechaAlta.substring(0, 10) : '',
             fechaBaja: periodo.fechaBaja ? periodo.fechaBaja.substring(0, 10) : '',
             porcentajeJornada: periodo.porcentajeJornada,
-            baseCcMensual: periodo.baseCcMensual,
-            baseCpMensual: periodo.baseCpMensual,
+            horasConvenio: periodo.horasConvenio,
             nombrePersona: periodo.nombre
         });
         this.modalMode.set('edit');
@@ -293,8 +292,7 @@ export class PeriodosContratoPersonal implements OnInit {
             fechaBaja: form.fechaBaja || null,
             anioFiscal: new Date(form.fechaAlta).getFullYear(),
             porcentajeJornada: Number(form.porcentajeJornada),
-            baseCcMensual: this.esFormacionOBecario() ? 0 : Number(form.baseCcMensual),
-            baseCpMensual: this.esFormacionOBecario() ? 0 : Number(form.baseCpMensual)
+            horasConvenio: Number(form.horasConvenio)
         };
 
         this.economicoPersonalService.crearPeriodoContrato(dto).subscribe({
@@ -327,8 +325,7 @@ export class PeriodosContratoPersonal implements OnInit {
             fechaAlta: form.fechaAlta,
             fechaBaja: form.fechaBaja || null,
             porcentajeJornada: Number(form.porcentajeJornada),
-            baseCcMensual: this.esFormacionOBecario() ? 0 : Number(form.baseCcMensual),
-            baseCpMensual: this.esFormacionOBecario() ? 0 : Number(form.baseCpMensual)
+            horasConvenio: Number(form.horasConvenio)
         };
 
         this.economicoPersonalService.actualizarPeriodoContrato(dto).subscribe({
@@ -364,16 +361,9 @@ export class PeriodosContratoPersonal implements OnInit {
         // Auto-set porcentajeJornada: TC → 100, otros → dejar como está si ya tiene valor
         const porcentaje = clave.jornada === 'TIEMPO_COMPLETO' ? 100 : this.formData().porcentajeJornada;
 
-        // Si formación/becario, limpiar bases (no aplican)
-        const esFormacion = clave.naturaleza === 'FORMACION'
-            || clave.naturaleza === 'BECARIO_REMUNERADO'
-            || clave.naturaleza === 'BECARIO_NO_REMUNERADO';
-
         this.formData.update(current => ({
             ...current,
-            porcentajeJornada: porcentaje,
-            baseCcMensual: esFormacion ? 0 : current.baseCcMensual,
-            baseCpMensual: esFormacion ? 0 : current.baseCpMensual
+            porcentajeJornada: porcentaje
         }));
     }
 
@@ -407,15 +397,9 @@ export class PeriodosContratoPersonal implements OnInit {
             return false;
         }
 
-        if (!this.esFormacionOBecario()) {
-            if (Number(form.baseCcMensual) <= 0) {
-                Swal.fire('Error', 'La base de contingencias comunes debe ser mayor que 0', 'warning');
-                return false;
-            }
-            if (Number(form.baseCpMensual) <= 0) {
-                Swal.fire('Error', 'La base de contingencias profesionales debe ser mayor que 0', 'warning');
-                return false;
-            }
+        if (Number(form.horasConvenio) <= 0) {
+            Swal.fire('Error', 'Las horas de convenio deben ser mayores que 0', 'warning');
+            return false;
         }
 
         return true;
@@ -430,8 +414,7 @@ export class PeriodosContratoPersonal implements OnInit {
             fechaAlta: '',
             fechaBaja: '',
             porcentajeJornada: 100,
-            baseCcMensual: 0,
-            baseCpMensual: 0,
+            horasConvenio: 1720,
             nombrePersona: ''
         });
     }

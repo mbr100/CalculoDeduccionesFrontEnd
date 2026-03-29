@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, Input, OnInit, Signal, signal, WritableSignal} from '@angular/core';
+import {Component, computed, effect, inject, input, Input, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
 import {
@@ -26,8 +26,9 @@ import Swal from 'sweetalert2';
 export class BonificacionesPersonal implements OnInit {
     @Input()
     public idEconomico!: number;
-    @Input()
-    public anualidad!: number;
+
+    public anualidad = input<number>(new Date().getFullYear());
+
     private economicoPersonalService: EconomicoPersonalService = inject(EconomicoPersonalService);
 
     // Signals principales
@@ -88,6 +89,19 @@ export class BonificacionesPersonal implements OnInit {
             const page: number = this.currentPage();
             if (page >= 0) {
                 this.loadDataInternal();
+            }
+        });
+
+        // Sincronizar anioFiscal cuando cambie la anualidad
+        effect(() => {
+            const anio = this.anualidad();
+            if (anio) {
+                this.formData.update(current => ({
+                    ...current,
+                    anioFiscal: anio,
+                    fechaInicio: `${anio}-01-01`,
+                    fechaFin: `${anio}-12-31`
+                }));
             }
         });
     }
@@ -274,7 +288,7 @@ export class BonificacionesPersonal implements OnInit {
             porcentajeBonificacion: form.porcentajeBonificacion,
             fechaInicio: form.fechaInicio,
             fechaFin: form.fechaFin,
-            anioFiscal: form.anioFiscal || this.anualidad,
+            anioFiscal: form.anioFiscal || this.anualidad(),
             descripcion: form.tipoBonificacion === TiposBonificacion.OTRA_BONIFICACION ? form.descripcion : null
         };
 
@@ -300,7 +314,7 @@ export class BonificacionesPersonal implements OnInit {
     }
 
     private resetForm(): void {
-        const anio = this.anualidad || new Date().getFullYear();
+        const anio = this.anualidad() || new Date().getFullYear();
         this.formData.set({
             idPersona: 0,
             tipoBonificacion: TiposBonificacion.BONIFICACION_PERSONAL_INVESTIGADOR,

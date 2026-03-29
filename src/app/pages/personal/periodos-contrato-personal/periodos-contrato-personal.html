@@ -71,11 +71,8 @@
                         <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] bg-emerald-50">
                             <i class="fas fa-percent mr-2"></i>Jornada
                         </th>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[130px] bg-amber-50">
-                            Base CC
-                        </th>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[130px] bg-orange-50">
-                            Base CP
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] bg-purple-50">
+                            <i class="fas fa-clock mr-2"></i>Horas/año
                         </th>
                         <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px] bg-yellow-50">
                             <i class="fas fa-cogs mr-2"></i>Acciones
@@ -88,7 +85,7 @@
                         <!-- Estado de carga -->
                         @if (isLoading()) {
                             <tr>
-                                <td colspan="10" class="px-4 py-12 text-center">
+                                <td colspan="9" class="px-4 py-12 text-center">
                                     <div class="flex items-center justify-center space-x-2">
                                         <i class="fas fa-spinner fa-spin text-indigo-500 text-lg"></i>
                                         <span class="text-gray-500">Cargando períodos de contrato...</span>
@@ -100,7 +97,7 @@
                         <!-- Estado vacío -->
                         @if (!isLoading() && !hasPeriodos()) {
                             <tr>
-                                <td colspan="10" class="px-4 py-12 text-center">
+                                <td colspan="9" class="px-4 py-12 text-center">
                                     <div class="flex flex-col items-center justify-center space-y-4">
                                         <i class="fas fa-file-contract text-gray-300 text-5xl"></i>
                                         <div class="text-center">
@@ -177,17 +174,10 @@
                                     </span>
                                 </td>
 
-                                <!-- Base CC -->
-                                <td class="px-4 py-3 text-right">
-                                    <span class="text-sm text-gray-800 numeric">
-                                        {{ formatEuros(item.baseCcMensual) }}
-                                    </span>
-                                </td>
-
-                                <!-- Base CP -->
-                                <td class="px-4 py-3 text-right">
-                                    <span class="text-sm text-gray-800 numeric">
-                                        {{ formatEuros(item.baseCpMensual) }}
+                                <!-- Horas habiles -->
+                                <td class="px-4 py-3 text-center">
+                                    <span class="font-semibold text-purple-700 text-sm numeric">
+                                        {{ item.horasHabiles }}
                                     </span>
                                 </td>
 
@@ -364,8 +354,20 @@
                                     <i class="fas fa-info-circle text-sky-500 mt-0.5 flex-shrink-0"></i>
                                     <div class="text-sm text-sky-800">
                                         <strong class="font-semibold">Contrato de formación / becario:</strong>
-                                        las bases de cotización CC y CP no se aplican en este tipo de contrato.
-                                        La cotización se realiza mediante cuotas fijas reducidas establecidas por la Seguridad Social.
+                                        la cotización se realiza mediante cuotas fijas reducidas establecidas por la Seguridad Social.
+                                        No se requieren bases de cotización.
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Info: bases se rellenan en RNTs -->
+                            @if (!esFormacionOBecario() && claveSeleccionada()) {
+                                <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-3">
+                                    <i class="fas fa-lightbulb text-amber-500 mt-0.5 flex-shrink-0"></i>
+                                    <div class="text-sm text-amber-800">
+                                        <strong class="font-semibold">Bases de cotización:</strong>
+                                        las bases mensuales se rellenan en la pestaña de <em>Bases de Cotización (RNTs)</em>,
+                                        donde aparecerá una nueva fila para este período con los meses habilitados.
                                     </div>
                                 </div>
                             }
@@ -394,10 +396,8 @@
                                 </div>
                             </div>
 
-                            <!-- ── Sección: Jornada y bases ── -->
-                            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-
-                                <!-- % Jornada -->
+                            <!-- ── Sección: Jornada y Horas ── -->
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div class="ui-field">
                                     <label class="ui-label">
                                         <i class="fas fa-percent mr-1 text-emerald-500"></i>% Jornada <span class="text-red-500">*</span>
@@ -411,39 +411,18 @@
                                         class="ui-input">
                                     <p class="ui-help">100 para jornada completa</p>
                                 </div>
-
-                                <!-- Base CC -->
                                 <div class="ui-field">
                                     <label class="ui-label">
-                                        <i class="fas fa-euro-sign mr-1 text-amber-500"></i>Base CC mensual <span class="text-red-500">*</span>
+                                        <i class="fas fa-clock mr-1 text-purple-500"></i>Horas convenio/año <span class="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="number"
-                                        [(ngModel)]="formData().baseCcMensual"
-                                        min="0"
-                                        step="0.01"
-                                        [disabled]="esFormacionOBecario()"
-                                        [class]="esFormacionOBecario()
-                                            ? 'ui-input bg-slate-100 cursor-not-allowed opacity-60'
-                                            : 'ui-input'">
-                                    <p class="ui-help">Contingencias comunes</p>
-                                </div>
-
-                                <!-- Base CP -->
-                                <div class="ui-field">
-                                    <label class="ui-label">
-                                        <i class="fas fa-euro-sign mr-1 text-orange-500"></i>Base CP mensual <span class="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="number"
-                                        [(ngModel)]="formData().baseCpMensual"
-                                        min="0"
-                                        step="0.01"
-                                        [disabled]="esFormacionOBecario()"
-                                        [class]="esFormacionOBecario()
-                                            ? 'ui-input bg-slate-100 cursor-not-allowed opacity-60'
-                                            : 'ui-input'">
-                                    <p class="ui-help">Contingencias profesionales</p>
+                                        [(ngModel)]="formData().horasConvenio"
+                                        min="1"
+                                        max="2000"
+                                        step="1"
+                                        class="ui-input">
+                                    <p class="ui-help">Horas anuales según convenio (por defecto 1720)</p>
                                 </div>
                             </div>
 

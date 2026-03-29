@@ -44,7 +44,7 @@ export interface RetribucionesPersonalDTO {
 }
 
 export interface actualizarRetribucionDTO {
-    idRetribucion: number;
+    id: number;
     campoActualizado: string;
     valor: number;
 }
@@ -72,23 +72,14 @@ export interface BbccPersonalDTO {
     basesCotizacionContingenciasComunesOctubre: number | null;
     basesCotizacionContingenciasComunesNoviembre: number | null;
     basesCotizacionContingenciasComunesDiciembre: number | null;
-}
 
-export interface AltaEjercicioDTO {
-    idPersona: number;
-    nombre: string;
-    dni: string;
-    idAltaEjercicio: number;
-    fechaAltaEjercicio: Date;
-    fechaBajaEjercicio: Date;
-    horasConvenioAnual: number;
-    horasMaximasAnuales: number;
-}
-
-export interface actualizarAltaEjercicioDTO {
-    idAltaEjercicio: number;
-    campoActualizado: keyof AltaEjercicioDTO;
-    valor: Date | number;
+    // Info del periodo de contrato (null si es fila legacy sin periodos)
+    idPeriodoContrato: number | null;
+    claveContrato: string | null;
+    descripcionContrato: string | null;
+    fechaAlta: string | null;
+    fechaBaja: string | null;
+    anioFiscal: number | null;
 }
 
 export interface BajasLaboralesDTO {
@@ -212,8 +203,8 @@ export interface PeriodoContratoDTO {
     fechaBaja: string | null;
     anioFiscal: number;
     porcentajeJornada: number;
-    baseCcMensual: number;
-    baseCpMensual: number;
+    horasConvenio: number;
+    horasHabiles: number;
 }
 
 export interface CrearPeriodoContratoDTO {
@@ -223,8 +214,7 @@ export interface CrearPeriodoContratoDTO {
     fechaBaja: string | null;
     anioFiscal: number;
     porcentajeJornada: number;
-    baseCcMensual: number;
-    baseCpMensual: number;
+    horasConvenio: number;
 }
 
 export interface ActualizarPeriodoContratoDTO {
@@ -233,8 +223,7 @@ export interface ActualizarPeriodoContratoDTO {
     fechaAlta?: string;
     fechaBaja?: string | null;
     porcentajeJornada?: number;
-    baseCcMensual?: number;
-    baseCpMensual?: number;
+    horasConvenio?: number;
 }
 
 export interface CosteHoraPersonalDTO {
@@ -248,6 +237,8 @@ export interface CosteHoraPersonalDTO {
     retribucionTotal: number;
     costeSS: number;
     horasMaximas: number;
+    horasEfectivas: number;
+    horasBaja: number;
     costeHora: number;
 
     // Desglose de cuotas SS empresa

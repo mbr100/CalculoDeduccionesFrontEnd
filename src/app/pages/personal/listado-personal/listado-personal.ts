@@ -1,9 +1,10 @@
-import {Component, ElementRef, inject, Input, OnInit, signal, ViewChild, WritableSignal} from '@angular/core';
+import {Component, computed, ElementRef, inject, Input, OnInit, Signal, signal, ViewChild, WritableSignal} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
 import Swal from 'sweetalert2';
-import {CrearPersonalEconomico, PersonalEconomico} from '../../../models/personal-economico';
+import {ClaveContratoDTO, CrearPeriodoContratoDTO, CrearPersonalEconomico, NaturalezaContrato, PersonalEconomico, TipoJornada} from '../../../models/personal-economico';
+import {switchMap} from 'rxjs';
 
 @Component({
   selector: 'app-listado-personal',
@@ -41,6 +42,47 @@ export class ListadoPersonal implements OnInit {
     public errorFichero: WritableSignal<string | null> = signal<string | null>(null);
     public isDragging = false;
 
+    // Claves de contrato
+    public clavesContrato: WritableSignal<ClaveContratoDTO[]> = signal<ClaveContratoDTO[]>([]);
+
+    /** Grouped contract keys for the select */
+    public gruposClaves: Signal<{ label: string; claves: ClaveContratoDTO[] }[]> = computed(() => {
+        const claves = this.clavesContrato().filter(c => c.vigente);
+        const grupos: { [key: string]: ClaveContratoDTO[] } = {
+            'Indefinidos — Tiempo Completo': [],
+            'Indefinidos — Tiempo Parcial': [],
+            'Fijo Discontinuo': [],
+            'Temporales — Tiempo Completo': [],
+            'Temporales — Tiempo Parcial': [],
+            'Formación / Becarios': []
+        };
+        for (const clave of claves) {
+            if (clave.naturaleza === 'INDEFINIDO' && clave.jornada === 'TIEMPO_COMPLETO') {
+                grupos['Indefinidos — Tiempo Completo'].push(clave);
+            } else if (clave.naturaleza === 'INDEFINIDO' && clave.jornada === 'TIEMPO_PARCIAL') {
+                grupos['Indefinidos — Tiempo Parcial'].push(clave);
+            } else if (clave.jornada === 'FIJO_DISCONTINUO') {
+                grupos['Fijo Discontinuo'].push(clave);
+            } else if (clave.naturaleza === 'TEMPORAL' && clave.jornada === 'TIEMPO_COMPLETO') {
+                grupos['Temporales — Tiempo Completo'].push(clave);
+            } else if (clave.naturaleza === 'TEMPORAL' && clave.jornada === 'TIEMPO_PARCIAL') {
+                grupos['Temporales — Tiempo Parcial'].push(clave);
+            } else {
+                grupos['Formación / Becarios'].push(clave);
+            }
+        }
+        return Object.entries(grupos)
+            .filter(([, items]) => items.length > 0)
+            .map(([label, claves]) => ({label, claves}));
+    });
+
+    /** Currently selected clave in the form */
+    public claveSeleccionada: Signal<ClaveContratoDTO | null> = computed(() => {
+        const clave = this.personalForm?.get('claveContrato')?.value;
+        if (!clave) return null;
+        return this.clavesContrato().find(c => c.clave === clave) ?? null;
+    });
+
     // Formulario
     public personalForm: FormGroup;
 
@@ -57,14 +99,26 @@ export class ListadoPersonal implements OnInit {
             titulacion2: [''],
             titulacion3: [''],
             titulacion4: [''],
-            esPersonalInvestigador: [true],
-            esContratoIndefinido: [true],
-            claveOcupacion: ['']
+            claveOcupacion: [''],
+            // Periodo de contrato inicial (solo nuevo)
+            claveContrato: [''],
+            fechaAlta: [''],
+            fechaBaja: [''],
+            porcentajeJornada: [100],
+            horasConvenio: [1720]
         });
     }
 
     public ngOnInit(): void {
         this.loadData();
+        this.loadClavesContrato();
+    }
+
+    private loadClavesContrato(): void {
+        this.economicoPersonalService.obtenerClavesContrato().subscribe({
+            next: (claves) => this.clavesContrato.set(claves),
+            error: (err) => console.error('Error loading claves contrato:', err)
+        });
     }
 
     // Cargar datos desde el servidor
@@ -178,9 +232,12 @@ export class ListadoPersonal implements OnInit {
             titulacion2: personal.titulacion2 || '',
             titulacion3: personal.titulacion3 || '',
             titulacion4: personal.titulacion4 || '',
-            esPersonalInvestigador: personal.esPersonalInvestigador,
-            esContratoIndefinido: personal.esContratoIndefinido,
-            claveOcupacion: personal.claveOcupacion || ''
+            claveOcupacion: personal.claveOcupacion || '',
+            claveContrato: '',
+            fechaAlta: '',
+            fechaBaja: '',
+            porcentajeJornada: 100,
+            horasConvenio: 1720
         });
         this.mostrarModal.set(true);
     }
@@ -191,26 +248,23 @@ export class ListadoPersonal implements OnInit {
             return;
         }
 
-        try {
-            this.economicoPersonalService.eliminarPersonal(this.idEconomico,personal.idPersona).subscribe({
-                next: () => {
-                    Swal.fire({
-                        title: 'Personal eliminado',
-                        text: 'El personal ha sido eliminado correctamente.',
-                        icon: 'success',
-                        confirmButtonText: 'Aceptar'
-                    }).then(_ => {
-                        this.personalList.set(this.personalList().filter(p => p.idPersona !== personal.idPersona));
-                        this.error.set(null);
-                    })
-                }, error: () => {
-                this.error.set('Error al eliminar el personal');}
-            });
-            this.loadData();
-        } catch (err: any) {
-            this.error.set('Error al eliminar el personal: ' + (err.message || 'Error desconocido'));
-            console.error('Error deleting personal:', err);
-        }
+        this.economicoPersonalService.eliminarPersonal(this.idEconomico, personal.idPersona).subscribe({
+            next: () => {
+                Swal.fire({
+                    title: 'Personal eliminado',
+                    text: 'El personal ha sido eliminado correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar'
+                }).then(_ => {
+                    this.loadData();
+                });
+                this.error.set(null);
+            },
+            error: (err) => {
+                this.error.set('Error al eliminar el personal: ' + (err.error?.message || err.message || 'Error desconocido'));
+                console.error('Error deleting personal:', err);
+            }
+        });
     }
 
      public guardarPersonal(): void {
@@ -225,80 +279,141 @@ export class ListadoPersonal implements OnInit {
         }
         this.guardando.set(true);
         const personalId = this.personalSeleccionado()?.idPersona;
+        const formValue = this.personalForm.value;
 
-        try {
-            if (personalId) {
-                const actualizarPersonal: CrearPersonalEconomico = {
-                    idEconomico: this.idEconomico,
-                    idPersona: personalId,
-                    nombre: this.personalForm.value.nombre,
-                    apellidos: this.personalForm.value.apellidos,
-                    dni: this.personalForm.value.dni,
-                    puesto: this.personalForm.value.puesto,
-                    departamento: this.personalForm.value.departamento,
-                    titulacion1: this.personalForm.value.titulacion1 || '',
-                    titulacion2: this.personalForm.value.titulacion2 || '',
-                    titulacion3: this.personalForm.value.titulacion3 || '',
-                    titulacion4: this.personalForm.value.titulacion4 || '',
-                    esPersonalInvestigador: this.personalForm.value.esPersonalInvestigador || false,
-                    esContratoIndefinido: this.personalForm.value.esContratoIndefinido ?? true,
-                    claveOcupacion: this.personalForm.value.claveOcupacion || undefined
+        // Derive esContratoIndefinido from the selected clave
+        const claveSelec = this.claveSeleccionada();
+        const esIndefinido = claveSelec ? claveSelec.naturaleza === 'INDEFINIDO' : true;
+
+        if (personalId) {
+            const actualizarPersonal: CrearPersonalEconomico = {
+                idEconomico: this.idEconomico,
+                idPersona: personalId,
+                nombre: formValue.nombre,
+                apellidos: formValue.apellidos,
+                dni: formValue.dni,
+                puesto: formValue.puesto,
+                departamento: formValue.departamento,
+                titulacion1: formValue.titulacion1 || '',
+                titulacion2: formValue.titulacion2 || '',
+                titulacion3: formValue.titulacion3 || '',
+                titulacion4: formValue.titulacion4 || '',
+                esPersonalInvestigador: this.personalSeleccionado()!.esPersonalInvestigador,
+                esContratoIndefinido: this.personalSeleccionado()!.esContratoIndefinido,
+                claveOcupacion: formValue.claveOcupacion || undefined
+            };
+            this.economicoPersonalService.actualizarPersonalEconomico(actualizarPersonal).subscribe({
+                next: () => {
+                    this.guardando.set(false);
+                    Swal.fire({
+                        title: 'Personal actualizado',
+                        text: 'El personal ha sido actualizado correctamente.',
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar'
+                    }).then(_ => {
+                        this.cerrarModal();
+                        this.loadData();
+                        this.error.set(null);
+                    });
+                },
+                error: (err: any) => {
+                    this.guardando.set(false);
+                    this.error.set('Error al actualizar el personal: ' + (err.message || 'Error desconocido'));
+                    console.error('Error updating personal:', err);
                 }
-                this.economicoPersonalService.actualizarPersonalEconomico(actualizarPersonal).subscribe({
+            });
+        } else {
+            const crearPersonalEconomico: CrearPersonalEconomico = {
+                idEconomico: this.idEconomico,
+                idPersona: 0,
+                nombre: formValue.nombre,
+                apellidos: formValue.apellidos,
+                dni: formValue.dni,
+                puesto: formValue.puesto,
+                departamento: formValue.departamento,
+                titulacion1: formValue.titulacion1 || '',
+                titulacion2: formValue.titulacion2 || '',
+                titulacion3: formValue.titulacion3 || '',
+                titulacion4: formValue.titulacion4 || '',
+                esPersonalInvestigador: true,
+                esContratoIndefinido: esIndefinido,
+                claveOcupacion: formValue.claveOcupacion || undefined
+            };
+
+            const tieneContrato = !!formValue.claveContrato && !!formValue.fechaAlta;
+
+            if (tieneContrato) {
+                // Create personal, then chain the contract period creation
+                this.economicoPersonalService.crearPersonal(crearPersonalEconomico).pipe(
+                    switchMap((personalCreado) => {
+                        const periodoDTO: CrearPeriodoContratoDTO = {
+                            idPersona: personalCreado.idPersona,
+                            claveContrato: formValue.claveContrato,
+                            fechaAlta: formValue.fechaAlta,
+                            fechaBaja: formValue.fechaBaja || null,
+                            anioFiscal: new Date(formValue.fechaAlta).getFullYear(),
+                            porcentajeJornada: formValue.porcentajeJornada ?? 100,
+                            horasConvenio: formValue.horasConvenio ?? 1720
+                        };
+                        return this.economicoPersonalService.crearPeriodoContrato(periodoDTO);
+                    })
+                ).subscribe({
                     next: () => {
+                        this.guardando.set(false);
                         Swal.fire({
-                            title: 'Personal actualizado',
-                            text: 'El personal ha sido actualizado correctamente.',
+                            title: 'Personal creado',
+                            text: 'El personal y su período de contrato han sido creados correctamente.',
                             icon: 'success',
                             confirmButtonText: 'Aceptar'
                         }).then(_ => {
                             this.cerrarModal();
                             this.loadData();
                             this.error.set(null);
-                        })
+                        });
                     },
                     error: (err: any) => {
-                        this.error.set('Error al actualizar el personal: ' + (err.message || 'Error desconocido'));
-                        console.error('Error updating personal:', err);
+                        this.guardando.set(false);
+                        const errorMsg = err.error?.mensaje || err.error?.message || err.message || 'Error desconocido';
+                        this.error.set('Error al crear el personal: ' + errorMsg);
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'No se pudo crear el personal: ' + errorMsg,
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar'
+                        });
+                        console.error('Error creating personal with contract:', err);
                     }
                 });
             } else {
-                const crearPersonalEconomico: CrearPersonalEconomico = {
-                    idEconomico: this.idEconomico,
-                    idPersona: 0,
-                    nombre: this.personalForm.value.nombre,
-                    apellidos: this.personalForm.value.apellidos,
-                    dni: this.personalForm.value.dni,
-                    puesto: this.personalForm.value.puesto,
-                    departamento: this.personalForm.value.departamento,
-                    titulacion1: this.personalForm.value.titulacion1 || '',
-                    titulacion2: this.personalForm.value.titulacion2 || '',
-                    titulacion3: this.personalForm.value.titulacion3 || '',
-                    titulacion4: this.personalForm.value.titulacion4 || '',
-                    esPersonalInvestigador: this.personalForm.value.esPersonalInvestigador || false,
-                    esContratoIndefinido: this.personalForm.value.esContratoIndefinido ?? true,
-                    claveOcupacion: this.personalForm.value.claveOcupacion || undefined
-                }
-                // Crear nuevo
+                // Create personal without contract period
                 this.economicoPersonalService.crearPersonal(crearPersonalEconomico).subscribe({
                     next: () => {
-                        this.cerrarModal();
-                        this.loadData();
+                        this.guardando.set(false);
+                        Swal.fire({
+                            title: 'Personal creado',
+                            text: 'El personal ha sido creado correctamente.',
+                            icon: 'success',
+                            confirmButtonText: 'Aceptar'
+                        }).then(_ => {
+                            this.cerrarModal();
+                            this.loadData();
+                            this.error.set(null);
+                        });
                     },
                     error: (err: any) => {
-                        this.error.set('Error al crear el personal: ' + (err.message || 'Error desconocido'));
+                        this.guardando.set(false);
+                        const errorMsg = err.error?.mensaje || err.error?.message || err.message || 'Error desconocido';
+                        this.error.set('Error al crear el personal: ' + errorMsg);
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'No se pudo crear el personal: ' + errorMsg,
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar'
+                        });
                         console.error('Error creating personal:', err);
                     }
                 });
             }
-
-            this.cerrarModal();
-            this.loadData();
-        } catch (err: any) {
-            this.error.set('Error al guardar el personal: ' + (err.message || 'Error desconocido'));
-            console.error('Error saving personal:', err);
-        } finally {
-            this.guardando.set(false);
         }
     }
 
@@ -310,19 +425,41 @@ export class ListadoPersonal implements OnInit {
 
     private resetPersonalForm(): void {
         this.personalForm.reset({
-            nombre: '',
-            apellidos: '',
-            dni: '',
-            puesto: '',
-            departamento: '',
-            titulacion1: '',
+            nombre: 'Empleado',
+            apellidos: 'Prueba 2025',
+            dni: '00000000T',
+            puesto: 'Técnico I+D',
+            departamento: 'Innovación',
+            titulacion1: 'Ingeniería Superior',
             titulacion2: '',
             titulacion3: '',
             titulacion4: '',
-            esPersonalInvestigador: true,
-            esContratoIndefinido: true,
-            claveOcupacion: ''
+            claveOcupacion: '',
+            claveContrato: '100',
+            fechaAlta: '2025-01-01',
+            fechaBaja: '2025-12-31',
+            porcentajeJornada: 100,
+            horasConvenio: 1720
         });
+    }
+
+    /** Called when the clave contrato changes — auto-set porcentajeJornada */
+    public onClaveContratoChange(): void {
+        const clave = this.claveSeleccionada();
+        if (clave) {
+            if (clave.jornada === 'TIEMPO_COMPLETO') {
+                this.personalForm.patchValue({porcentajeJornada: 100});
+            } else if (clave.jornada === 'TIEMPO_PARCIAL') {
+                const current = this.personalForm.get('porcentajeJornada')?.value;
+                if (current === 100) {
+                    this.personalForm.patchValue({porcentajeJornada: 50});
+                }
+            }
+        }
+    }
+
+    public esEdicion(): boolean {
+        return !!this.personalSeleccionado()?.idPersona;
     }
 
     // Manejo de archivos

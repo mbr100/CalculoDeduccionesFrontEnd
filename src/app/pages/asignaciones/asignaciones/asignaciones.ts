@@ -1,11 +1,4 @@
 import {Component, inject, signal, WritableSignal} from '@angular/core';
-import {AltaEjercicioPersonal} from "../../personal/alta-ejercicio-personal/alta-ejercicio-personal";
-import {BajasPersonal} from "../../personal/bajas-personal/bajas-personal";
-import {BasesCotizacionPersonal} from "../../personal/bases-cotizacion-personal/bases-cotizacion-personal";
-import {BonificacionesPersonal} from "../../personal/bonificaciones-personal/bonificaciones-personal";
-import {ListadoPersonal} from "../../personal/listado-personal/listado-personal";
-import {ResumenCosteHoraPersonal} from "../../personal/resumen-coste-hora-personal/resumen-coste-hora-personal";
-import {RetribucionesPersonal} from "../../personal/retribuciones-personal/retribuciones-personal";
 import {Sidebar} from "../../../components/personal/sidebar/sidebar";
 import {AsignarPersonalProyecto} from '../asignar-personal-proyecto/asignar-personal-proyecto';
 import {ActivatedRoute} from '@angular/router';
