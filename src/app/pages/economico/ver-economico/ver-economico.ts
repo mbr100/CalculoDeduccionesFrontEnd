@@ -90,7 +90,11 @@ export class VerEconomico implements OnInit, OnDestroy {
     }
 
     public onSubmit(): void {
-        if (this.economicoForm.valid && this.economico) {
+        if (!this.economicoForm.valid) {
+            this.economicoForm.markAllAsTouched();
+            return;
+        }
+        if (this.economico) {
             this.saving = true;
             const dto: ActualizarDatosEconomicoDTO = {
                 id: this.economico.id,
