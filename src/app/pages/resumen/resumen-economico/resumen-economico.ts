@@ -1,20 +1,41 @@
 import {Component, computed, inject, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
+import {FormsModule} from '@angular/forms';
 import {Sidebar} from '../../../components/personal/sidebar/sidebar';
 import {EconomicoService} from '../../../services/economico-service';
+import {ProyectoService} from '../../../services/proyecto-service';
+import {FaseProyectoService} from '../../../services/fase-proyecto-service';
 import {GastoProyectoDetalladoDTO} from '../../../models/resumen.model';
+import {Proyecto} from '../../../models/proyecto-economico';
+import {ResumenGastoFaseDTO, ResumenGastoFasePersonaDTO} from '../../../models/fase-proyecto';
 import {SavingState} from '../../../models/savingState';
 
 @Component({
   selector: 'app-resumen-economico',
-  imports: [Sidebar],
+  imports: [Sidebar, FormsModule],
   templateUrl: './resumen-economico.html',
   styleUrl: './resumen-economico.css'
 })
 export class ResumenEconomico implements OnInit {
     private route: ActivatedRoute = inject(ActivatedRoute);
     private economicoService: EconomicoService = inject(EconomicoService);
+    private proyectoService: ProyectoService = inject(ProyectoService);
+    private faseProyectoService: FaseProyectoService = inject(FaseProyectoService);
     public economicoId: number;
+
+    // Tabs
+    public activeTab: WritableSignal<string> = signal('proyecto');
+    public tabs = [
+        {id: 'proyecto', label: 'Por Proyecto', icon: 'fas fa-project-diagram'},
+        {id: 'fase', label: 'Por Fase', icon: 'fas fa-layer-group'},
+    ];
+
+    // Fases tab data
+    public proyectos: WritableSignal<Proyecto[]> = signal<Proyecto[]>([]);
+    public selectedFaseProyectoId: WritableSignal<number | null> = signal(null);
+    public resumenFases: WritableSignal<ResumenGastoFaseDTO[]> = signal<ResumenGastoFaseDTO[]>([]);
+    public desgloseFasePersona: WritableSignal<ResumenGastoFasePersonaDTO[]> = signal<ResumenGastoFasePersonaDTO[]>([]);
+    public fasesLoading: WritableSignal<boolean> = signal(false);
 
     // Signals principales
     public gastosProyectos: WritableSignal<GastoProyectoDetalladoDTO[]> = signal<GastoProyectoDetalladoDTO[]>([]);
@@ -244,6 +265,99 @@ export class ResumenEconomico implements OnInit {
 
     public hasData(): boolean {
         return this.gastosProyectos().length > 0;
+    }
+
+    // ---- Tabs ----
+    public setActiveTab(tabId: string): void {
+        this.activeTab.set(tabId);
+        if (tabId === 'fase' && this.proyectos().length === 0) {
+            this.loadProyectos();
+        }
+    }
+
+    public getTabButtonClass(tabId: string): string {
+        const base = 'flex items-center space-x-2 px-4 py-2 rounded-md font-medium text-sm transition-all duration-200';
+        return this.activeTab() === tabId
+            ? `${base} bg-white text-green-600 shadow-sm`
+            : `${base} text-gray-600 hover:text-gray-900 hover:bg-gray-200`;
+    }
+
+    // ---- Fases tab ----
+    private loadProyectos(): void {
+        this.proyectoService.getProyectosByEconomico(this.economicoId, 0, 100).subscribe({
+            next: (response) => this.proyectos.set(response.content),
+            error: (error) => console.error('Error cargando proyectos:', error)
+        });
+    }
+
+    public onFaseProyectoChange(idProyecto: string): void {
+        const id = parseInt(idProyecto, 10);
+        if (isNaN(id)) {
+            this.selectedFaseProyectoId.set(null);
+            this.resumenFases.set([]);
+            this.desgloseFasePersona.set([]);
+            return;
+        }
+        this.selectedFaseProyectoId.set(id);
+        this.loadResumenFases(id);
+    }
+
+    private loadResumenFases(idProyecto: number): void {
+        this.fasesLoading.set(true);
+        this.faseProyectoService.getResumenGastoFases(idProyecto).subscribe({
+            next: (data) => {
+                this.resumenFases.set(data);
+                // Also load desglose
+                this.faseProyectoService.getDesgloseFasePersona(idProyecto).subscribe({
+                    next: (desglose) => {
+                        this.desgloseFasePersona.set(desglose);
+                        this.fasesLoading.set(false);
+                    },
+                    error: (error) => {
+                        console.error('Error cargando desglose:', error);
+                        this.fasesLoading.set(false);
+                    }
+                });
+            },
+            error: (error) => {
+                console.error('Error cargando resumen fases:', error);
+                this.fasesLoading.set(false);
+            }
+        });
+    }
+
+    public getTotalFases(): number {
+        return this.resumenFases().reduce((sum, f) => sum + f.total, 0);
+    }
+
+    public getTotalDeduccionesFases(): number {
+        return this.resumenFases().reduce((sum, f) => sum + f.deduccion, 0);
+    }
+
+    public getTotalFasePorPartida(tipoGasto: string): number {
+        return this.resumenFases().reduce((sum, fase) => {
+            const partida = fase.partidas.find(p => p.tipoGasto === tipoGasto);
+            return sum + (partida?.importe || 0);
+        }, 0);
+    }
+
+    public getFaseTiposGasto(): string[] {
+        const fases = this.resumenFases();
+        if (fases.length === 0) return [];
+        return fases[0].partidas.map(p => p.tipoGasto);
+    }
+
+    public getFaseImportePartida(fase: ResumenGastoFaseDTO, tipoGasto: string): number {
+        const partida = fase.partidas.find(p => p.tipoGasto === tipoGasto);
+        return partida?.importe || 0;
+    }
+
+    public getDesgloseByFase(idFase: number): ResumenGastoFasePersonaDTO[] {
+        return this.desgloseFasePersona().filter(d => d.idFase === idFase);
+    }
+
+    public getSelectedFaseProyecto(): Proyecto | undefined {
+        return this.proyectos().find(p => p.idProyecto === this.selectedFaseProyectoId());
     }
 
 }

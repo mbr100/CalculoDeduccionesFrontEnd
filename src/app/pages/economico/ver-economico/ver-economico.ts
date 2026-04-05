@@ -96,6 +96,9 @@ export class VerEconomico implements OnInit, OnDestroy {
         }
         if (this.economico) {
             this.saving = true;
+            const descValue = this.economicoForm.get('descripcionIDI')?.value;
+            const presValue = this.economicoForm.get('presentacionEmpresa')?.value;
+
             const dto: ActualizarDatosEconomicoDTO = {
                 id: this.economico.id,
                 nombre: this.economico.nombre,
@@ -109,8 +112,8 @@ export class VerEconomico implements OnInit, OnDestroy {
                 cnae: this.economicoForm.get('cnae')?.value,
                 esPyme: this.economicoForm.get('esPyme')?.value,
                 selloPymeInnovadora: this.economicoForm.get('selloPymeInnovadora')?.value,
-                descripcionIDI: toHTML(this.economicoForm.get('descripcionIDI')?.value) ,
-                presentacionEmpresa: toHTML(this.economicoForm.get('presentacionEmpresa')?.value),
+                descripcionIDI: (typeof descValue === 'object' && descValue !== null) ? toHTML(descValue) : descValue,
+                presentacionEmpresa: (typeof presValue === 'object' && presValue !== null) ? toHTML(presValue) : presValue,
             };
             console.log('Datos a enviar:', dto);
             this.economicoService.actualizarEconomico(dto).subscribe({

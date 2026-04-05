@@ -265,6 +265,12 @@
                                     <td class="px-4 py-3 text-center">
                                         <div class="flex items-center justify-center space-x-2">
                                             <button
+                                                (click)="openFasesModal(item)"
+                                                class="p-1 text-purple-600 hover:text-purple-800 hover:bg-purple-100 rounded transition-colors"
+                                                title="Gestionar fases">
+                                                <i class="fas fa-layer-group text-sm"></i>
+                                            </button>
+                                            <button
                                                 (click)="openEditModal(item)"
                                                 class="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded transition-colors"
                                                 title="Editar proyecto">
@@ -482,6 +488,116 @@
                     <i class="fas fa-project-diagram mr-1"></i>
                     Página {{ currentPage() + 1 }} de {{ totalPages() }}
                 </span>
+                </div>
+            }
+
+            <!-- Modal de Fases -->
+            @if (fasesModalOpen()) {
+                <div class="ui-modal-backdrop" (click)="onFasesBackdropClick($event)">
+                    <div class="ui-modal-layout">
+                        <div class="ui-modal-panel max-w-lg" (click)="$event.stopPropagation()">
+                            <!-- Header -->
+                            <div class="mb-4 flex items-center justify-between border-b border-slate-200 pb-4">
+                                <h3 class="text-lg font-medium text-gray-900">
+                                    <i class="fas fa-layer-group mr-2 text-purple-600"></i>
+                                    Fases de {{ fasesModalProyecto()?.acronimo }}
+                                </h3>
+                                <button (click)="closeFasesModal()" class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            <!-- Crear nueva fase -->
+                            <div class="flex items-center space-x-2 mb-4">
+                                <input type="text"
+                                       [value]="nuevaFaseNombre()"
+                                       (input)="nuevaFaseNombre.set($any($event.target).value)"
+                                       (keyup)="onNuevaFaseKeyPress($event)"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                                       placeholder="Nombre de la nueva fase...">
+                                <button (click)="crearFase()"
+                                        [disabled]="!nuevaFaseNombre().trim()"
+                                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors text-sm">
+                                    <i class="fas fa-plus mr-1"></i> Agregar
+                                </button>
+                            </div>
+
+                            <!-- Loading -->
+                            @if (fasesLoading()) {
+                                <div class="py-8 text-center">
+                                    <i class="fas fa-spinner fa-spin text-purple-500 text-xl"></i>
+                                    <p class="text-gray-500 mt-2 text-sm">Cargando fases...</p>
+                                </div>
+                            }
+
+                            <!-- Lista de fases -->
+                            @if (!fasesLoading()) {
+                                @if (fases().length === 0) {
+                                    <div class="py-8 text-center">
+                                        <i class="fas fa-layer-group text-gray-300 text-3xl mb-2"></i>
+                                        <p class="text-gray-400 text-sm">No hay fases definidas para este proyecto</p>
+                                    </div>
+                                } @else {
+                                    <div class="space-y-2 max-h-80 overflow-y-auto">
+                                        @for (fase of fases(); track fase.idFase) {
+                                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-purple-200 transition-colors">
+                                                @if (editingFaseId() === fase.idFase) {
+                                                    <!-- Modo edicion -->
+                                                    <input type="text"
+                                                           [value]="editingFaseNombre()"
+                                                           (input)="editingFaseNombre.set($any($event.target).value)"
+                                                           (keyup)="onEditFaseKeyPress($event, fase)"
+                                                           class="flex-1 px-3 py-1 border border-purple-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm mr-2">
+                                                    <div class="flex items-center space-x-1">
+                                                        <button (click)="saveEditFase(fase)"
+                                                                class="p-1 text-green-600 hover:bg-green-100 rounded transition-colors"
+                                                                title="Guardar">
+                                                            <i class="fas fa-check text-sm"></i>
+                                                        </button>
+                                                        <button (click)="cancelEditFase()"
+                                                                class="p-1 text-gray-400 hover:bg-gray-200 rounded transition-colors"
+                                                                title="Cancelar">
+                                                            <i class="fas fa-times text-sm"></i>
+                                                        </button>
+                                                    </div>
+                                                } @else {
+                                                    <!-- Modo lectura -->
+                                                    <div class="flex items-center space-x-2 flex-1">
+                                                        <i class="fas fa-flag text-purple-400 text-xs"></i>
+                                                        <span class="text-sm text-gray-800">{{ fase.nombre }}</span>
+                                                        @if ((faseSavingStates()[fase.idFase] || 'idle') === 'success') {
+                                                            <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                        }
+                                                    </div>
+                                                    <div class="flex items-center space-x-1">
+                                                        <button (click)="startEditFase(fase)"
+                                                                class="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                                                                title="Editar">
+                                                            <i class="fas fa-edit text-xs"></i>
+                                                        </button>
+                                                        <button (click)="eliminarFase(fase)"
+                                                                class="p-1 text-red-500 hover:bg-red-100 rounded transition-colors"
+                                                                title="Eliminar">
+                                                            <i class="fas fa-trash text-xs"></i>
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            }
+
+                            <!-- Footer -->
+                            <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+                                <span class="text-xs text-gray-400">{{ fases().length }} fase(s)</span>
+                                <button (click)="closeFasesModal()"
+                                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm">
+                                    Cerrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             }
         </div>

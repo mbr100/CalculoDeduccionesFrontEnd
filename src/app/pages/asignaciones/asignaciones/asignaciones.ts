@@ -1,13 +1,15 @@
 import {Component, inject, signal, WritableSignal} from '@angular/core';
 import {Sidebar} from "../../../components/personal/sidebar/sidebar";
 import {AsignarPersonalProyecto} from '../asignar-personal-proyecto/asignar-personal-proyecto';
+import {AsignarFasesProyecto} from '../asignar-fases-proyecto/asignar-fases-proyecto';
 import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-asignaciones',
     imports: [
         Sidebar,
-        AsignarPersonalProyecto
+        AsignarPersonalProyecto,
+        AsignarFasesProyecto
     ],
   templateUrl: './asignaciones.html',
   styleUrl: './asignaciones.css'
@@ -20,6 +22,7 @@ export class Asignaciones {
 
     public tabs = [
         { id: 'personal', label: 'Asignar Personal a Proyecto', icon: 'fas fa-user' },
+        { id: 'fases', label: 'Asignar Dedicacion a Fases', icon: 'fas fa-layer-group' },
     ] as const;
 
     public constructor() {

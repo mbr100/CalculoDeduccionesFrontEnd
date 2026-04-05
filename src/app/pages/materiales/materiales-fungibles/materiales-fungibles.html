@@ -1,0 +1,377 @@
+<div class="flex h-screen bg-gray-50">
+    <app-sidebar [idEconomico]="economicoId"></app-sidebar>
+
+    <div class="flex-1 overflow-auto">
+        <div class="p-6 max-w-full">
+
+            <!-- Header -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-amber-100 p-2 rounded-lg">
+                            <i class="fas fa-flask text-amber-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Materiales Fungibles</h1>
+                            <p class="text-gray-500 text-sm">Registro de facturas de materiales con imputación a fases</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button (click)="loadAll()" [disabled]="loading()"
+                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                            <i [class]="loading() ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
+                            <span>Actualizar</span>
+                        </button>
+                        <button (click)="openCreateFactura()"
+                                class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center space-x-2">
+                            <i class="fas fa-plus"></i>
+                            <span>Nueva Factura</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-4">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-filter text-gray-400"></i>
+                        <label class="text-sm font-medium text-gray-700">Filtrar por proyecto:</label>
+                    </div>
+                    <select [ngModel]="filtroProyecto()"
+                            (ngModelChange)="filtroProyecto.set($event ? +$event : null)"
+                            class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-amber-500">
+                        <option [ngValue]="null">Todos los proyectos</option>
+                        @for (proy of proyectos(); track proy.idProyecto) {
+                            <option [ngValue]="proy.idProyecto">{{ proy.acronimo }} - {{ proy.titulo }}</option>
+                        }
+                    </select>
+                    <span class="text-sm text-gray-500">{{ facturasFiltradas().length }} factura(s)</span>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            @if (loading()) {
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                    <i class="fas fa-spinner fa-spin text-amber-500 text-3xl mb-3"></i>
+                    <p class="text-gray-500">Cargando facturas...</p>
+                </div>
+            }
+
+            <!-- Sin datos -->
+            @if (!loading() && facturasFiltradas().length === 0) {
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                    <i class="fas fa-flask text-gray-300 text-5xl mb-4"></i>
+                    <p class="text-gray-500 text-lg mb-1">No hay facturas de materiales fungibles</p>
+                    <p class="text-gray-400 text-sm">Pulsa "Nueva Factura" para registrar la primera</p>
+                </div>
+            }
+
+            <!-- Tabla -->
+            @if (!loading() && facturasFiltradas().length > 0) {
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8"></th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nº Factura</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proveedor</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-[180px]">Descripción</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Base Imp.</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">IVA</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">% Prorrata</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Validez</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Importe Final</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Imputable</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proyecto</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @for (factura of facturasFiltradas(); track factura.idFactura) {
+                                    <!-- Fila principal -->
+                                    <tr class="hover:bg-gray-50 transition-colors"
+                                        [class.bg-amber-50]="expandedFacturaId() === factura.idFactura">
+                                        <td class="px-4 py-3 text-center">
+                                            <button (click)="toggleImputaciones(factura)"
+                                                    [title]="factura.idProyecto ? 'Ver imputación a fases' : 'Asigna un proyecto para imputar fases'"
+                                                    [disabled]="!factura.idProyecto"
+                                                    class="text-gray-400 hover:text-amber-600 disabled:opacity-30 transition-colors">
+                                                <i [class]="expandedFacturaId() === factura.idFactura ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+                                            </button>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ factura.numeroFactura }}</td>
+                                        <td class="px-4 py-3 text-sm text-gray-700">{{ factura.proveedor }}</td>
+                                        <td class="px-4 py-3 text-sm text-gray-500 max-w-[180px] truncate" [title]="factura.descripcion">
+                                            {{ factura.descripcion || '-' }}
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-right font-mono">{{ formatCurrency(factura.baseImponible) }}</td>
+                                        <td class="px-4 py-3 text-sm text-right font-mono">{{ formatCurrency(factura.iva) }}</td>
+                                        <td class="px-4 py-3 text-sm text-center">{{ factura.porcentajeProrrata }}%</td>
+                                        <td class="px-4 py-3 text-center">
+                                            <span [class]="'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ' + getValidezBadgeClass(factura.validez)">
+                                                {{ getValidezLabel(factura.validez) }}
+                                                @if (factura.validez === ValidezIDI.VALIDA_PARCIAL) {
+                                                    <span class="ml-1">({{ factura.porcentajeValidez }}%)</span>
+                                                }
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-right font-mono font-medium">{{ formatCurrency(factura.importeFinal) }}</td>
+                                        <td class="px-4 py-3 text-sm text-right font-mono font-bold text-amber-700">{{ formatCurrency(factura.importeImputable) }}</td>
+                                        <td class="px-4 py-3 text-sm text-gray-600">
+                                            @if (factura.acronimoProyecto) {
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800">
+                                                    <i class="fas fa-folder mr-1 text-xs"></i>{{ factura.acronimoProyecto }}
+                                                </span>
+                                            } @else {
+                                                <span class="text-gray-400 text-xs">Sin proyecto</span>
+                                            }
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <div class="flex items-center justify-center space-x-2">
+                                                <button (click)="openEditFactura(factura)"
+                                                        class="text-indigo-400 hover:text-indigo-600 transition-colors" title="Editar">
+                                                    <i class="fas fa-pencil-alt text-sm"></i>
+                                                </button>
+                                                <button (click)="deleteFactura(factura.idFactura, factura.numeroFactura)"
+                                                        class="text-red-400 hover:text-red-600 transition-colors" title="Eliminar">
+                                                    <i class="fas fa-trash text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Fila expandida: imputación a fases -->
+                                    @if (expandedFacturaId() === factura.idFactura) {
+                                        <tr>
+                                            <td colspan="12" class="px-0 py-0 bg-amber-50 border-b-2 border-amber-200">
+                                                <div class="p-4">
+                                                    <div class="flex items-center justify-between mb-3">
+                                                        <h4 class="text-sm font-semibold text-gray-700">
+                                                            <i class="fas fa-layer-group mr-2 text-amber-500"></i>
+                                                            Imputación a fases — {{ factura.numeroFactura }}
+                                                        </h4>
+                                                        <div class="text-sm">
+                                                            <span class="text-gray-500">Imputable: </span>
+                                                            <span class="font-bold text-amber-700">{{ formatCurrency(factura.importeImputable) }}</span>
+                                                            <span class="mx-2 text-gray-300">|</span>
+                                                            <span class="text-gray-500">Imputado: </span>
+                                                            <span [class]="getTotalImputado(factura) > factura.importeImputable ? 'font-bold text-red-600' : 'font-bold text-emerald-600'">
+                                                                {{ formatCurrency(getTotalImputado(factura)) }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    @if (fasesLoading()) {
+                                                        <div class="text-center py-4 text-gray-400">
+                                                            <i class="fas fa-spinner fa-spin mr-2"></i>Cargando fases...
+                                                        </div>
+                                                    }
+
+                                                    @if (!fasesLoading() && fasesActuales().length === 0) {
+                                                        <p class="text-sm text-gray-400 text-center py-4">
+                                                            Este proyecto no tiene fases definidas. Crea fases en la sección Proyectos.
+                                                        </p>
+                                                    }
+
+                                                    @if (!fasesLoading() && fasesActuales().length > 0) {
+                                                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                                            @for (fase of fasesActuales(); track fase.idFase) {
+                                                                <div class="bg-white rounded-lg border p-3"
+                                                                     [class]="getImputacionCellClass(factura.idFactura, fase.idFase)">
+                                                                    <p class="text-xs font-medium text-gray-600 mb-1">
+                                                                        <i class="fas fa-flag text-purple-400 mr-1"></i>
+                                                                        {{ fase.nombre }}
+                                                                    </p>
+                                                                    <input type="number" step="0.01" min="0"
+                                                                           [ngModel]="getImporteImputacion(factura, fase.idFase)"
+                                                                           (blur)="saveImputacion(factura, fase.idFase, $any($event.target).value)"
+                                                                           class="w-full text-sm font-mono text-right border-0 bg-transparent focus:outline-none focus:ring-0 p-0"
+                                                                           placeholder="0,00">
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL ==================== -->
+@if (modalOpen()) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+
+            <!-- Header modal -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900">
+                    <i class="fas fa-flask mr-2 text-amber-500"></i>
+                    {{ modalMode() === 'create' ? 'Nueva Factura de Material' : 'Editar Factura' }}
+                </h2>
+                <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Body modal -->
+            <div class="p-6 space-y-4">
+
+                <!-- Error -->
+                @if (modalError()) {
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                        <i class="fas fa-exclamation-circle mr-2"></i>{{ modalError() }}
+                    </div>
+                }
+
+                <!-- Nº factura + Proveedor -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Nº Factura <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" maxlength="50"
+                               [ngModel]="formFactura().numeroFactura"
+                               (ngModelChange)="setFormNumeroFactura($event)"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 text-sm"
+                               placeholder="Ej: F-2025/001">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Proveedor <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" maxlength="200"
+                               [ngModel]="formFactura().proveedor"
+                               (ngModelChange)="setFormProveedor($event)"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 text-sm"
+                               placeholder="Nombre del proveedor">
+                    </div>
+                </div>
+
+                <!-- Descripción -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                    <textarea rows="2"
+                              [ngModel]="formFactura().descripcion"
+                              (ngModelChange)="setFormDescripcion($event)"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 text-sm"
+                              placeholder="Descripción de los materiales adquiridos"></textarea>
+                </div>
+
+                <!-- Importes -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Base Imponible <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" step="0.01" min="0"
+                               [ngModel]="formFactura().baseImponible"
+                               (ngModelChange)="setFormBaseImponible($event)"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 text-sm"
+                               placeholder="0,00">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            IVA <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" step="0.01" min="0"
+                               [ngModel]="formFactura().iva"
+                               (ngModelChange)="setFormIva($event)"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 text-sm"
+                               placeholder="0,00">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">% Prorrata IVA</label>
+                        <input type="number" step="0.01" min="0" max="100"
+                               [ngModel]="formFactura().porcentajeProrrata"
+                               (ngModelChange)="setFormPorcentajeProrrata($event)"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 text-sm"
+                               placeholder="0">
+                    </div>
+                </div>
+
+                <!-- Importes calculados -->
+                @if (importeFinalCalculado() !== null) {
+                    <div class="grid grid-cols-2 gap-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500 mb-0.5">Importe Final</p>
+                            <p class="text-lg font-bold text-gray-800">{{ formatCurrency(importeFinalCalculado()) }}</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500 mb-0.5">Importe Imputable I+D</p>
+                            <p class="text-lg font-bold text-amber-700">{{ formatCurrency(importeImputableCalculado()) }}</p>
+                        </div>
+                    </div>
+                }
+
+                <!-- Validez -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Validez I+D <span class="text-red-500">*</span>
+                        </label>
+                        <select [ngModel]="formFactura().validez"
+                                (ngModelChange)="setFormValidez($event)"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 text-sm">
+                            <option value="">Seleccionar...</option>
+                            <option [value]="ValidezIDI.VALIDA_IDI">Válida I+D+i (100%)</option>
+                            <option [value]="ValidezIDI.VALIDA_PARCIAL">Válida Parcial</option>
+                            <option [value]="ValidezIDI.NO_VALIDA">No Válida (0%)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">% Validez</label>
+                        <input type="number" step="1" min="0" max="100"
+                               [ngModel]="formFactura().porcentajeValidez"
+                               (ngModelChange)="setFormPorcentajeValidez($event)"
+                               [disabled]="!isPorcentajeValidezEditable()"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 text-sm disabled:bg-gray-100 disabled:text-gray-400"
+                               placeholder="1-99">
+                    </div>
+                </div>
+
+                <!-- Proyecto -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fas fa-project-diagram mr-1"></i>Proyecto (opcional)
+                    </label>
+                    <select [ngModel]="formFactura().idProyecto"
+                            (ngModelChange)="setFormIdProyecto($event)"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 text-sm">
+                        <option [ngValue]="null">Sin proyecto</option>
+                        @for (proy of proyectos(); track proy.idProyecto) {
+                            <option [ngValue]="proy.idProyecto">{{ proy.acronimo }} — {{ proy.titulo }}</option>
+                        }
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- Footer modal -->
+            <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
+                <button (click)="closeModal()" [disabled]="modalLoading()"
+                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors">
+                    Cancelar
+                </button>
+                <button (click)="saveFactura()" [disabled]="modalLoading()"
+                        class="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                    @if (modalLoading()) {
+                        <i class="fas fa-spinner fa-spin"></i>
+                    }
+                    <span>{{ modalMode() === 'create' ? 'Crear' : 'Guardar' }}</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+}

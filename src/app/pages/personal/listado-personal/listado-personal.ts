@@ -2,6 +2,7 @@ import {Component, computed, ElementRef, inject, Input, OnInit, Signal, signal, 
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
+import {EconomicoService} from '../../../services/economico-service';
 import Swal from 'sweetalert2';
 import {ClaveContratoDTO, CrearPeriodoContratoDTO, CrearPersonalEconomico, NaturalezaContrato, PersonalEconomico, TipoJornada} from '../../../models/personal-economico';
 import {switchMap} from 'rxjs';
@@ -16,6 +17,7 @@ import {switchMap} from 'rxjs';
 })
 export class ListadoPersonal implements OnInit {
     private economicoPersonalService: EconomicoPersonalService = inject(EconomicoPersonalService);
+    private economicoService: EconomicoService = inject(EconomicoService);
 
     @ViewChild('fileInput') public fileInput!: ElementRef<HTMLInputElement>;
     // ID del económico
@@ -29,6 +31,7 @@ export class ListadoPersonal implements OnInit {
     public totalPages: WritableSignal<number> = signal(0);
     public totalelements: WritableSignal<number> = signal(0);
     public pagesize: WritableSignal<number> = signal(10);
+    public horasConvenioEconomico: WritableSignal<number> = signal(1720);
 
     // Signals para modales
     public mostrarModal: WritableSignal<boolean> = signal(false);
@@ -105,13 +108,25 @@ export class ListadoPersonal implements OnInit {
             fechaAlta: [''],
             fechaBaja: [''],
             porcentajeJornada: [100],
-            horasConvenio: [1720]
+            horasConvenio: [this.horasConvenioEconomico()]
         });
     }
 
     public ngOnInit(): void {
         this.loadData();
         this.loadClavesContrato();
+        this.loadHorasConvenio();
+    }
+
+    private loadHorasConvenio(): void {
+        this.economicoService.getEconomicoById(this.idEconomico).subscribe({
+            next: (economico) => {
+                if (economico.horasConvenio) {
+                    this.horasConvenioEconomico.set(Number(economico.horasConvenio));
+                }
+            },
+            error: (err) => console.error('Error loading economic hours:', err)
+        });
     }
 
     private loadClavesContrato(): void {
@@ -237,7 +252,7 @@ export class ListadoPersonal implements OnInit {
             fechaAlta: '',
             fechaBaja: '',
             porcentajeJornada: 100,
-            horasConvenio: 1720
+            horasConvenio: this.horasConvenioEconomico()
         });
         this.mostrarModal.set(true);
     }
@@ -353,7 +368,7 @@ export class ListadoPersonal implements OnInit {
                             fechaBaja: formValue.fechaBaja || null,
                             anioFiscal: new Date(formValue.fechaAlta).getFullYear(),
                             porcentajeJornada: formValue.porcentajeJornada ?? 100,
-                            horasConvenio: formValue.horasConvenio ?? 1720
+                            horasConvenio: formValue.horasConvenio ?? this.horasConvenioEconomico()
                         };
                         return this.economicoPersonalService.crearPeriodoContrato(periodoDTO);
                     })
@@ -439,7 +454,7 @@ export class ListadoPersonal implements OnInit {
             fechaAlta: '2025-01-01',
             fechaBaja: '2025-12-31',
             porcentajeJornada: 100,
-            horasConvenio: 1720
+            horasConvenio: this.horasConvenioEconomico()
         });
     }
 

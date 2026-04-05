@@ -21,6 +21,11 @@
             @if (activeTab() === 'personal') {
                 <app-asignar-personal-proyecto [idEconomico]="this.economicoId"></app-asignar-personal-proyecto>
             }
+
+            <!-- PESTAÑA FASES -->
+            @if (activeTab() === 'fases') {
+                <app-asignar-fases-proyecto [idEconomico]="this.economicoId"></app-asignar-fases-proyecto>
+            }
         </div>
     </div>
 </div>

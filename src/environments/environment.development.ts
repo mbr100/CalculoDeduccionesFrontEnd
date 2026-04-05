@@ -6,6 +6,8 @@ export const environment = {
     apiEconomicos: 'api/economicos',
     apiPersonal: 'api/personal',
     apiProyectos: '/api/proyectos',
+    apiColaboraciones: '/api/colaboraciones',
+    apiMateriales: '/api/materiales',
     editorToolbar: <Toolbar>[
         ['bold', 'italic'],
         ['underline', 'strike'],

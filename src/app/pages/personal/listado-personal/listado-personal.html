@@ -456,9 +456,9 @@
                                             <label class="ui-label">Horas convenio/año</label>
                                             <input type="number"
                                                    formControlName="horasConvenio"
-                                                   class="ui-input"
-                                                   min="1" max="2000" step="1">
-                                            <p class="ui-help">Por defecto 1720 h/año</p>
+                                                   class="ui-input bg-gray-100 cursor-not-allowed"
+                                                   [readonly]="true">
+                                            <p class="ui-help">Las horas se cargan desde el Detalle del Económico</p>
                                         </div>
                                     }
                                 </div>

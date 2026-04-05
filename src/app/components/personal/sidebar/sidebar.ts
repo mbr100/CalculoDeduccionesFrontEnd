@@ -42,6 +42,10 @@ export class Sidebar implements OnInit, OnDestroy {
             this.activeRoute = 'personal';
         } else if (url.includes('/economico/proyectos/')) {
             this.activeRoute = 'proyectos';
+        } else if (url.includes('/economico/colaboraciones/')) {
+            this.activeRoute = 'colaboraciones';
+        } else if (url.includes('/economico/materiales/')) {
+            this.activeRoute = 'materiales';
         } else if (url.includes('/economico/asignaciones/')) {
             this.activeRoute = 'asignaciones';
         } else if (url.includes('/economico/resumen/')) {
@@ -77,6 +81,22 @@ export class Sidebar implements OnInit, OnDestroy {
 
     public goToProyectos(): void {
         this.router.navigate(['/economico/proyectos', this.idEconomico]).then((success) => {
+            if (success) {
+                this.updateActiveRoute(this.router.url);
+            }
+        });
+    }
+
+    public goToColaboraciones(): void {
+        this.router.navigate(['/economico/colaboraciones', this.idEconomico]).then((success) => {
+            if (success) {
+                this.updateActiveRoute(this.router.url);
+            }
+        });
+    }
+
+    public goToMateriales(): void {
+        this.router.navigate(['/economico/materiales', this.idEconomico]).then((success) => {
             if (success) {
                 this.updateActiveRoute(this.router.url);
             }

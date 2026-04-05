@@ -1,0 +1,835 @@
+<div class="economico-shell">
+    <!-- Sidebar -->
+    <app-sidebar [idEconomico]="economicoId"></app-sidebar>
+
+    <!-- Contenido Principal -->
+    <div class="economico-main">
+        <div class="economico-main-scroll rounded-lg bg-gray-50 p-6">
+        <div class="max-w-full mx-auto">
+
+            <!-- Header -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-teal-100 p-2 rounded-lg">
+                            <i class="fas fa-handshake text-teal-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Colaboraciones Externas</h1>
+                            <p class="text-gray-600">Gestiona empresas colaboradoras, contratos y facturas</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button (click)="loadAll()" [disabled]="loading()"
+                                class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
+                            <i [class]="loading() ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
+                            <span>Actualizar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-2">
+                <div class="flex space-x-1">
+                    @for (tab of tabs; track tab.id) {
+                        <button (click)="setActiveTab(tab.id)" [class]="getTabButtonClass(tab.id)">
+                            <i [class]="tab.icon"></i>
+                            <span>{{ tab.label }}</span>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- ==================== TAB: COLABORADORAS ==================== -->
+            @if (activeTab() === 'colaboradoras') {
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <!-- Tab header -->
+                    <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <i class="fas fa-building"></i>
+                            <span>{{ colaboradoras().length }} colaboradoras</span>
+                        </div>
+                        <button (click)="openCreateColaboradora()"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                            <i class="fas fa-plus"></i>
+                            <span>Nueva Colaboradora</span>
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">
+                                    <i class="fas fa-id-card mr-2"></i>CIF
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[300px]">
+                                    <i class="fas fa-building mr-2"></i>Nombre
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">
+                                    <i class="fas fa-cogs mr-2"></i>Acciones
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+
+                            <!-- Loading -->
+                            @if (loading()) {
+                                <tr>
+                                    <td colspan="3" class="px-4 py-12 text-center">
+                                        <div class="flex items-center justify-center space-x-2">
+                                            <i class="fas fa-spinner fa-spin text-teal-500 text-lg"></i>
+                                            <span class="text-gray-500">Cargando datos...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+
+                            <!-- Empty -->
+                            @if (!loading() && colaboradoras().length === 0) {
+                                <tr>
+                                    <td colspan="3" class="px-4 py-12 text-center">
+                                        <div class="flex flex-col items-center justify-center space-y-4">
+                                            <i class="fas fa-building text-gray-400 text-4xl"></i>
+                                            <div class="text-center">
+                                                <span class="text-gray-500 text-lg block mb-2">No hay colaboradoras registradas</span>
+                                                <button (click)="openCreateColaboradora()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                                    <i class="fas fa-plus mr-2"></i>Crear Primera Colaboradora
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+
+                            <!-- Data rows -->
+                            @for (col of colaboradoras(); track col.idColaboradora) {
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <!-- CIF -->
+                                    <td class="px-4 py-3">
+                                        <div class="relative">
+                                            <input type="text"
+                                                   [value]="col.cif"
+                                                   (change)="updateColaboradoraField(col.idColaboradora, 'cif', $any($event.target).value)"
+                                                   [class]="getInlineInputClass(savingStatesColaboradoras(), col.idColaboradora, 'cif') + ' font-medium text-sm'"
+                                                   placeholder="CIF">
+                                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                                @switch (getSavingState(savingStatesColaboradoras(), col.idColaboradora, 'cif')) {
+                                                    @case ('saving') { <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i> }
+                                                    @case ('success') { <i class="fas fa-check-circle text-green-500 text-xs"></i> }
+                                                    @case ('error') { <i class="fas fa-exclamation-circle text-red-500 text-xs"></i> }
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <!-- Nombre -->
+                                    <td class="px-4 py-3">
+                                        <div class="relative">
+                                            <input type="text"
+                                                   [value]="col.nombre"
+                                                   (change)="updateColaboradoraField(col.idColaboradora, 'nombre', $any($event.target).value)"
+                                                   [class]="getInlineInputClass(savingStatesColaboradoras(), col.idColaboradora, 'nombre') + ' text-sm'"
+                                                   placeholder="Nombre empresa">
+                                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                                @switch (getSavingState(savingStatesColaboradoras(), col.idColaboradora, 'nombre')) {
+                                                    @case ('saving') { <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i> }
+                                                    @case ('success') { <i class="fas fa-check-circle text-green-500 text-xs"></i> }
+                                                    @case ('error') { <i class="fas fa-exclamation-circle text-red-500 text-xs"></i> }
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <!-- Acciones -->
+                                    <td class="px-4 py-3 text-center">
+                                        <div class="flex items-center justify-center space-x-2">
+                                            <button (click)="openEditColaboradora(col)"
+                                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button (click)="deleteColaboradora(col.idColaboradora, col.nombre)"
+                                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            <!-- ==================== TAB: CONTRATOS ==================== -->
+            @if (activeTab() === 'contratos') {
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <!-- Tab header with filter -->
+                    <div class="p-4 border-b border-gray-200 flex items-center justify-between flex-wrap gap-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2 text-sm text-gray-500">
+                                <i class="fas fa-file-contract"></i>
+                                <span>{{ contratosFiltrados().length }} contratos</span>
+                            </div>
+                            <!-- Filtro por colaboradora -->
+                            <select [ngModel]="filtroContratoColaboradora()"
+                                    (ngModelChange)="filtroContratoColaboradora.set($event ? +$event : null)"
+                                    class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-teal-400">
+                                <option [ngValue]="null">Todas las colaboradoras</option>
+                                @for (col of colaboradoras(); track col.idColaboradora) {
+                                    <option [ngValue]="col.idColaboradora">{{ col.nombre }}</option>
+                                }
+                            </select>
+                        </div>
+                        <button (click)="openCreateContrato()"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                            <i class="fas fa-plus"></i>
+                            <span>Nuevo Contrato</span>
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[160px]">
+                                    <i class="fas fa-building mr-2"></i>Colaboradora
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
+                                    <i class="fas fa-file-contract mr-2"></i>Nombre Contrato
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">
+                                    <i class="fas fa-tag mr-2"></i>Tipo
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">
+                                    <i class="fas fa-check-circle mr-2"></i>Validez
+                                </th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px] bg-blue-50">
+                                    <i class="fas fa-euro-sign mr-2"></i>Importe Cubierto
+                                </th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px] bg-amber-50">
+                                    <i class="fas fa-file-invoice mr-2"></i>Total Facturado
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
+                                    <i class="fas fa-shield-alt mr-2"></i>Estado
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
+                                    <i class="fas fa-cogs mr-2"></i>Acciones
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+
+                            <!-- Loading -->
+                            @if (loading()) {
+                                <tr>
+                                    <td colspan="8" class="px-4 py-12 text-center">
+                                        <div class="flex items-center justify-center space-x-2">
+                                            <i class="fas fa-spinner fa-spin text-teal-500 text-lg"></i>
+                                            <span class="text-gray-500">Cargando datos...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+
+                            <!-- Empty -->
+                            @if (!loading() && contratosFiltrados().length === 0) {
+                                <tr>
+                                    <td colspan="8" class="px-4 py-12 text-center">
+                                        <div class="flex flex-col items-center justify-center space-y-4">
+                                            <i class="fas fa-file-contract text-gray-400 text-4xl"></i>
+                                            <div class="text-center">
+                                                <span class="text-gray-500 text-lg block mb-2">No hay contratos registrados</span>
+                                                <button (click)="openCreateContrato()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                                    <i class="fas fa-plus mr-2"></i>Crear Primer Contrato
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+
+                            <!-- Data rows -->
+                            @for (contrato of contratosFiltrados(); track contrato.idContrato) {
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ contrato.nombreColaboradora }}</td>
+                                    <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ contrato.nombreContrato }}</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span [class]="getTipoContratoBadgeClass(contrato.tipoContrato)">
+                                            {{ getTipoContratoLabel(contrato.tipoContrato) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span [class]="getValidezBadgeClass(contrato.validez)">
+                                            {{ getValidezLabel(contrato.validez) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-right text-sm font-medium numeric">{{ formatCurrency(contrato.importeCubierto) }}</td>
+                                    <td class="px-4 py-3 text-right text-sm font-medium numeric">{{ formatCurrency(contrato.totalFacturado) }}</td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if (contrato.superaCobertura) {
+                                            <span class="ui-pill bg-red-100 text-red-800" title="Las facturas superan el importe cubierto por el contrato">
+                                                <i class="fas fa-exclamation-triangle mr-1"></i>Excedido
+                                            </span>
+                                        } @else {
+                                            <span class="ui-pill bg-emerald-100 text-emerald-800">
+                                                <i class="fas fa-check mr-1"></i>OK
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <div class="flex items-center justify-center space-x-2">
+                                            <button (click)="openEditContrato(contrato)"
+                                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button (click)="deleteContrato(contrato.idContrato, contrato.nombreContrato)"
+                                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            <!-- ==================== TAB: FACTURAS ==================== -->
+            @if (activeTab() === 'facturas') {
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <!-- Tab header with filters -->
+                    <div class="p-4 border-b border-gray-200 flex items-center justify-between flex-wrap gap-4">
+                        <div class="flex items-center space-x-4 flex-wrap gap-2">
+                            <div class="flex items-center space-x-2 text-sm text-gray-500">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                <span>{{ facturasFiltradas().length }} facturas</span>
+                            </div>
+                            <!-- Filtro Colaboradora -->
+                            <select [ngModel]="filtroFacturaColaboradora()"
+                                    (ngModelChange)="filtroFacturaColaboradora.set($event ? +$event : null)"
+                                    class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-teal-400">
+                                <option [ngValue]="null">Todas las colaboradoras</option>
+                                @for (col of colaboradoras(); track col.idColaboradora) {
+                                    <option [ngValue]="col.idColaboradora">{{ col.nombre }}</option>
+                                }
+                            </select>
+                            <!-- Filtro Proyecto -->
+                            <select [ngModel]="filtroFacturaProyecto()"
+                                    (ngModelChange)="filtroFacturaProyecto.set($event ? +$event : null)"
+                                    class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-teal-400">
+                                <option [ngValue]="null">Todos los proyectos</option>
+                                @for (proy of proyectos(); track proy.idProyecto) {
+                                    <option [ngValue]="proy.idProyecto">{{ proy.acronimo }}</option>
+                                }
+                            </select>
+                            <!-- Filtro Contrato -->
+                            <select [ngModel]="filtroFacturaContrato()"
+                                    (ngModelChange)="filtroFacturaContrato.set($event ? +$event : null)"
+                                    class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-teal-400">
+                                <option [ngValue]="null">Todos los contratos</option>
+                                @for (contrato of contratos(); track contrato.idContrato) {
+                                    <option [ngValue]="contrato.idContrato">{{ contrato.nombreContrato }}</option>
+                                }
+                            </select>
+                        </div>
+                        <button (click)="openCreateFactura()"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                            <i class="fas fa-plus"></i>
+                            <span>Nueva Factura</span>
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[40px]"></th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px]">
+                                    <i class="fas fa-building mr-1"></i>Colaboradora
+                                </th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[110px]">
+                                    <i class="fas fa-hashtag mr-1"></i>N Factura
+                                </th>
+                                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[110px] bg-blue-50">
+                                    Base Imp.
+                                </th>
+                                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] bg-blue-50">
+                                    IVA
+                                </th>
+                                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px] bg-amber-50">
+                                    Prorrata
+                                </th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
+                                    Validez
+                                </th>
+                                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px]">
+                                    % Validez
+                                </th>
+                                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] bg-green-50">
+                                    Imp. Final
+                                </th>
+                                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] bg-purple-50">
+                                    Imputable
+                                </th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
+                                    Proyecto
+                                </th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">
+                                    Contrato
+                                </th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
+                                    Acciones
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+
+                            <!-- Loading -->
+                            @if (loading()) {
+                                <tr>
+                                    <td colspan="13" class="px-4 py-12 text-center">
+                                        <div class="flex items-center justify-center space-x-2">
+                                            <i class="fas fa-spinner fa-spin text-teal-500 text-lg"></i>
+                                            <span class="text-gray-500">Cargando datos...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+
+                            <!-- Empty -->
+                            @if (!loading() && facturasFiltradas().length === 0) {
+                                <tr>
+                                    <td colspan="13" class="px-4 py-12 text-center">
+                                        <div class="flex flex-col items-center justify-center space-y-4">
+                                            <i class="fas fa-file-invoice-dollar text-gray-400 text-4xl"></i>
+                                            <div class="text-center">
+                                                <span class="text-gray-500 text-lg block mb-2">No hay facturas registradas</span>
+                                                <button (click)="openCreateFactura()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                                    <i class="fas fa-plus mr-2"></i>Crear Primera Factura
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+
+                            <!-- Data rows -->
+                            @for (factura of facturasFiltradas(); track factura.idFactura) {
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <!-- Expand toggle -->
+                                    <td class="px-3 py-3 text-center">
+                                        @if (factura.idProyecto) {
+                                            <button (click)="toggleExpandFactura(factura)"
+                                                    class="p-1 text-gray-400 hover:text-teal-600 transition-colors" title="Ver imputación a fases">
+                                                <i [class]="expandedFacturaId() === factura.idFactura ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                    <td class="px-3 py-3 text-sm text-gray-700">{{ factura.nombreColaboradora }}</td>
+                                    <td class="px-3 py-3 text-sm font-medium text-gray-900">{{ factura.numeroFactura }}</td>
+                                    <td class="px-3 py-3 text-right text-sm numeric">{{ formatCurrency(factura.baseImponible) }}</td>
+                                    <td class="px-3 py-3 text-right text-sm numeric">{{ formatCurrency(factura.iva) }}</td>
+                                    <td class="px-3 py-3 text-right text-sm numeric">{{ formatPercent(factura.porcentajeProrrata) }}</td>
+                                    <td class="px-3 py-3 text-center">
+                                        <span [class]="getValidezBadgeClass(factura.validez)">
+                                            {{ getValidezLabel(factura.validez) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-3 py-3 text-right text-sm numeric">{{ formatPercent(factura.porcentajeValidez) }}</td>
+                                    <td class="px-3 py-3 text-right text-sm font-medium numeric text-green-700">{{ formatCurrency(factura.importeFinal) }}</td>
+                                    <td class="px-3 py-3 text-right text-sm font-medium numeric text-purple-700">{{ formatCurrency(factura.importeImputable) }}</td>
+                                    <td class="px-3 py-3 text-sm text-gray-600">{{ factura.acronimoProyecto ?? '—' }}</td>
+                                    <td class="px-3 py-3 text-sm text-gray-600">{{ factura.nombreContrato ?? '—' }}</td>
+                                    <td class="px-3 py-3 text-center">
+                                        <div class="flex items-center justify-center space-x-2">
+                                            <button (click)="openEditFactura(factura)"
+                                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button (click)="deleteFactura(factura.idFactura, factura.numeroFactura)"
+                                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Expanded: Imputación a fases -->
+                                @if (expandedFacturaId() === factura.idFactura && factura.idProyecto) {
+                                    <tr>
+                                        <td colspan="13" class="px-0 py-0">
+                                            <div class="bg-slate-50 border-t border-b border-slate-200 px-8 py-4">
+                                                <div class="flex items-center space-x-2 mb-3">
+                                                    <i class="fas fa-sitemap text-teal-600"></i>
+                                                    <span class="text-sm font-medium text-gray-700">Imputación a Fases del Proyecto</span>
+                                                    <span class="text-xs text-gray-400 ml-2">
+                                                        (Imputable: {{ formatCurrency(factura.importeImputable) }})
+                                                    </span>
+                                                </div>
+
+                                                @if (fasesFacturaLoading()) {
+                                                    <div class="flex items-center space-x-2 py-4">
+                                                        <i class="fas fa-spinner fa-spin text-teal-500"></i>
+                                                        <span class="text-sm text-gray-500">Cargando fases...</span>
+                                                    </div>
+                                                } @else if (fasesFactura().length === 0) {
+                                                    <div class="py-4 text-sm text-gray-400 text-center">
+                                                        <i class="fas fa-info-circle mr-1"></i>
+                                                        Este proyecto no tiene fases definidas.
+                                                    </div>
+                                                } @else {
+                                                    <table class="w-full max-w-2xl">
+                                                        <thead>
+                                                        <tr class="border-b border-slate-300">
+                                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Fase</th>
+                                                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase min-w-[160px]">Importe Imputado</th>
+                                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-[60px]">Estado</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody class="divide-y divide-slate-200">
+                                                        @for (fase of fasesFactura(); track fase.idFase) {
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-sm text-gray-700">{{ fase.nombre }}</td>
+                                                                <td class="px-3 py-2">
+                                                                    <div class="relative">
+                                                                        <input type="number"
+                                                                               step="0.01" min="0"
+                                                                               [value]="getImputacionImporte(factura, fase.idFase)"
+                                                                               (change)="updateImputacion(factura, fase.idFase, +$any($event.target).value)"
+                                                                               [class]="getInlineInputClass(savingStatesImputaciones(), factura.idFactura, 'fase-' + fase.idFase) + ' text-right text-sm numeric'"
+                                                                               placeholder="0,00">
+                                                                    </div>
+                                                                </td>
+                                                                <td class="px-3 py-2 text-center">
+                                                                    @switch (getSavingState(savingStatesImputaciones(), factura.idFactura, 'fase-' + fase.idFase)) {
+                                                                        @case ('saving') { <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i> }
+                                                                        @case ('success') { <i class="fas fa-check-circle text-green-500 text-xs"></i> }
+                                                                        @case ('error') { <i class="fas fa-exclamation-circle text-red-500 text-xs"></i> }
+                                                                    }
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                        </tbody>
+                                                    </table>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+        </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODALS ==================== -->
+@if (modalOpen()) {
+    <div class="ui-modal-backdrop" (click)="onBackdropClick($event)">
+        <div class="ui-modal-layout">
+            <div [class]="'ui-modal-panel ' + (modalType() === 'factura' ? 'max-w-2xl' : 'max-w-lg')" (click)="$event.stopPropagation()">
+
+                <!-- Header -->
+                <div class="mb-4 flex items-center justify-between border-b border-slate-200 pb-4">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        @if (modalType() === 'colaboradora') {
+                            <i class="fas fa-building mr-2 text-teal-600"></i>
+                            {{ modalMode() === 'create' ? 'Nueva Colaboradora' : 'Editar Colaboradora' }}
+                        } @else if (modalType() === 'contrato') {
+                            <i class="fas fa-file-contract mr-2 text-teal-600"></i>
+                            {{ modalMode() === 'create' ? 'Nuevo Contrato' : 'Editar Contrato' }}
+                        } @else if (modalType() === 'factura') {
+                            <i class="fas fa-file-invoice-dollar mr-2 text-teal-600"></i>
+                            {{ modalMode() === 'create' ? 'Nueva Factura' : 'Editar Factura' }}
+                        }
+                    </h3>
+                    <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Error -->
+                @if (modalError()) {
+                    <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                        <i class="fas fa-exclamation-circle mr-2"></i>{{ modalError() }}
+                    </div>
+                }
+
+                <!-- ======= FORM: Colaboradora ======= -->
+                @if (modalType() === 'colaboradora') {
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-id-card mr-1"></i>CIF <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text"
+                                   [ngModel]="formColaboradora().cif"
+                                   (ngModelChange)="formColaboradora.set({cif: $event, nombre: formColaboradora().nombre})"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
+                                   placeholder="Ej: B12345678" maxlength="15">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-building mr-1"></i>Nombre <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text"
+                                   [ngModel]="formColaboradora().nombre"
+                                   (ngModelChange)="formColaboradora.set({cif: formColaboradora().cif, nombre: $event})"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
+                                   placeholder="Nombre de la empresa" maxlength="200">
+                        </div>
+                    </div>
+                }
+
+                <!-- ======= FORM: Contrato ======= -->
+                @if (modalType() === 'contrato') {
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-building mr-1"></i>Colaboradora <span class="text-red-500">*</span>
+                            </label>
+                            <select [ngModel]="formContrato().idColaboradora"
+                                    (ngModelChange)="setFormContratoIdColaboradora($event)"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500">
+                                <option [ngValue]="null">Seleccionar colaboradora...</option>
+                                @for (col of colaboradoras(); track col.idColaboradora) {
+                                    <option [ngValue]="col.idColaboradora">{{ col.nombre }} ({{ col.cif }})</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-file-contract mr-1"></i>Nombre del Contrato <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text"
+                                   [ngModel]="formContrato().nombreContrato"
+                                   (ngModelChange)="setFormContratoNombreContrato($event)"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500"
+                                   placeholder="Nombre del contrato">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-align-left mr-1"></i>Objeto
+                            </label>
+                            <textarea [ngModel]="formContrato().objeto"
+                                      (ngModelChange)="setFormContratoObjeto($event)"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500"
+                                      rows="3" placeholder="Descripción del objeto del contrato"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-tag mr-1"></i>Tipo <span class="text-red-500">*</span>
+                                </label>
+                                <select [ngModel]="formContrato().tipoContrato"
+                                        (ngModelChange)="setFormContratoTipoContrato($event)"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500">
+                                    <option value="">Seleccionar...</option>
+                                    <option [value]="TipoContratoColaboradorasExternas.GASTOS">Gastos</option>
+                                    <option [value]="TipoContratoColaboradorasExternas.COSTE_HORA_PERSONAL">Coste/Hora Personal</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-check-circle mr-1"></i>Validez <span class="text-red-500">*</span>
+                                </label>
+                                <select [ngModel]="formContrato().validez"
+                                        (ngModelChange)="setFormContratoValidez($event)"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500">
+                                    <option value="">Seleccionar...</option>
+                                    <option [value]="ValidezIDI.VALIDA_IDI">Válida I+D+i</option>
+                                    <option [value]="ValidezIDI.VALIDA_PARCIAL">Válida Parcial</option>
+                                    <option [value]="ValidezIDI.NO_VALIDA">No Válida</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-euro-sign mr-1"></i>Importe Cubierto <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" step="0.01" min="0"
+                                   [ngModel]="formContrato().importeCubierto"
+                                   (ngModelChange)="setFormContratoImporteCubierto($event)"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500"
+                                   placeholder="0,00">
+                        </div>
+                    </div>
+                }
+
+                <!-- ======= FORM: Factura ======= -->
+                @if (modalType() === 'factura') {
+                    <div class="space-y-4">
+                        <!-- Colaboradora + Nº Factura -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-building mr-1"></i>Colaboradora <span class="text-red-500">*</span>
+                                </label>
+                                <select [ngModel]="formFactura().idColaboradora"
+                                        (ngModelChange)="onFacturaColaboradoraChange($event)"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500">
+                                    <option [ngValue]="null">Seleccionar...</option>
+                                    @for (col of colaboradoras(); track col.idColaboradora) {
+                                        <option [ngValue]="col.idColaboradora">{{ col.nombre }}</option>
+                                    }
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-hashtag mr-1"></i>N Factura <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text"
+                                       [ngModel]="formFactura().numeroFactura"
+                                       (ngModelChange)="setFormFacturaNumeroFactura($event)"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500"
+                                       placeholder="Ej: F-2025/001" maxlength="50">
+                            </div>
+                        </div>
+
+                        <!-- Conceptos -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-align-left mr-1"></i>Conceptos
+                            </label>
+                            <textarea [ngModel]="formFactura().conceptos"
+                                      (ngModelChange)="setFormFacturaConceptos($event)"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500"
+                                      rows="2" placeholder="Descripción de los conceptos facturados"></textarea>
+                        </div>
+
+                        <!-- Importes -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Base Imponible <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" step="0.01" min="0"
+                                       [ngModel]="formFactura().baseImponible"
+                                       (ngModelChange)="setFormFacturaBaseImponible($event)"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500"
+                                       placeholder="0,00">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    IVA <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" step="0.01" min="0"
+                                       [ngModel]="formFactura().iva"
+                                       (ngModelChange)="setFormFacturaIva($event)"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500"
+                                       placeholder="0,00">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    % Prorrata IVA
+                                </label>
+                                <input type="number" step="0.01" min="0" max="100"
+                                       [ngModel]="formFactura().porcentajeProrrata"
+                                       (ngModelChange)="setFormFacturaPorcentajeProrrata($event)"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500"
+                                       placeholder="0">
+                            </div>
+                        </div>
+
+                        <!-- Validez -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-check-circle mr-1"></i>Validez I+D <span class="text-red-500">*</span>
+                                </label>
+                                <select [ngModel]="formFactura().validez"
+                                        (ngModelChange)="onFacturaValidezChange($event)"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500">
+                                    <option value="">Seleccionar...</option>
+                                    <option [value]="ValidezIDI.VALIDA_IDI">Valida I+D+i (100%)</option>
+                                    <option [value]="ValidezIDI.VALIDA_PARCIAL">Valida Parcial</option>
+                                    <option [value]="ValidezIDI.NO_VALIDA">No Valida (0%)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    % Validez <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" step="1" min="0" max="100"
+                                       [ngModel]="formFactura().porcentajeValidez"
+                                       (ngModelChange)="setFormFacturaPorcentajeValidez($event)"
+                                       [disabled]="!isPorcentajeValidezEditable()"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                       placeholder="0-100">
+                            </div>
+                        </div>
+
+                        <!-- Contrato y Proyecto -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-file-contract mr-1"></i>Contrato (opcional)
+                                </label>
+                                <select [ngModel]="formFactura().idContrato"
+                                        (ngModelChange)="setFormFacturaIdContrato($event)"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500">
+                                    <option [ngValue]="null">Sin contrato</option>
+                                    @for (contrato of contratosParaFactura(); track contrato.idContrato) {
+                                        <option [ngValue]="contrato.idContrato">{{ contrato.nombreContrato }}</option>
+                                    }
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-project-diagram mr-1"></i>Proyecto (opcional)
+                                </label>
+                                <select [ngModel]="formFactura().idProyecto"
+                                        (ngModelChange)="setFormFacturaIdProyecto($event)"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500">
+                                    <option [ngValue]="null">Sin proyecto</option>
+                                    @for (proy of proyectos(); track proy.idProyecto) {
+                                        <option [ngValue]="proy.idProyecto">{{ proy.acronimo }} - {{ proy.titulo }}</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Campos calculados -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-gray-600 mb-3">
+                                <i class="fas fa-calculator mr-1"></i>Importes Calculados
+                            </h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Importe Final:</span>
+                                    <span class="text-sm font-medium text-green-700 numeric">{{ formatCurrency(importeFinalCalculado()) }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Importe Imputable:</span>
+                                    <span class="text-sm font-medium text-purple-700 numeric">{{ formatCurrency(importeImputableCalculado()) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Botones -->
+                <div class="ui-form-actions">
+                    <button (click)="closeModal()" class="ui-btn ui-btn-secondary">
+                        Cancelar
+                    </button>
+                    <button (click)="saveModal()" [disabled]="modalLoading()"
+                            class="ui-btn ui-btn-primary flex items-center space-x-2">
+                        @if (modalLoading()) {
+                            <i class="fas fa-spinner fa-spin"></i>
+                        }
+                        <span>{{ modalMode() === 'create' ? 'Crear' : 'Guardar' }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

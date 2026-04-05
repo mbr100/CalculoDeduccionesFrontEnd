@@ -16,6 +16,16 @@
             <i class="fas fa-project-diagram text-blue-500"></i>
         </button>
 
+        <!-- Botón Colaboraciones -->
+        <button (click)="goToColaboraciones()" title="Colaboraciones Externas" [class]="getButtonClass('colaboraciones')">
+            <i class="fas fa-handshake text-blue-500"></i>
+        </button>
+
+        <!-- Botón Materiales Fungibles -->
+        <button (click)="goToMateriales()" title="Materiales Fungibles" [class]="getButtonClass('materiales')">
+            <i class="fas fa-flask text-blue-500"></i>
+        </button>
+
         <!-- Botón Asignaciones -->
         <button (click)="goToAsignaciones()" title="Asignaciones" [class]="getButtonClass('asignaciones')">
             <i class="fas fa-tasks text-blue-500"></i>

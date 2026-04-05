@@ -5,6 +5,8 @@ import {getVisiblePages, ModalMode, SavingState} from '../../../models/savingSta
 import {FormsModule} from '@angular/forms';
 import {Sidebar} from '../../../components/personal/sidebar/sidebar';
 import {ProyectoService} from '../../../services/proyecto-service';
+import {FaseProyectoService} from '../../../services/fase-proyecto-service';
+import {FaseProyectoDTO} from '../../../models/fase-proyecto';
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import Swal from 'sweetalert2';
 
@@ -20,6 +22,7 @@ import Swal from 'sweetalert2';
 export class ListadoProyectos implements OnInit {
     private route: ActivatedRoute = inject(ActivatedRoute);
     private proyectoService: ProyectoService = inject(ProyectoService);
+    private faseProyectoService: FaseProyectoService = inject(FaseProyectoService);
 
     // ID económico obtenido de la ruta
     public economicoId: number;
@@ -495,6 +498,136 @@ export class ListadoProyectos implements OnInit {
 
     private getFieldKey(idProyecto: number, field: string): string {
         return `${idProyecto}-${field}`;
+    }
+
+    // ---- Fases del proyecto ----
+    public fasesModalOpen: WritableSignal<boolean> = signal(false);
+    public fasesModalProyecto: WritableSignal<Proyecto | null> = signal(null);
+    public fases: WritableSignal<FaseProyectoDTO[]> = signal<FaseProyectoDTO[]>([]);
+    public fasesLoading: WritableSignal<boolean> = signal(false);
+    public nuevaFaseNombre: WritableSignal<string> = signal('');
+    public editingFaseId: WritableSignal<number | null> = signal(null);
+    public editingFaseNombre: WritableSignal<string> = signal('');
+    public faseSavingStates: WritableSignal<{ [key: number]: SavingState }> = signal({});
+
+    public openFasesModal(proyecto: Proyecto): void {
+        this.fasesModalProyecto.set(proyecto);
+        this.fasesModalOpen.set(true);
+        this.nuevaFaseNombre.set('');
+        this.editingFaseId.set(null);
+        document.body.style.overflow = 'hidden';
+        this.loadFases(proyecto.idProyecto!);
+    }
+
+    public closeFasesModal(): void {
+        this.fasesModalOpen.set(false);
+        this.fasesModalProyecto.set(null);
+        this.fases.set([]);
+        this.editingFaseId.set(null);
+        document.body.style.overflow = 'auto';
+    }
+
+    public onFasesBackdropClick(event: Event): void {
+        if (event.target === event.currentTarget) {
+            this.closeFasesModal();
+        }
+    }
+
+    private loadFases(idProyecto: number): void {
+        this.fasesLoading.set(true);
+        this.faseProyectoService.getFases(idProyecto).subscribe({
+            next: (fases) => {
+                this.fases.set(fases);
+                this.fasesLoading.set(false);
+            },
+            error: (error) => {
+                console.error('Error cargando fases:', error);
+                this.fasesLoading.set(false);
+            }
+        });
+    }
+
+    public crearFase(): void {
+        const nombre = this.nuevaFaseNombre().trim();
+        const proyecto = this.fasesModalProyecto();
+        if (!nombre || !proyecto) return;
+
+        this.faseProyectoService.crearFase(proyecto.idProyecto!, nombre).subscribe({
+            next: (fase) => {
+                this.fases.update(f => [...f, fase]);
+                this.nuevaFaseNombre.set('');
+            },
+            error: (error) => {
+                console.error('Error creando fase:', error);
+            }
+        });
+    }
+
+    public onNuevaFaseKeyPress(event: KeyboardEvent): void {
+        if (event.key === 'Enter') {
+            this.crearFase();
+        }
+    }
+
+    public startEditFase(fase: FaseProyectoDTO): void {
+        this.editingFaseId.set(fase.idFase);
+        this.editingFaseNombre.set(fase.nombre);
+    }
+
+    public cancelEditFase(): void {
+        this.editingFaseId.set(null);
+        this.editingFaseNombre.set('');
+    }
+
+    public saveEditFase(fase: FaseProyectoDTO): void {
+        const nombre = this.editingFaseNombre().trim();
+        if (!nombre) return;
+
+        this.faseSavingStates.update(s => ({...s, [fase.idFase]: 'saving'}));
+
+        this.faseProyectoService.actualizarFase(fase.idFase, nombre).subscribe({
+            next: (updated) => {
+                this.fases.update(fases => fases.map(f => f.idFase === fase.idFase ? updated : f));
+                this.editingFaseId.set(null);
+                this.faseSavingStates.update(s => ({...s, [fase.idFase]: 'success'}));
+                setTimeout(() => this.faseSavingStates.update(s => ({...s, [fase.idFase]: 'idle'})), 2000);
+            },
+            error: (error) => {
+                console.error('Error actualizando fase:', error);
+                this.faseSavingStates.update(s => ({...s, [fase.idFase]: 'error'}));
+                setTimeout(() => this.faseSavingStates.update(s => ({...s, [fase.idFase]: 'idle'})), 3000);
+            }
+        });
+    }
+
+    public onEditFaseKeyPress(event: KeyboardEvent, fase: FaseProyectoDTO): void {
+        if (event.key === 'Enter') {
+            this.saveEditFase(fase);
+        } else if (event.key === 'Escape') {
+            this.cancelEditFase();
+        }
+    }
+
+    public eliminarFase(fase: FaseProyectoDTO): void {
+        Swal.fire({
+            title: '¿Eliminar fase?',
+            text: `Se eliminará la fase "${fase.nombre}" y todas sus asignaciones.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.faseProyectoService.eliminarFase(fase.idFase).subscribe({
+                    next: () => {
+                        this.fases.update(fases => fases.filter(f => f.idFase !== fase.idFase));
+                    },
+                    error: (error) => {
+                        console.error('Error eliminando fase:', error);
+                    }
+                });
+            }
+        });
     }
 
 }
