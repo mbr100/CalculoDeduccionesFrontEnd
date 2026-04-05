@@ -9,6 +9,7 @@ import {ResumenEconomico} from './pages/resumen/resumen-economico/resumen-econom
 import {ColaboracionesExternas} from './pages/colaboraciones/colaboraciones-externas/colaboraciones-externas';
 import {MaterialesFungibles} from './pages/materiales/materiales-fungibles/materiales-fungibles';
 import {AmortizacionActivos} from './pages/amortizacion/amortizacion-activos/amortizacion-activos';
+import {OtrosGastos} from './pages/otros-gastos/otros-gastos/otros-gastos';
 import {ConfiguracionAnualSSComponent} from './pages/mantenimientos/configuracion-anual-ss/configuracion-anual-ss';
 import {TarifaPrimasCnaeComponent} from './pages/mantenimientos/tarifa-primas-cnae/tarifa-primas-cnae';
 import {ClavesOcupacionComponent} from './pages/mantenimientos/claves-ocupacion/claves-ocupacion';
@@ -27,6 +28,7 @@ export const routes: Routes = [
             { path: 'colaboraciones/:id', component: ColaboracionesExternas },
             { path: 'materiales/:id', component: MaterialesFungibles },
             { path: 'amortizacion/:id', component: AmortizacionActivos },
+            { path: 'otros-gastos/:id', component: OtrosGastos },
             { path: 'asignaciones/:id', component:  Asignaciones},
             { path: 'resumen/:id', component:  ResumenEconomico},
         ]

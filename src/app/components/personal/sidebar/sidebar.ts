@@ -48,6 +48,8 @@ export class Sidebar implements OnInit, OnDestroy {
             this.activeRoute = 'materiales';
         } else if (url.includes('/economico/amortizacion/')) {
             this.activeRoute = 'amortizacion';
+        } else if (url.includes('/economico/otros-gastos/')) {
+            this.activeRoute = 'otrosgastos';
         } else if (url.includes('/economico/asignaciones/')) {
             this.activeRoute = 'asignaciones';
         } else if (url.includes('/economico/resumen/')) {
@@ -107,6 +109,14 @@ export class Sidebar implements OnInit, OnDestroy {
 
     public goToAmortizacion(): void {
         this.router.navigate(['/economico/amortizacion', this.idEconomico]).then((success) => {
+            if (success) {
+                this.updateActiveRoute(this.router.url);
+            }
+        });
+    }
+
+    public goToOtrosGastos(): void {
+        this.router.navigate(['/economico/otros-gastos', this.idEconomico]).then((success) => {
             if (success) {
                 this.updateActiveRoute(this.router.url);
             }

@@ -9,6 +9,7 @@ export const environment = {
     apiColaboraciones: '/api/colaboraciones',
     apiMateriales: '/api/materiales',
     apiAmortizacion: '/api/amortizacion',
+    apiOtrosGastos: '/api/otros-gastos',
     editorToolbar: <Toolbar>[
         ['bold', 'italic'],
         ['underline', 'strike'],
