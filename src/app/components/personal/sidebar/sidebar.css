@@ -2,10 +2,237 @@
     display: flex;
     flex-direction: column;
     align-self: stretch;
-    width: 5rem; /* w-20 de Tailwind */
-    background-color: white;
-    border-right: 1px solid rgb(226, 232, 240); /* border-slate-200 */
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
     flex-shrink: 0;
 }
 
+/* ── Wrapper principal ─────────────────────────────── */
+.sidebar-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 200px;
+    background-color: white;
+    border-right: 1px solid rgb(226, 232, 240);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: width 200ms ease;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+.sidebar-wrapper--collapsed {
+    width: 56px;
+}
+
+/* ── Botón toggle ──────────────────────────────────── */
+.toggle-row {
+    display: flex;
+    justify-content: flex-end;
+    padding: 6px 8px 2px;
+}
+
+.sidebar-wrapper--collapsed .toggle-row {
+    justify-content: center;
+}
+
+.toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 0.65rem;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+    flex-shrink: 0;
+}
+
+.toggle-btn:hover {
+    background-color: #eff6ff;
+    color: #3b82f6;
+    border-color: #bfdbfe;
+}
+
+/* ── Navegación ────────────────────────────────────── */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 4px 6px 8px;
+    flex: 1;
+}
+
+/* ── Labels y chevrons: ocultos en modo colapsado ──── */
+.sidebar-wrapper--collapsed .nav-label,
+.sidebar-wrapper--collapsed .nav-chevron {
+    display: none;
+}
+
+/* ── Botón de nivel raíz ───────────────────────────── */
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #374151;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.nav-btn:hover {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+}
+
+.nav-btn--active {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+/* Centrar icono en modo colapsado */
+.sidebar-wrapper--collapsed .nav-btn {
+    justify-content: center;
+    padding: 9px 0;
+}
+
+/* ── Botón de grupo colapsable ─────────────────────── */
+.nav-group-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #374151;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.nav-group-btn:hover {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+}
+
+.nav-group-btn--active {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+/* Centrar icono en modo colapsado */
+.sidebar-wrapper--collapsed .nav-group-btn {
+    justify-content: center;
+    padding: 9px 0;
+}
+
+.nav-group-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-chevron {
+    font-size: 0.65rem;
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+/* ── Hijos del grupo ───────────────────────────────── */
+.nav-group-children {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-top: 2px;
+    padding-left: 14px;
+    border-left: 2px solid #e2e8f0;
+    margin-left: 16px;
+}
+
+/* En modo colapsado: sin sangría, sin línea vertical */
+.sidebar-wrapper--collapsed .nav-group-children {
+    padding-left: 0;
+    margin-left: 0;
+    border-left: none;
+}
+
+/* ── Sub-grupo ─────────────────────────────────────── */
+.nav-subgroup {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Botón de ítem hijo ────────────────────────────── */
+.nav-sub-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: #4b5563;
+    font-size: 0.775rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.nav-sub-btn:hover {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+}
+
+.nav-sub-btn--active {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+/* Centrar icono en modo colapsado */
+.sidebar-wrapper--collapsed .nav-sub-btn {
+    justify-content: center;
+    padding: 7px 0;
+}
+
+/* ── Iconos ────────────────────────────────────────── */
+.nav-icon {
+    font-size: 0.95rem;
+    width: 16px;
+    text-align: center;
+    color: #3b82f6;
+    flex-shrink: 0;
+}
+
+.nav-icon-sm {
+    font-size: 0.8rem;
+    width: 14px;
+    text-align: center;
+    color: #60a5fa;
+    flex-shrink: 0;
+}
+
+.nav-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -1,48 +1,108 @@
-<div class="flex h-full flex-col p-3">
-    <!-- Navegación del sidebar -->
-    <nav class="flex flex-1 flex-col gap-2">
-        <!-- Botón Economico -->
-        <button (click)="goToEconomico()" title="Economico" [class]="getButtonClass('economico')">
-            <i class="fas fa-coins text-blue-500"></i>
+<div class="sidebar-wrapper" [class.sidebar-wrapper--collapsed]="collapsed">
+
+    <!-- Botón toggle collapse -->
+    <div class="toggle-row">
+        <button class="toggle-btn" (click)="toggleCollapsed()" [title]="collapsed ? 'Expandir menú' : 'Colapsar menú'">
+            <i class="fas" [class.fa-chevron-right]="collapsed" [class.fa-chevron-left]="!collapsed"></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <!-- Económico -->
+        <button (click)="goToEconomico()" title="Económico" [class]="getNavButtonClass('economico')">
+            <i class="fas fa-coins nav-icon"></i>
+            <span class="nav-label">Económico</span>
         </button>
 
-        <!-- Botón Personal -->
-        <button (click)="goToPersonal()" title="Personal" [class]="getButtonClass('personal')">
-            <i class="fas fa-users text-lg text-blue-500"></i>
+        <!-- Proyectos -->
+        <button (click)="goToProyectos()" title="Proyectos" [class]="getNavButtonClass('proyectos')">
+            <i class="fas fa-project-diagram nav-icon"></i>
+            <span class="nav-label">Proyectos</span>
         </button>
 
-        <!-- Botón Proyectos -->
-        <button (click)="goToProyectos()" title="Proyectos" [class]="getButtonClass('proyectos')">
-            <i class="fas fa-project-diagram text-blue-500"></i>
+        <!-- Partidas de Gasto -->
+        <div class="nav-group">
+            <button (click)="togglePartidasGasto()" title="Partidas de Gasto"
+                    [class]="getGroupButtonClass(isPartidasGastoActive())">
+                <div class="nav-group-left">
+                    <i class="fas fa-layer-group nav-icon"></i>
+                    <span class="nav-label">Partidas de Gasto</span>
+                </div>
+                <i class="fas nav-chevron"
+                   [class.fa-chevron-down]="partidasGastoOpen"
+                   [class.fa-chevron-right]="!partidasGastoOpen"></i>
+            </button>
+
+            @if (partidasGastoOpen) {
+                <div class="nav-group-children">
+
+                    <!-- Personal sub-grupo -->
+                    <div class="nav-subgroup">
+                        <button (click)="togglePersonalSub()" title="Personal"
+                                [class]="getGroupButtonClass(isPersonalActive())">
+                            <div class="nav-group-left">
+                                <i class="fas fa-users nav-icon"></i>
+                                <span class="nav-label">Personal</span>
+                            </div>
+                            <i class="fas nav-chevron"
+                               [class.fa-chevron-down]="personalSubOpen"
+                               [class.fa-chevron-right]="!personalSubOpen"></i>
+                        </button>
+
+                        @if (personalSubOpen) {
+                            <div class="nav-group-children">
+                                <button (click)="goToPersonal()" title="Personal"
+                                        [class]="getSubButtonClass('personal')">
+                                    <i class="fas fa-user nav-icon-sm"></i>
+                                    <span class="nav-label">Personal</span>
+                                </button>
+                                <button (click)="goToAsignaciones()" title="Asignaciones"
+                                        [class]="getSubButtonClass('asignaciones')">
+                                    <i class="fas fa-tasks nav-icon-sm"></i>
+                                    <span class="nav-label">Asignaciones</span>
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Colaboraciones -->
+                    <button (click)="goToColaboraciones()" title="Colaboraciones Externas"
+                            [class]="getSubButtonClass('colaboraciones')">
+                        <i class="fas fa-handshake nav-icon-sm"></i>
+                        <span class="nav-label">Colaboraciones</span>
+                    </button>
+
+                    <!-- Amortizaciones -->
+                    <button (click)="goToAmortizacion()" title="Amortización de Activos"
+                            [class]="getSubButtonClass('amortizacion')">
+                        <i class="fas fa-chart-line nav-icon-sm"></i>
+                        <span class="nav-label">Amortizaciones</span>
+                    </button>
+
+                    <!-- Material Fungible -->
+                    <button (click)="goToMateriales()" title="Materiales Fungibles"
+                            [class]="getSubButtonClass('materiales')">
+                        <i class="fas fa-flask nav-icon-sm"></i>
+                        <span class="nav-label">Mat. Fungible</span>
+                    </button>
+
+                    <!-- Otros Gastos -->
+                    <button (click)="goToOtrosGastos()" title="Otros Gastos"
+                            [class]="getSubButtonClass('otrosgastos')">
+                        <i class="fas fa-receipt nav-icon-sm"></i>
+                        <span class="nav-label">Otros Gastos</span>
+                    </button>
+
+                </div>
+            }
+        </div>
+
+        <!-- Resumen -->
+        <button (click)="goToResumen()" title="Resumen" [class]="getNavButtonClass('resumen')">
+            <i class="fas fa-chart-bar nav-icon"></i>
+            <span class="nav-label">Resumen</span>
         </button>
 
-        <!-- Botón Colaboraciones -->
-        <button (click)="goToColaboraciones()" title="Colaboraciones Externas" [class]="getButtonClass('colaboraciones')">
-            <i class="fas fa-handshake text-blue-500"></i>
-        </button>
-
-        <!-- Botón Materiales Fungibles -->
-        <button (click)="goToMateriales()" title="Materiales Fungibles" [class]="getButtonClass('materiales')">
-            <i class="fas fa-flask text-blue-500"></i>
-        </button>
-
-        <!-- Botón Amortización -->
-        <button (click)="goToAmortizacion()" title="Amortización de Activos" [class]="getButtonClass('amortizacion')">
-            <i class="fas fa-chart-line text-blue-500"></i>
-        </button>
-
-        <!-- Botón Otros Gastos -->
-        <button (click)="goToOtrosGastos()" title="Otros Gastos" [class]="getButtonClass('otrosgastos')">
-            <i class="fas fa-receipt text-blue-500"></i>
-        </button>
-
-        <!-- Botón Asignaciones -->
-        <button (click)="goToAsignaciones()" title="Asignaciones" [class]="getButtonClass('asignaciones')">
-            <i class="fas fa-tasks text-blue-500"></i>
-        </button>
-        <!-- Botón Resumen -->
-        <button (click)="goToResumen()" title="Resumen" [class]="getButtonClass('resumen')">
-            <i class="fas fa-chart-bar text-blue-500"></i>
-        </button>
     </nav>
 </div>

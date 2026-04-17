@@ -14,13 +14,14 @@ export class Sidebar implements OnInit, OnDestroy {
 
     private router: Router = inject(Router);
     public activeRoute: string = '';
+    public collapsed: boolean = false;
+    public partidasGastoOpen: boolean = false;
+    public personalSubOpen: boolean = false;
     private routerSubscription?: Subscription;
 
     public ngOnInit(): void {
-        // Obtener la ruta actual al inicializar
         this.updateActiveRoute(this.router.url);
 
-        // Escuchar cambios de ruta
         this.routerSubscription = this.router.events
             .pipe(filter(event => event instanceof NavigationEnd))
             .subscribe((event: NavigationEnd) => {
@@ -29,7 +30,6 @@ export class Sidebar implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy(): void {
-        // Limpiar suscripción
         if (this.routerSubscription) {
             this.routerSubscription.unsubscribe();
         }
@@ -40,18 +40,26 @@ export class Sidebar implements OnInit, OnDestroy {
             this.activeRoute = 'economico';
         } else if (url.includes('/economico/personal/')) {
             this.activeRoute = 'personal';
+            this.partidasGastoOpen = true;
+            this.personalSubOpen = true;
         } else if (url.includes('/economico/proyectos/')) {
             this.activeRoute = 'proyectos';
         } else if (url.includes('/economico/colaboraciones/')) {
             this.activeRoute = 'colaboraciones';
+            this.partidasGastoOpen = true;
         } else if (url.includes('/economico/materiales/')) {
             this.activeRoute = 'materiales';
+            this.partidasGastoOpen = true;
         } else if (url.includes('/economico/amortizacion/')) {
             this.activeRoute = 'amortizacion';
+            this.partidasGastoOpen = true;
         } else if (url.includes('/economico/otros-gastos/')) {
             this.activeRoute = 'otrosgastos';
+            this.partidasGastoOpen = true;
         } else if (url.includes('/economico/asignaciones/')) {
             this.activeRoute = 'asignaciones';
+            this.partidasGastoOpen = true;
+            this.personalSubOpen = true;
         } else if (url.includes('/economico/resumen/')) {
             this.activeRoute = 'resumen';
         } else {
@@ -59,83 +67,76 @@ export class Sidebar implements OnInit, OnDestroy {
         }
     }
 
+    public toggleCollapsed(): void {
+        this.collapsed = !this.collapsed;
+    }
+
+    public togglePartidasGasto(): void {
+        this.partidasGastoOpen = !this.partidasGastoOpen;
+        if (!this.partidasGastoOpen) {
+            this.personalSubOpen = false;
+        }
+    }
+
+    public togglePersonalSub(): void {
+        this.personalSubOpen = !this.personalSubOpen;
+    }
+
+    public isPartidasGastoActive(): boolean {
+        return ['personal', 'colaboraciones', 'materiales', 'amortizacion', 'otrosgastos', 'asignaciones']
+            .includes(this.activeRoute);
+    }
+
+    public isPersonalActive(): boolean {
+        return ['personal', 'asignaciones'].includes(this.activeRoute);
+    }
+
+    public getNavButtonClass(buttonId: string): string {
+        const base = 'nav-btn';
+        return `${base}${this.activeRoute === buttonId ? ' nav-btn--active' : ''}`;
+    }
+
+    public getGroupButtonClass(active: boolean): string {
+        return `nav-group-btn${active ? ' nav-group-btn--active' : ''}`;
+    }
+
+    public getSubButtonClass(buttonId: string): string {
+        return `nav-sub-btn${this.activeRoute === buttonId ? ' nav-sub-btn--active' : ''}`;
+    }
+
     public goToEconomico(): void {
-        this.router.navigate(['/economico/ver', this.idEconomico]).then((success) => {
-            if (success) {
-                this.updateActiveRoute(this.router.url);
-            }
-        });
+        this.router.navigate(['/economico/ver', this.idEconomico]);
     }
 
     public goToPersonal(): void {
-        this.router.navigate(['/economico/personal', this.idEconomico]).then((success) => {
-            if (success) {
-                this.updateActiveRoute(this.router.url);
-            }
-        });
-    }
-
-    public getButtonClass(buttonId: string): string {
-        const baseClasses = 'w-12 h-12 flex items-center justify-center rounded-lg transition-colors duration-200';
-        const activeClasses = 'bg-blue-100 text-blue-700 border-2 border-blue-300';
-        const inactiveClasses = 'text-gray-700 hover:bg-blue-50 hover:text-blue-700';
-
-        return `${baseClasses} ${this.activeRoute === buttonId ? activeClasses : inactiveClasses}`;
+        this.router.navigate(['/economico/personal', this.idEconomico]);
     }
 
     public goToProyectos(): void {
-        this.router.navigate(['/economico/proyectos', this.idEconomico]).then((success) => {
-            if (success) {
-                this.updateActiveRoute(this.router.url);
-            }
-        });
+        this.router.navigate(['/economico/proyectos', this.idEconomico]);
     }
 
     public goToColaboraciones(): void {
-        this.router.navigate(['/economico/colaboraciones', this.idEconomico]).then((success) => {
-            if (success) {
-                this.updateActiveRoute(this.router.url);
-            }
-        });
+        this.router.navigate(['/economico/colaboraciones', this.idEconomico]);
     }
 
     public goToMateriales(): void {
-        this.router.navigate(['/economico/materiales', this.idEconomico]).then((success) => {
-            if (success) {
-                this.updateActiveRoute(this.router.url);
-            }
-        });
+        this.router.navigate(['/economico/materiales', this.idEconomico]);
     }
 
     public goToAmortizacion(): void {
-        this.router.navigate(['/economico/amortizacion', this.idEconomico]).then((success) => {
-            if (success) {
-                this.updateActiveRoute(this.router.url);
-            }
-        });
+        this.router.navigate(['/economico/amortizacion', this.idEconomico]);
     }
 
     public goToOtrosGastos(): void {
-        this.router.navigate(['/economico/otros-gastos', this.idEconomico]).then((success) => {
-            if (success) {
-                this.updateActiveRoute(this.router.url);
-            }
-        });
+        this.router.navigate(['/economico/otros-gastos', this.idEconomico]);
     }
 
     public goToAsignaciones(): void {
-        this.router.navigate(['/economico/asignaciones', this.idEconomico]).then((success) => {
-            if (success) {
-                this.updateActiveRoute(this.router.url);
-            }
-        });
+        this.router.navigate(['/economico/asignaciones', this.idEconomico]);
     }
 
-    goToResumen() {
-        this.router.navigate(['/economico/resumen', this.idEconomico]).then((success) => {
-            if (success) {
-                this.updateActiveRoute(this.router.url);
-            }
-        });
+    public goToResumen(): void {
+        this.router.navigate(['/economico/resumen', this.idEconomico]);
     }
 }

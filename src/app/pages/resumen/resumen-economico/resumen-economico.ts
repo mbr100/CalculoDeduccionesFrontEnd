@@ -9,6 +9,7 @@ import {GastoProyectoDetalladoDTO} from '../../../models/resumen.model';
 import {Proyecto} from '../../../models/proyecto-economico';
 import {ResumenGastoFaseDTO, ResumenGastoFasePersonaDTO} from '../../../models/fase-proyecto';
 import {SavingState} from '../../../models/savingState';
+import {MemoriaEconomicaService} from '../../../services/memoria-economica-service';
 
 @Component({
   selector: 'app-resumen-economico',
@@ -21,6 +22,7 @@ export class ResumenEconomico implements OnInit {
     private economicoService: EconomicoService = inject(EconomicoService);
     private proyectoService: ProyectoService = inject(ProyectoService);
     private faseProyectoService: FaseProyectoService = inject(FaseProyectoService);
+    private memoriaService: MemoriaEconomicaService = inject(MemoriaEconomicaService);
     public economicoId: number;
 
     // Tabs
@@ -84,6 +86,11 @@ export class ResumenEconomico implements OnInit {
 
     // Métodos de actualización ELIMINADOS - Solo lectura
     // Los datos no se pueden modificar desde esta vista
+
+    // Método para descargar la Memoria Económica en PDF
+    public descargarMemoria(): void {
+        this.memoriaService.descargarMemoriaEconomica(this.economicoId);
+    }
 
     // Método para exportar a Excel
     public exportToExcel(): void {

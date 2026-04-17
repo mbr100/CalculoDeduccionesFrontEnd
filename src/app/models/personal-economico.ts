@@ -227,13 +227,12 @@ export interface ActualizarPeriodoContratoDTO {
 }
 
 export interface CosteHoraPersonalDTO {
-    idPersona: number;
+    idPersonal: number;
     nombre: string;
     dni: string;
     puesto: string;
     titulacion: string | null;
     departamento: string;
-    idCosteHoraPersonal: number;
     retribucionTotal: number;
     costeSS: number;
     horasMaximas: number;
