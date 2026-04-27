@@ -21,30 +21,26 @@ export class NuevoEconomico {
 
     public constructor() {
         this.form = this.fb.group({
-            nombre: this.fb.nonNullable.control('Empresa S.A.', Validators.required),
-            cif: this.fb.nonNullable.control('B12345678', [Validators.required, Validators.minLength(9)]),
-            direccion: this.fb.nonNullable.control('Calle Falsa 123, Madrid', Validators.required),
-            telefono: this.fb.nonNullable.control('911234567', [Validators.required, Validators.pattern(/^\d{9}$/)]),
-            nombreContacto: this.fb.nonNullable.control('Juan Pérez', Validators.required),
-            emailContacto: this.fb.nonNullable.control('juan.perez@empresa.com', [Validators.required, Validators.email]),
-            horasConvenio: this.fb.control<number>(40),
-            urllogo: this.fb.nonNullable.control('https://empresa.com/logo.png', Validators.required),
-            urlWeb: this.fb.nonNullable.control('https://empresa.com', Validators.required),
-            cnae: this.fb.nonNullable.control(6201, Validators.required),
-            anualidad: this.fb.nonNullable.control(2025, Validators.required),
-            esPyme: this.fb.nonNullable.control(true),
+            nombre: this.fb.nonNullable.control('', Validators.required),
+            cif: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(9)]),
+            direccion: this.fb.nonNullable.control('', Validators.required),
+            telefono: this.fb.nonNullable.control('', [Validators.required, Validators.pattern(/^\d{9}$/)]),
+            nombreContacto: this.fb.nonNullable.control('', Validators.required),
+            emailContacto: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
+            horasConvenio: this.fb.control<number | null>(null),
+            urllogo: this.fb.nonNullable.control('', Validators.required),
+            urlWeb: this.fb.nonNullable.control('', Validators.required),
+            cnae: this.fb.control<number | null>(null, Validators.required),
+            anualidad: this.fb.control<number | null>(null, Validators.required),
+            esPyme: this.fb.nonNullable.control(false),
             selloPymeInnovadora: this.fb.nonNullable.control(false),
         }) as FormGroup;
-
     }
 
     public onSubmit(): void {
         console.log("Formulario enviado");
         if (this.form.valid) {
-            const data: nuevoEconomicoDto = {
-                ...this.form.getRawValue(),
-                anualidad: this.form.value.anualidad ?? 2025 // fallback
-            };
+            const data: nuevoEconomicoDto = this.form.getRawValue() as nuevoEconomicoDto;
             console.log('Datos enviados:', data);
             this.economicoService.crearEconomico(data).subscribe({
                 next: (response: EconomicoCreadoDTO) => {

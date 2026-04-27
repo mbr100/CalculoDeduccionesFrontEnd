@@ -1,7 +1,6 @@
 import {Component, computed, effect, inject, Input, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
-import {EconomicoService} from '../../../services/economico-service';
 import {
     ActualizarPeriodoContratoDTO,
     ClaveContratoDTO,
@@ -31,7 +30,6 @@ export class PeriodosContratoPersonal implements OnInit {
     public anualidad!: number;
 
     private readonly economicoPersonalService: EconomicoPersonalService = inject(EconomicoPersonalService);
-    private readonly economicoService: EconomicoService = inject(EconomicoService);
 
     // ── Datos principales ─────────────────────────────────────────────────────
     public periodos: WritableSignal<PeriodoContratoDTO[]> = signal<PeriodoContratoDTO[]>([]);
@@ -39,7 +37,6 @@ export class PeriodosContratoPersonal implements OnInit {
     public clavesContrato: WritableSignal<ClaveContratoDTO[]> = signal<ClaveContratoDTO[]>([]);
     public loading: WritableSignal<boolean> = signal(false);
     public savingStates: WritableSignal<{ [key: number]: SavingState }> = signal<{ [key: number]: SavingState }>({});
-    public horasConvenioEconomico: WritableSignal<number> = signal(1720);
 
     // ── Paginación ────────────────────────────────────────────────────────────
     public currentPage: WritableSignal<number> = signal(0);
@@ -59,7 +56,6 @@ export class PeriodosContratoPersonal implements OnInit {
         fechaAlta: '',
         fechaBaja: '',
         porcentajeJornada: 100,
-        horasConvenio: this.horasConvenioEconomico(),
         nombrePersona: ''
     });
 
@@ -133,21 +129,9 @@ export class PeriodosContratoPersonal implements OnInit {
         this.loadData();
         this.loadPersonalSelector();
         this.loadClavesContrato();
-        this.loadHorasConvenio();
     }
 
     // ── Carga de datos ────────────────────────────────────────────────────────
-
-    private loadHorasConvenio(): void {
-        this.economicoService.getEconomicoById(this.idEconomico).subscribe({
-            next: (economico) => {
-                if (economico.horasConvenio) {
-                    this.horasConvenioEconomico.set(Number(economico.horasConvenio));
-                }
-            },
-            error: (err) => console.error('Error cargando horas convenio del económico:', err)
-        });
-    }
 
     public loadData(): void {
         this.currentPage.set(0);
@@ -249,7 +233,6 @@ export class PeriodosContratoPersonal implements OnInit {
             fechaAlta: periodo.fechaAlta ? periodo.fechaAlta.substring(0, 10) : '',
             fechaBaja: periodo.fechaBaja ? periodo.fechaBaja.substring(0, 10) : '',
             porcentajeJornada: periodo.porcentajeJornada,
-            horasConvenio: this.horasConvenioEconomico(),
             nombrePersona: periodo.nombre
         });
         this.modalMode.set('edit');
@@ -289,9 +272,8 @@ export class PeriodosContratoPersonal implements OnInit {
             claveContrato: form.claveContrato,
             fechaAlta: form.fechaAlta,
             fechaBaja: form.fechaBaja || null,
-            anioFiscal: new Date(form.fechaAlta).getFullYear(),
-            porcentajeJornada: Number(form.porcentajeJornada),
-            horasConvenio: Number(form.horasConvenio)
+            anioFiscal: this.anualidad,
+            porcentajeJornada: Number(form.porcentajeJornada)
         };
 
         this.economicoPersonalService.crearPeriodoContrato(dto).subscribe({
@@ -323,8 +305,7 @@ export class PeriodosContratoPersonal implements OnInit {
             claveContrato: form.claveContrato,
             fechaAlta: form.fechaAlta,
             fechaBaja: form.fechaBaja || null,
-            porcentajeJornada: Number(form.porcentajeJornada),
-            horasConvenio: Number(form.horasConvenio)
+            porcentajeJornada: Number(form.porcentajeJornada)
         };
 
         this.economicoPersonalService.actualizarPeriodoContrato(dto).subscribe({
@@ -396,11 +377,6 @@ export class PeriodosContratoPersonal implements OnInit {
             return false;
         }
 
-        if (Number(form.horasConvenio) <= 0) {
-            Swal.fire('Error', 'Las horas de convenio deben ser mayores que 0', 'warning');
-            return false;
-        }
-
         return true;
     }
 
@@ -413,7 +389,6 @@ export class PeriodosContratoPersonal implements OnInit {
             fechaAlta: '',
             fechaBaja: '',
             porcentajeJornada: 100,
-            horasConvenio: this.horasConvenioEconomico(),
             nombrePersona: ''
         });
     }

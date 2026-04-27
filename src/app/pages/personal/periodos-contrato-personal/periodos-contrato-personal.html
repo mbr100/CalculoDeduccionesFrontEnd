@@ -396,35 +396,19 @@
                                 </div>
                             </div>
 
-                            <!-- ── Sección: Jornada y Horas ── -->
-                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div class="ui-field">
-                                    <label class="ui-label">
-                                        <i class="fas fa-percent mr-1 text-emerald-500"></i>% Jornada <span class="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="number"
-                                        [(ngModel)]="formData().porcentajeJornada"
-                                        min="1"
-                                        max="100"
-                                        step="1"
-                                        class="ui-input">
-                                    <p class="ui-help">100 para jornada completa</p>
-                                </div>
-                                <div class="ui-field">
-                                    <label class="ui-label">
-                                        <i class="fas fa-clock mr-1 text-purple-500"></i>Horas convenio/año <span class="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="number"
-                                        [(ngModel)]="formData().horasConvenio"
-                                        min="1"
-                                        max="2000"
-                                        step="1"
-                                        class="ui-input bg-gray-100 cursor-not-allowed"
-                                        [disabled]="true">
-                                    <p class="ui-help">Las horas se cargan desde el Detalle del Económico</p>
-                                </div>
+                            <!-- ── Sección: Jornada ── -->
+                            <div class="ui-field">
+                                <label class="ui-label">
+                                    <i class="fas fa-percent mr-1 text-emerald-500"></i>% Jornada <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    [(ngModel)]="formData().porcentajeJornada"
+                                    min="1"
+                                    max="100"
+                                    step="1"
+                                    class="ui-input">
+                                <p class="ui-help">100 para jornada completa</p>
                             </div>
 
                         </div>

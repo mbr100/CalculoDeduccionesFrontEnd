@@ -203,7 +203,6 @@ export interface PeriodoContratoDTO {
     fechaBaja: string | null;
     anioFiscal: number;
     porcentajeJornada: number;
-    horasConvenio: number;
     horasHabiles: number;
 }
 
@@ -214,7 +213,6 @@ export interface CrearPeriodoContratoDTO {
     fechaBaja: string | null;
     anioFiscal: number;
     porcentajeJornada: number;
-    horasConvenio: number;
 }
 
 export interface ActualizarPeriodoContratoDTO {
@@ -223,7 +221,6 @@ export interface ActualizarPeriodoContratoDTO {
     fechaAlta?: string;
     fechaBaja?: string | null;
     porcentajeJornada?: number;
-    horasConvenio?: number;
 }
 
 export interface CosteHoraPersonalDTO {

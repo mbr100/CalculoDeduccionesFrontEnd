@@ -7,7 +7,6 @@ export interface FormPeriodoContrato {
     fechaAlta: string;
     fechaBaja: string;
     porcentajeJornada: number;
-    horasConvenio: number;
     // Derived from selected clave — read-only display
     nombrePersona: string;
 }

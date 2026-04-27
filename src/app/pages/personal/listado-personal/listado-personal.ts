@@ -2,7 +2,6 @@ import {Component, computed, ElementRef, inject, Input, OnInit, Signal, signal, 
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {PaginacionResponse} from '../../../models/paginacion-response';
 import {EconomicoPersonalService} from '../../../services/economico-personal-service';
-import {EconomicoService} from '../../../services/economico-service';
 import Swal from 'sweetalert2';
 import {ClaveContratoDTO, CrearPeriodoContratoDTO, CrearPersonalEconomico, NaturalezaContrato, PersonalEconomico, TipoJornada} from '../../../models/personal-economico';
 import {switchMap} from 'rxjs';
@@ -17,11 +16,11 @@ import {switchMap} from 'rxjs';
 })
 export class ListadoPersonal implements OnInit {
     private economicoPersonalService: EconomicoPersonalService = inject(EconomicoPersonalService);
-    private economicoService: EconomicoService = inject(EconomicoService);
 
     @ViewChild('fileInput') public fileInput!: ElementRef<HTMLInputElement>;
     // ID del económico
     @Input() idEconomico!: number;
+    @Input() anualidad!: number;
 
     // Signals para el estado del componente
     public personalList: WritableSignal<PersonalEconomico[]> = signal<PersonalEconomico[]>([]);
@@ -31,7 +30,6 @@ export class ListadoPersonal implements OnInit {
     public totalPages: WritableSignal<number> = signal(0);
     public totalelements: WritableSignal<number> = signal(0);
     public pagesize: WritableSignal<number> = signal(10);
-    public horasConvenioEconomico: WritableSignal<number> = signal(1720);
 
     // Signals para modales
     public mostrarModal: WritableSignal<boolean> = signal(false);
@@ -107,26 +105,13 @@ export class ListadoPersonal implements OnInit {
             claveContrato: [''],
             fechaAlta: [''],
             fechaBaja: [''],
-            porcentajeJornada: [100],
-            horasConvenio: [this.horasConvenioEconomico()]
+            porcentajeJornada: [100]
         });
     }
 
     public ngOnInit(): void {
         this.loadData();
         this.loadClavesContrato();
-        this.loadHorasConvenio();
-    }
-
-    private loadHorasConvenio(): void {
-        this.economicoService.getEconomicoById(this.idEconomico).subscribe({
-            next: (economico) => {
-                if (economico.horasConvenio) {
-                    this.horasConvenioEconomico.set(Number(economico.horasConvenio));
-                }
-            },
-            error: (err) => console.error('Error loading economic hours:', err)
-        });
     }
 
     private loadClavesContrato(): void {
@@ -251,8 +236,7 @@ export class ListadoPersonal implements OnInit {
             claveContrato: '',
             fechaAlta: '',
             fechaBaja: '',
-            porcentajeJornada: 100,
-            horasConvenio: this.horasConvenioEconomico()
+            porcentajeJornada: 100
         });
         this.mostrarModal.set(true);
     }
@@ -366,9 +350,8 @@ export class ListadoPersonal implements OnInit {
                             claveContrato: formValue.claveContrato,
                             fechaAlta: formValue.fechaAlta,
                             fechaBaja: formValue.fechaBaja || null,
-                            anioFiscal: new Date(formValue.fechaAlta).getFullYear(),
-                            porcentajeJornada: formValue.porcentajeJornada ?? 100,
-                            horasConvenio: formValue.horasConvenio ?? this.horasConvenioEconomico()
+                            anioFiscal: this.anualidad,
+                            porcentajeJornada: formValue.porcentajeJornada ?? 100
                         };
                         return this.economicoPersonalService.crearPeriodoContrato(periodoDTO);
                     })
@@ -440,21 +423,20 @@ export class ListadoPersonal implements OnInit {
 
     private resetPersonalForm(): void {
         this.personalForm.reset({
-            nombre: 'Empleado',
-            apellidos: 'Prueba 2025',
-            dni: '00000000T',
-            puesto: 'Técnico I+D',
-            departamento: 'Innovación',
-            titulacion1: 'Ingeniería Superior',
+            nombre: '',
+            apellidos: '',
+            dni: '',
+            puesto: '',
+            departamento: '',
+            titulacion1: '',
             titulacion2: '',
             titulacion3: '',
             titulacion4: '',
             claveOcupacion: '',
-            claveContrato: '100',
-            fechaAlta: '2025-01-01',
-            fechaBaja: '2025-12-31',
-            porcentajeJornada: 100,
-            horasConvenio: this.horasConvenioEconomico()
+            claveContrato: '',
+            fechaAlta: '',
+            fechaBaja: '',
+            porcentajeJornada: 100
         });
     }
 

@@ -21,7 +21,7 @@
         <div class="ui-form-grid">
             <div class="ui-field">
                 <label class="ui-label">Nombre</label>
-                <input type="text" formControlName="nombre" class="ui-input" placeholder="Introduce el nombre de la empresa">
+                <input type="text" formControlName="nombre" class="ui-input" placeholder="Ej: Empresa Tecnológica S.L.">
                 @if (form.get('nombre')?.errors?.['required'] && form.get('nombre')?.touched) {
                     <span class="ui-form-error">El nombre es obligatorio.</span>
                 }
@@ -29,15 +29,18 @@
 
             <div class="ui-field">
                 <label class="ui-label">CIF</label>
-                <input type="text" formControlName="cif" class="ui-input" placeholder="Introduce el CIF">
+                <input type="text" formControlName="cif" class="ui-input" placeholder="Ej: B12345678">
                 @if (form.get('cif')?.errors?.['required'] && form.get('cif')?.touched) {
-                    <span class="ui-form-error">El formato del CIF no es valido.</span>
+                    <span class="ui-form-error">El CIF es obligatorio.</span>
+                }
+                @if (form.get('cif')?.errors?.['minlength'] && form.get('cif')?.touched) {
+                    <span class="ui-form-error">El CIF debe tener al menos 9 caracteres.</span>
                 }
             </div>
 
             <div class="ui-field md:col-span-2">
                 <label class="ui-label">Dirección</label>
-                <input type="text" formControlName="direccion" class="ui-input" placeholder="Introduce la dirección">
+                <input type="text" formControlName="direccion" class="ui-input" placeholder="Ej: Calle Mayor 1, 28001 Madrid">
                 @if (form.get('direccion')?.errors?.['required'] && form.get('direccion')?.touched) {
                     <span class="ui-form-error">La dirección es obligatoria.</span>
                 }
@@ -45,15 +48,18 @@
 
             <div class="ui-field">
                 <label class="ui-label">Teléfono</label>
-                <input type="tel" formControlName="telefono" class="ui-input" placeholder="Introduce el teléfono">
+                <input type="tel" formControlName="telefono" class="ui-input" placeholder="Ej: 912345678">
                 @if (form.get('telefono')?.errors?.['required'] && form.get('telefono')?.touched) {
                     <span class="ui-form-error">El teléfono es obligatorio.</span>
+                }
+                @if (form.get('telefono')?.errors?.['pattern'] && form.get('telefono')?.touched) {
+                    <span class="ui-form-error">El teléfono debe tener exactamente 9 dígitos.</span>
                 }
             </div>
 
             <div class="ui-field">
                 <label class="ui-label">Nombre de contacto</label>
-                <input type="text" formControlName="nombreContacto" class="ui-input" placeholder="Introduce el nombre de contacto">
+                <input type="text" formControlName="nombreContacto" class="ui-input" placeholder="Ej: María García López">
                 @if (form.get('nombreContacto')?.errors?.['required'] && form.get('nombreContacto')?.touched) {
                     <span class="ui-form-error">El nombre de contacto es obligatorio.</span>
                 }
@@ -61,9 +67,12 @@
 
             <div class="ui-field">
                 <label class="ui-label">Email de contacto</label>
-                <input type="email" formControlName="emailContacto" class="ui-input" placeholder="Introduce el email">
+                <input type="email" formControlName="emailContacto" class="ui-input" placeholder="Ej: contacto@empresa.com">
                 @if (form.get('emailContacto')?.errors?.['required'] && form.get('emailContacto')?.touched) {
                     <span class="ui-form-error">El email de contacto es obligatorio.</span>
+                }
+                @if (form.get('emailContacto')?.errors?.['email'] && form.get('emailContacto')?.touched) {
+                    <span class="ui-form-error">El formato del email no es válido.</span>
                 }
             </div>
 
@@ -77,7 +86,7 @@
 
             <div class="ui-field">
                 <label class="ui-label">URL del logo</label>
-                <input type="text" formControlName="urllogo" class="ui-input" placeholder="Introduce la URL del logo">
+                <input type="text" formControlName="urllogo" class="ui-input" placeholder="https://empresa.com/logo.png">
                 @if (form.get('urllogo')?.errors?.['required'] && form.get('urllogo')?.touched) {
                     <span class="ui-form-error">La URL del logo es obligatoria.</span>
                 }
@@ -85,7 +94,7 @@
 
             <div class="ui-field">
                 <label class="ui-label">URL de la web</label>
-                <input type="text" formControlName="urlWeb" class="ui-input" placeholder="Introduce la URL de la web">
+                <input type="text" formControlName="urlWeb" class="ui-input" placeholder="https://empresa.com">
                 @if (form.get('urlWeb')?.errors?.['required'] && form.get('urlWeb')?.touched) {
                     <span class="ui-form-error">La URL de la web es obligatoria.</span>
                 }

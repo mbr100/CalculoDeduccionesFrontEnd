@@ -19,7 +19,7 @@
 
             <!-- PESTAÑA PERSONAL -->
             @if (activeTab() === 'personal') {
-                <app-listado-personal [idEconomico]="this.economicoId"></app-listado-personal>
+                <app-listado-personal [idEconomico]="this.economicoId" [anualidad]="this.anualidad()"></app-listado-personal>
             }
 
             <!-- PESTAÑA PROYECTOS -->
