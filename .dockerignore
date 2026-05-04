@@ -1,0 +1,29 @@
+# Excluimos todo lo que no necesita el Dockerfile del frontend
+# El build de Angular se ejecuta DENTRO del contenedor con npm ci
+
+# Dependencias locales (se reinstalan dentro del contenedor con npm ci)
+node_modules/
+
+# Build local previo
+dist/
+
+# Caché de Angular CLI
+.angular/
+
+# Ficheros de IDE
+.idea/
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Documentación
+README.md
+
+# Ficheros de CI/CD
+Dockerfile
+.dockerignore
+
+# Tests y cobertura
+coverage/

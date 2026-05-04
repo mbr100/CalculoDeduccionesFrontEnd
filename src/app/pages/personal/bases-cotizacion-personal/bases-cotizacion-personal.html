@@ -46,6 +46,11 @@
                             <i class="fas fa-file-contract mr-2"></i>Período
                         </th>
 
+                        <!-- Complemento IT -->
+                        <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider min-w-[150px] bg-red-50 text-red-700">
+                            <i class="fas fa-procedures mr-2"></i>Complemento IT
+                        </th>
+
                         <!-- Columnas de meses -->
                         @for (mes of meses; track mes.key; let i = $index) {
                             <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[130px]"
@@ -65,7 +70,7 @@
                     <!-- Loading State -->
                         @if (isLoading()) {
                             <tr>
-                                <td [attr.colspan]="meses.length + 4" class="px-4 py-12 text-center">
+                                <td [attr.colspan]="meses.length + 5" class="px-4 py-12 text-center">
                                     <div class="flex items-center justify-center space-x-2">
                                         <i class="fas fa-spinner fa-spin text-indigo-500 text-lg"></i>
                                         <span class="text-gray-500">Cargando datos...</span>
@@ -77,7 +82,7 @@
                     <!-- Empty State -->
                         @if (!isLoading() && !hasBbccPersonal()) {
                             <tr>
-                                <td [attr.colspan]="meses.length + 4" class="px-4 py-12 text-center">
+                                <td [attr.colspan]="meses.length + 5" class="px-4 py-12 text-center">
                                     <div class="flex flex-col items-center justify-center space-y-2">
                                         <i class="fas fa-inbox text-gray-400 text-3xl"></i>
                                         <span class="text-gray-500 text-lg">No hay bases de cotización disponibles</span>
@@ -117,6 +122,33 @@
                                             Sin períodos
                                         </span>
                                     }
+                                </td>
+
+                                <!-- Complemento IT -->
+                                <td class="px-4 py-3 bg-red-50">
+                                    <div class="relative">
+                                        <input
+                                            type="text"
+                                            [value]="formatEuro(item.complementoIT)"
+                                            (focus)="onFocus($event)"
+                                            (blur)="onBlurField($event, item.id_baseCotizacion, item.idPersonal, 'complementoIT')"
+                                            (keyup)="onKeyPressField($event)"
+                                            [class]="getInputClass(item.id_baseCotizacion, 'complementoIT') + ' text-right bg-red-50'"
+                                            placeholder="0,00 €">
+                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                            @switch (savingStates()[item.id_baseCotizacion + '-complementoIT']) {
+                                                @case ('saving') {
+                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                }
+                                                @case ('success') {
+                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                }
+                                                @case ('error') {
+                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
                                 </td>
 
                                 <!-- Campos de meses -->

@@ -41,6 +41,7 @@ export interface RetribucionesPersonalDTO {
     aportacionesPrevencionSocial: number;// Long -> number
     dietasViajeExentas: number;          // Long -> number
     rentasExentas190: number;            // Long -> number
+    importeDerivadoIT: number;           // Long -> number
 }
 
 export interface actualizarRetribucionDTO {
@@ -60,6 +61,7 @@ export interface BbccPersonalDTO {
     nombre: string;
     dni: string;
     id_baseCotizacion: number;
+    complementoIT: number | null;
     basesCotizacionContingenciasComunesEnero: number | null;
     basesCotizacionContingenciasComunesFebrero: number | null;
     basesCotizacionContingenciasComunesMarzo: number | null;

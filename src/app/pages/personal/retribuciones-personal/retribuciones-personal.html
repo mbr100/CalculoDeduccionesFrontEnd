@@ -54,6 +54,9 @@
                         <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">
                             <i class="fas fa-file-invoice mr-2"></i>Rentas Exentas 190
                         </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[160px]">
+                            <i class="fas fa-procedures mr-2"></i>Importe Derivado IT
+                        </th>
                         <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px] bg-blue-50">
                             <i class="fas fa-calculator mr-2"></i>Total Percepciones
                         </th>
@@ -63,7 +66,7 @@
                     <!-- Loading State -->
                         @if (isLoading()) {
                             <tr>
-                                <td colspan="8" class="px-4 py-12 text-center">
+                                <td colspan="9" class="px-4 py-12 text-center">
                                     <div class="flex items-center justify-center space-x-2">
                                         <i class="fas fa-spinner fa-spin text-blue-500 text-lg"></i>
                                         <span class="text-gray-500">Cargando datos...</span>
@@ -75,7 +78,7 @@
                     <!-- Empty State -->
                         @if (!isLoading() && !hasRetribuciones()) {
                             <tr>
-                                <td colspan="8" class="px-4 py-12 text-center">
+                                <td colspan="9" class="px-4 py-12 text-center">
                                     <div class="flex flex-col items-center justify-center space-y-2">
                                         <i class="fas fa-inbox text-gray-400 text-3xl"></i>
                                         <span class="text-gray-500 text-lg">No hay retribuciones disponibles</span>
@@ -210,6 +213,31 @@
                                             [class]="getInputClass(item.idRetribucion, 'rentasExentas190') + ' text-right'">
                                         <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
                                             @switch (getSavingState(item.idRetribucion, 'rentasExentas190')) {
+                                                @case ('saving') {
+                                                    <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                                                }
+                                                @case ('success') {
+                                                    <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                                                }
+                                                @case ('error') {
+                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Importe Derivado IT -->
+                                <td class="px-4 py-3">
+                                    <div class="relative">
+                                        <input type="text"
+                                            [value]="formatEuro(item.importeDerivadoIT)"
+                                            (focus)="onFocus($event)"
+                                            (blur)="onBlurField($event, item.idRetribucion, 'importeDerivadoIT')"
+                                            (keyup)="onKeyPressField($event)"
+                                            [class]="getInputClass(item.idRetribucion, 'importeDerivadoIT') + ' text-right'">
+                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                            @switch (getSavingState(item.idRetribucion, 'importeDerivadoIT')) {
                                                 @case ('saving') {
                                                     <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
                                                 }

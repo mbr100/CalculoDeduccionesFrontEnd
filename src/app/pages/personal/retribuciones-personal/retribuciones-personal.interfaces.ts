@@ -5,4 +5,5 @@ export type RetribucionEditableField =
     | 'importeRetribucionExpecie'
     | 'aportacionesPrevencionSocial'
     | 'dietasViajeExentas'
-    | 'rentasExentas190';
+    | 'rentasExentas190'
+    | 'importeDerivadoIT';

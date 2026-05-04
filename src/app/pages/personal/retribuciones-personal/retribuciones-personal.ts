@@ -220,7 +220,8 @@ export class RetribucionesPersonal implements OnInit {
             item.importeRetribucionExpecie +
             item.aportacionesPrevencionSocial +
             item.dietasViajeExentas +
-            item.rentasExentas190;
+            item.rentasExentas190 +
+            (item.importeDerivadoIT || 0);
     }
 
     public formatCurrency(value: number): string {

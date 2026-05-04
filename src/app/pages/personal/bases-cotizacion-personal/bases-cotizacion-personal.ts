@@ -192,6 +192,7 @@ export class BasesCotizacionPersonal implements OnInit {
 
     public updateField(idBaseCotizacion: number, idPersonal: number, field: keyof BbccPersonalDTO, value: number | null): void {
         const editableFields = [
+            'complementoIT',
             'basesCotizacionContingenciasComunesEnero',
             'basesCotizacionContingenciasComunesFebrero',
             'basesCotizacionContingenciasComunesMarzo',

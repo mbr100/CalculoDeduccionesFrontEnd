@@ -2,10 +2,10 @@ import {Toolbar} from 'ngx-editor';
 
 export const environment = {
     production: true,
-    apiUrl: 'http://localhost:8080',
+    apiUrl: '',
     apiEconomicos: 'api/economicos',
     apiPersonal: 'api/personal',
-    apiProyectos: 'api/proyectos',
+    apiProyectos: '/api/proyectos',
     apiColaboraciones: '/api/colaboraciones',
     apiMateriales: '/api/materiales',
     apiAmortizacion: '/api/amortizacion',
